@@ -1,1 +1,110 @@
-# Launch Verse Academy - Computer Training Institute Website\n\nA modern, responsive web application for Launch Verse Academy computer training institute built with Next.js, Tailwind CSS, and MongoDB.\n\n## Features\n\n- Modern, responsive design with dark mode support\n- Server-side rendering for optimal SEO\n- Dynamic course management system\n- Contact form with WhatsApp integration\n- Student verification system\n- Admin dashboard for content management\n- Blog system for educational content\n- Testimonials and reviews\n- Job placement statistics\n- Social media integration\n\n## Tech Stack\n\n- Next.js 14 (App Router)\n- TypeScript\n- Tailwind CSS\n- MongoDB\n- Framer Motion\n- React Hook Form\n- Zod\n- NextAuth.js\n\n## Getting Started\n\n1. Clone the repository\n2. Install dependencies: `npm install`\n3. Set up environment variables\n4. Run the development server: `npm run dev`\n\n## Environment Variables\n\nCreate a `.env.local` file with the following variables:\n\n```env\nMONGODB_URI=your_mongodb_uri\nNEXTAUTH_SECRET=your_nextauth_secret\nNEXTAUTH_URL=http://localhost:3000\nNEXT_PUBLIC_SITE_URL=http://localhost:3000\n```\n\n## Contributing\n\n1. Fork the repository\n2. Create your feature branch\n3. Commit your changes\n4. Push to the branch\n5. Create a Pull Request\n\n## License\n\nThis project is licensed under the MIT License - see the LICENSE file for details.\n\n## Contact\n\nLaunch Verse Academy\n- Website: https://scriptauradev.com\n- Email: contact@scriptauradev.com\n- Phone: +91-7001478078\n- Address: Chandannagar, West Bengal, India
+# Launch Verse – Training Institute Website
+
+Welcome to the official GitHub repository of **Launch Verse**, a modern training institute dedicated to helping learners acquire high-demand digital skills. This website is a central hub for showcasing our courses, managing student records, generating certificates, and facilitating seamless user interaction — all built with performance and scalability in mind.
+
+> 🌐 Live Site: [https://scriptauradev.com](https://scriptauradev.com)
+
+---
+
+## 🎯 Key Features
+
+- 📚 **Dynamic Course Listing**  
+  Displays all available courses with real-time updates, fee ranges, and duration.
+
+- 🧑‍🎓 **Student Management**  
+  Interface for securely managing student records, attendance, and enrollment.
+
+- 🧾 **Certificate Generation**  
+  Auto-generates and validates digital certificates upon course completion.
+
+- 📱 **Responsive UI/UX**  
+  Designed for seamless experience across desktops, tablets, and mobile devices.
+
+- ⚙️ **Admin Dashboard** *(Coming Soon)*  
+  For managing courses, issuing certificates, and accessing analytics.
+
+- 🧠 **SEO-Optimized & Blazing Fast**  
+  Built with Next.js for fast loading, smooth navigation, and search engine visibility.
+
+---
+
+## 💻 Tech Stack
+
+| Layer        | Technology                         |
+|--------------|-------------------------------------|
+| Frontend     | [Next.js](https://nextjs.org/), React.js |
+| Styling      | Tailwind CSS, CSS Modules           |
+| Forms/API    | Next.js API routes / third-party integrations |
+| Database     | Optional (for admin panel) – Firebase / MongoDB / Supabase |
+| Deployment   | [Vercel](https://vercel.com/)       |
+| Other Tools  | Git, GitHub, NPM, ESLint, Prettier  |
+
+---
+
+## 🚀 Local Development
+
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/DevFusionist/launchverse-website.git
+cd launchverse-website
+```
+
+### 2️⃣ Install Dependencies
+```bash
+npm install
+```
+
+### 3️⃣ Run in Development Mode
+```bash
+npm run dev
+```
+
+### 4️⃣ Build for Production
+```bash
+npm run build
+npm start
+```
+
+---
+
+## 🔐 Deployment
+
+This project is **auto-deployed on Vercel**. Every push to the `main` branch triggers a live update to [scriptauradev.com](https://scriptauradev.com).
+
+> 🔗 You can configure custom domains, analytics, and performance monitoring in the Vercel dashboard.
+
+---
+
+## 📞 Contact
+
+- 📱 **WhatsApp (Business)**: [7001478078](https://wa.me/917001478078)
+- 📱 **WhatsApp (Personal)**: [7508162363](https://wa.me/917508162363)
+- 🕘 **Office Hours**: 9 AM – 10 PM (IST)
+- 🏷️ **Tagline**: *Learn Skills. Launch Careers.*
+
+---
+
+## 📍 About Launch Verse
+
+**Launch Verse** is a next-generation training institute offering practical, job-ready courses in:
+
+- Web Development (WordPress-based)
+- Web Designing
+- Graphic Designing
+- Microsoft Office (MS Word, Excel, PowerPoint)
+
+Whether you're a student, job seeker, or freelancer, Launch Verse provides the skills and certification you need to succeed in today's digital economy.
+
+> 💬 Interested in enrolling or collaborating? Reach out via [scriptauradev.com](https://scriptauradev.com) or WhatsApp us directly.
+
+---
+
+## 📌 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+## ⭐ Show Your Support
+
+If you find this project helpful, consider giving it a ⭐ on GitHub or sharing it with others who may benefit.
