@@ -1,26 +1,557 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Light mode colors - More vibrant and professional */
+    --background: #f8fafc;
+    --foreground: #0f172a;
+    --neon-primary: #2563eb;
+    --neon-primary-dark: #1d4ed8;
+    --neon-secondary: #7c3aed;
+    --neon-secondary-dark: #6d28d9;
+    --neon-accent: #10b981;
+    --neon-accent-dark: #059669;
+    --neon-background: #f8fafc;
+    --neon-card: #ffffff;
+    --neon-text: #0f172a;
+    --neon-border: #e2e8f0;
+    --neon-muted: #64748b;
+    --neon-muted-foreground: #94a3b8;
+
+    /* Enhanced glow effects for light mode */
+    --neon-glow-primary: 0 0 2px var(--neon-primary),
+      0 0 4px var(--neon-primary), 0 0 6px var(--neon-primary),
+      0 0 8px var(--neon-primary);
+    --neon-glow-primary-hover: 0 0 4px var(--neon-primary),
+      0 0 8px var(--neon-primary), 0 0 12px var(--neon-primary),
+      0 0 16px var(--neon-primary);
+    --neon-glow-secondary: 0 0 2px var(--neon-secondary),
+      0 0 4px var(--neon-secondary), 0 0 6px var(--neon-secondary),
+      0 0 8px var(--neon-secondary);
+    --neon-glow-secondary-hover: 0 0 4px var(--neon-secondary),
+      0 0 8px var(--neon-secondary), 0 0 12px var(--neon-secondary),
+      0 0 16px var(--neon-secondary);
+    --neon-glow-accent: 0 0 2px var(--neon-accent), 0 0 4px var(--neon-accent),
+      0 0 6px var(--neon-accent), 0 0 8px var(--neon-accent);
+    --neon-glow-accent-hover: 0 0 4px var(--neon-accent),
+      0 0 8px var(--neon-accent), 0 0 12px var(--neon-accent),
+      0 0 16px var(--neon-accent);
+
+    /* Glass effect variables */
+    --glass-background: rgba(255, 255, 255, 0.7);
+    --glass-background-dark: rgba(30, 41, 59, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-border-dark: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    --glass-shadow-dark: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+    /* Enhanced gradient variables */
+    --gradient-primary: linear-gradient(
+      135deg,
+      var(--neon-primary) 0%,
+      var(--neon-secondary) 50%,
+      var(--neon-accent) 100%
+    );
+    --gradient-secondary: linear-gradient(
+      135deg,
+      var(--neon-secondary) 0%,
+      var(--neon-accent) 50%,
+      var(--neon-primary) 100%
+    );
+    --gradient-accent: linear-gradient(
+      135deg,
+      var(--neon-accent) 0%,
+      var(--neon-primary) 50%,
+      var(--neon-secondary) 100%
+    );
+    --gradient-subtle: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    --gradient-dark: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.2) 0%,
+      rgba(0, 0, 0, 0.1) 100%
+    );
+    --gradient-background: linear-gradient(
+      135deg,
+      var(--neon-background) 0%,
+      var(--background) 50%,
+      var(--neon-background) 100%
+    );
+    --gradient-background-dark: linear-gradient(
+      135deg,
+      rgba(15, 23, 42, 0.95) 0%,
+      rgba(30, 41, 59, 0.95) 50%,
+      rgba(15, 23, 42, 0.95) 100%
+    );
+  }
+
+  .dark {
+    /* Dark mode colors - Rich and vibrant */
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --neon-primary: #3b82f6;
+    --neon-primary-dark: #2563eb;
+    --neon-secondary: #8b5cf6;
+    --neon-secondary-dark: #7c3aed;
+    --neon-accent: #34d399;
+    --neon-accent-dark: #10b981;
+    --neon-background: #0f172a;
+    --neon-card: #1e293b;
+    --neon-text: #f8fafc;
+    --neon-border: #334155;
+    --neon-muted: #94a3b8;
+    --neon-muted-foreground: #cbd5e1;
+
+    /* Glass effect variables for dark mode */
+    --glass-background: rgba(30, 41, 59, 0.7);
+    --glass-background-dark: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border-dark: rgba(255, 255, 255, 0.05);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    --glass-shadow-dark: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+
+    /* Enhanced glow effects for dark mode */
+    --neon-glow-primary: 0 0 5px var(--neon-primary),
+      0 0 10px var(--neon-primary), 0 0 15px var(--neon-primary);
+    --neon-glow-primary-hover: 0 0 10px var(--neon-primary),
+      0 0 20px var(--neon-primary), 0 0 30px var(--neon-primary),
+      0 0 40px var(--neon-primary);
+    --neon-glow-secondary: 0 0 5px var(--neon-secondary),
+      0 0 10px var(--neon-secondary), 0 0 15px var(--neon-secondary);
+    --neon-glow-secondary-hover: 0 0 10px var(--neon-secondary),
+      0 0 20px var(--neon-secondary), 0 0 30px var(--neon-secondary),
+      0 0 40px var(--neon-secondary);
+    --neon-glow-accent: 0 0 5px var(--neon-accent), 0 0 10px var(--neon-accent),
+      0 0 15px var(--neon-accent);
+    --neon-glow-accent-hover: 0 0 10px var(--neon-accent),
+      0 0 20px var(--neon-accent), 0 0 30px var(--neon-accent),
+      0 0 40px var(--neon-accent);
+
+    /* Enhanced dark mode gradients */
+    --gradient-primary: linear-gradient(
+      135deg,
+      var(--neon-primary) 0%,
+      var(--neon-secondary) 50%,
+      var(--neon-accent) 100%
+    );
+    --gradient-secondary: linear-gradient(
+      135deg,
+      var(--neon-secondary) 0%,
+      var(--neon-accent) 50%,
+      var(--neon-primary) 100%
+    );
+    --gradient-accent: linear-gradient(
+      135deg,
+      var(--neon-accent) 0%,
+      var(--neon-primary) 50%,
+      var(--neon-secondary) 100%
+    );
+    --gradient-subtle: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+    --gradient-dark: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0.2) 100%
+    );
+    --gradient-background: var(--gradient-background-dark);
+  }
+
+  html {
+    height: 100%;
+  }
+
+  body {
+    height: 100%;
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-image: var(--gradient-background);
+    background-attachment: fixed;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Glass effect base */
+.glass-effect {
+  position: relative;
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-color: var(--glass-border);
+  .dark & {
+    border-color: var(--glass-border-dark);
+  }
+  box-shadow: var(--glass-shadow);
+  .dark & {
+    box-shadow: var(--glass-shadow-dark);
+  }
+  background-color: var(--glass-background);
+  .dark & {
+    background-color: var(--glass-background-dark);
+  }
+
+  transition-property: all;
+  transition-duration: 300ms;
+}
+
+.glass-effect-overlay {
+
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  pointer-events: none;
+  background-image: var(--gradient-subtle);
+}
+
+/* Glass effect hover */
+.glass-effect-hover {
+  &:hover {
+    backdrop-filter: blur(12px);
+  }
+  &:hover {
+    opacity: 0.8;
+  }
+  .dark &:hover {
+    background-color: rgba(var(--glass-background-dark-rgb), 0.8);
+  }
+
+  &:hover {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    transform: scale(1.02);
+  }
+}
+
+/* Glass effect neon */
+.glass-effect-neon {
+
+  position: relative;
+}
+
+.glass-effect-neon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  border-radius: inherit;
+
+  padding: 1px;  
+  background-image: linear-gradient(to right, var(--neon-primary), var(--neon-secondary), var(--neon-accent));
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: 300ms;}
+
+.glass-effect-neon:hover::before {
+
+  opacity: 100%;
+}
+
+.glass-effect-neon-hover {
+
+  box-shadow: var(--neon-glow-primary);
+}
+
+/* Enhanced button styles */
+.neon-button-base {
+  @apply relative overflow-hidden transition-all duration-200;
+  @apply glass-effect-neon;
+  @apply hover:shadow-[var(--neon-glow-primary-hover)];
+  @apply active:scale-95;
+}
+
+.neon-button-primary {
+  @apply bg-gradient-to-br from-[var(--neon-primary)] via-[var(--neon-secondary)] to-[var(--neon-accent)];
+  @apply text-white border-transparent;
+  @apply shadow-[var(--neon-glow-primary)] hover:shadow-[var(--neon-glow-primary-hover)];
+}
+
+.neon-button-secondary {
+  @apply bg-gradient-to-br from-[var(--neon-secondary)] via-[var(--neon-accent)] to-[var(--neon-primary)];
+  @apply text-white border-transparent;
+  @apply shadow-[var(--neon-glow-secondary)] hover:shadow-[var(--neon-glow-secondary-hover)];
+}
+
+.neon-button-accent {
+  @apply bg-gradient-to-br from-[var(--neon-accent)] via-[var(--neon-primary)] to-[var(--neon-secondary)];
+  @apply text-white border-transparent;
+  @apply shadow-[var(--neon-glow-accent)] hover:shadow-[var(--neon-glow-accent-hover)];
+}
+
+/* Card styles */
+.neon-card {
+  @apply glass-effect-neon-hover gradient-border rounded-xl p-6 transform transition-all duration-300;
+}
+
+.neon-card::after {
+  content: "";
+  @apply absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-300;
+  background-image: var(--gradient-subtle);
+}
+
+.neon-card:hover::after {
+  @apply opacity-100;
+}
+
+/* Enhanced animations */
+@keyframes neon-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+  50% {
+    opacity: 0.9;
+    filter: brightness(1.4);
+  }
+}
+
+@keyframes neon-shine {
+  0% {
+    background-position: -100% 0;
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    background-position: 200% 0;
+    opacity: 0.3;
+  }
+}
+
+/* Utility classes */
+.neon-glow {
+  @apply animate-[neon-pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite];
+}
+
+.neon-shine {
+  @apply bg-gradient-to-r from-transparent via-white/40 to-transparent;
+  @apply bg-[length:200%_100%];
+  @apply animate-[neon-shine_2s_linear_infinite];
+}
+
+/* Enhanced gradient utilities */
+.gradient-text {
+  @apply bg-clip-text text-transparent;
+  background-image: var(--gradient-primary);
+}
+
+.gradient-border {
+  @apply relative;
+}
+
+.gradient-border::before {
+  content: "";
+  @apply absolute inset-0 rounded-[inherit] p-[1px] -z-10 opacity-50;
+  background-image: var(--gradient-primary);
+}
+
+.gradient-bg {
+  background-image: var(--gradient-primary);
+  @apply bg-clip-padding;
+}
+
+.gradient-bg-secondary {
+  background-image: var(--gradient-secondary);
+  @apply bg-clip-padding;
+}
+
+.gradient-bg-accent {
+  background-image: var(--gradient-accent);
+  @apply bg-clip-padding;
+}
+
+.gradient-hover {
+  @apply transition-all duration-300;
+}
+
+.gradient-hover:hover {
+  background-image: var(--gradient-secondary);
+}
+
+/* Section gradients */
+.section-gradient {
+  @apply relative min-h-screen overflow-x-hidden;
+  &::before {
+    content: "";
+    @apply absolute inset-0 opacity-10 pointer-events-none;
+    background-image: var(--gradient-primary);
+    z-index: 0;
+  }
+  &::after {
+    content: "";
+    @apply absolute inset-0 opacity-5 pointer-events-none;
+    background-image: var(--gradient-background);
+    z-index: 0;
+  }
+}
+
+.hero-gradient {
+  @apply relative;
+  &::before {
+    content: "";
+    @apply absolute inset-0 opacity-20 blur-3xl;
+    background-image: var(--gradient-primary);
+    @apply pointer-events-none;
+  }
+  &::after {
+    content: "";
+    @apply absolute inset-0 opacity-10;
+    background-image: var(--gradient-background);
+    @apply pointer-events-none;
+  }
+}
+
+.nav-gradient {
+  @apply relative;
+}
+
+.nav-gradient::after {
+  content: "";
+  @apply absolute bottom-0 left-0 right-0 h-[1px] opacity-50;
+  background-image: var(--gradient-primary);
+}
+
+.footer-gradient {
+  @apply relative;
+}
+
+.footer-gradient::before {
+  content: "";
+  @apply absolute top-0 left-0 right-0 h-[1px] opacity-50;
+  background-image: var(--gradient-primary);
+}
+
+/* Form elements with gradients */
+.form-input {
+  @apply glass-effect gradient-border;
+}
+
+.form-input:focus {
+  @apply ring-2 ring-[var(--neon-primary)] ring-opacity-50;
+  background-image: var(--gradient-subtle);
+}
+
+/* Table styles with gradients */
+.neon-table {
+  @apply w-full;
+}
+
+.neon-table th {
+  @apply gradient-text font-semibold;
+}
+
+.neon-table tr {
+  @apply gradient-border;
+}
+
+/* Link styles with gradients */
+.neon-link {
+  @apply relative text-[var(--neon-primary)] transition-colors duration-200;
+}
+
+.neon-link::after {
+  content: "";
+  @apply absolute bottom-0 left-0 w-0 h-[1px] transition-all duration-200;
+  background-image: var(--gradient-primary);
+}
+
+.neon-link:hover::after {
+  @apply w-full;
+}
+
+/* Component styles */
+@layer components {
+  .hero-gradient {
+    @apply glass-effect-neon;
+    @apply bg-gradient-to-b from-neon-primary/5 to-transparent dark:from-neon-primary/5;
+    @apply backdrop-blur-sm;
+  }
+
+  .nav-gradient {
+    @apply glass-effect-neon;
+    @apply sticky top-0 z-50;
+    @apply backdrop-blur-md;
+  }
+
+  .footer-gradient {
+    @apply glass-effect-neon;
+    @apply backdrop-blur-md;
+  }
+
+  /* Table styles */
+  .neon-table {
+    @apply glass-effect-neon;
+    @apply overflow-hidden rounded-xl;
+  }
+
+  .neon-table th {
+    @apply glass-effect;
+    @apply border-b border-glass-border dark:border-glass-border-dark;
+  }
+
+  .neon-table td {
+    @apply border-b border-glass-border/10 dark:border-glass-border-dark/10;
+  }
+
+  /* Glass card variants */
+  .glass-card {
+    @apply glass-effect-neon-hover;
+    @apply rounded-xl p-6;
+  }
+
+  .glass-card-hover {
+    @apply glass-card;
+    @apply hover:translate-y-[-2px];
+    @apply hover:shadow-[var(--neon-glow-primary)];
+  }
+
+  /* Glass button variants */
+  .glass-button {
+    @apply glass-effect-neon-hover;
+    @apply px-4 py-2 rounded-lg;
+    @apply font-medium;
+  }
+
+  .glass-button-primary {
+    @apply glass-button;
+    @apply bg-gradient-to-r from-neon-primary/80 to-neon-primary-dark/80;
+    @apply text-white;
+  }
+
+  .glass-button-secondary {
+    @apply glass-button;
+    @apply bg-gradient-to-r from-neon-secondary/80 to-neon-secondary-dark/80;
+    @apply text-white;
+  }
+
+  /* Glass input variants */
+  .glass-input {
+    @apply glass-effect;
+    @apply px-4 py-2 rounded-lg;
+    @apply focus:glass-effect-neon;
+    @apply transition-all duration-200;
+  }
+
+  /* Glass select variants */
+  .glass-select {
+    @apply glass-effect;
+    @apply px-4 py-2 rounded-lg;
+    @apply focus:glass-effect-neon;
+    @apply transition-all duration-200;
+  }
+}
+/* Add this to your existing CSS file, near the nav-gradient class */
+.nav-sticky {
+  @apply fixed top-0 left-0 right-0 w-full z-50;
+  @apply backdrop-blur-lg;
+  @apply transition-all duration-300;
+  @apply shadow-md;
+  @apply bg-[var(--glass-background)] dark:bg-[var(--glass-background-dark)];
 }
