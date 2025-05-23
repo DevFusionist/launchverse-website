@@ -5,6 +5,23 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DataTable from "@/components/admin/DataTable";
 
+interface APICourse {
+  _id: string;
+  title: string;
+  description: string;
+  duration: number;
+  price: {
+    min: number;
+    max: number;
+  };
+  status: "active" | "inactive";
+  _count: {
+    students: number;
+    certificates: number;
+  };
+  createdAt: string;
+}
+
 interface CourseWithCounts {
   _id: string;
   title: string;
@@ -132,10 +149,12 @@ export default function CoursesPage() {
         }
         const { courses, pagination } = await response.json();
         setCourses(
-          courses.map((course: any) => ({
+          courses.map((course: APICourse) => ({
             ...course,
+            id: course._id,
             studentCount: course._count.students,
             certificateCount: course._count.certificates,
+            createdAt: new Date(course.createdAt),
           }))
         );
         setTotalItems(pagination.total);
@@ -205,20 +224,6 @@ export default function CoursesPage() {
     params.set("page", page.toString());
     router.push(`/admin/courses?${params.toString()}`);
   };
-
-  const refreshData = useCallback(() => {
-    const page = parseInt(searchParams.get("page") || "1");
-    const search = searchParams.get("search") || "";
-    const sortBy = searchParams.get("sortBy") || "title";
-    const sortOrder =
-      (searchParams.get("sortOrder") as "asc" | "desc") || "asc";
-
-    fetchCourses(
-      page,
-      search,
-      sortBy ? { key: sortBy, direction: sortOrder } : null
-    );
-  }, [searchParams, fetchCourses]);
 
   if (isLoading) {
     return (

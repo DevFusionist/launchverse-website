@@ -3,7 +3,7 @@
 import Script from "next/script";
 import { Course as CourseType } from "@/types/course";
 import CourseDetails from "@/components/courses/CourseDetails";
-import { useTransition } from "react";
+import { useState } from "react";
 
 function CourseJsonLd({ course }: { course: CourseType }) {
   const jsonLd = {
@@ -52,7 +52,7 @@ export default function CourseClient({
 }: {
   initialCourse: CourseType | null;
 }) {
-  const [isPending, startTransition] = useTransition();
+  const [isPending] = useState(false);
 
   if (!initialCourse) {
     return (

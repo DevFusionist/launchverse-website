@@ -4,7 +4,6 @@ import { motion, HTMLMotionProps } from "framer-motion";
 import {
   enhancedButtonAnimation,
   enhancedSpinnerAnimation,
-  transitions,
 } from "@/lib/animations";
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";

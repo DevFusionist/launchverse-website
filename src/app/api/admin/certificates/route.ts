@@ -16,6 +16,15 @@ const querySchema = z.object({
   status: z.enum(["active", "revoked"]).optional(),
 });
 
+interface QueryFilter {
+  $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
+  status?: string;
+}
+
+interface SortConfig {
+  [key: string]: 1 | -1;
+}
+
 export async function GET(request: Request) {
   try {
     // Rate limiting
@@ -42,13 +51,12 @@ export async function GET(request: Request) {
     await connectDB();
 
     // Build query
-    const filter: any = {};
+    const filter: QueryFilter = {};
     if (validatedQuery.search) {
       filter.$or = [
         { certificateId: { $regex: validatedQuery.search, $options: "i" } },
         { "student.name": { $regex: validatedQuery.search, $options: "i" } },
         { "student.email": { $regex: validatedQuery.search, $options: "i" } },
-        { "course.title": { $regex: validatedQuery.search, $options: "i" } },
       ];
     }
     if (validatedQuery.status) {
@@ -56,7 +64,7 @@ export async function GET(request: Request) {
     }
 
     // Build sort
-    const sort: any = {};
+    const sort: SortConfig = {};
     if (validatedQuery.sort) {
       const [field, order] = validatedQuery.sort.split(":");
       sort[field] = order === "desc" ? -1 : 1;

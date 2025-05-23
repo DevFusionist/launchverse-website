@@ -5,6 +5,23 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DataTable from "@/components/admin/DataTable";
 
+interface APICertificate {
+  _id: string;
+  certificateId: string;
+  student: {
+    name: string;
+    email: string;
+  };
+  course: {
+    title: string;
+  };
+  issueDate: string;
+  validFrom: string;
+  validUntil: string;
+  status: "active" | "revoked";
+  createdAt: string;
+}
+
 interface Certificate {
   id: string;
   certificateId: string;
@@ -78,21 +95,21 @@ export default function CertificatesPage() {
         }
         const { data, pagination } = await response.json();
         setCertificates(
-          data.map((cert: any) => ({
-            id: cert._id.toString(),
+          data.map((cert: APICertificate) => ({
+            id: cert._id,
             certificateId: cert.certificateId,
             student: {
-              name: cert.student.name,
-              email: cert.student.email,
+              name: cert.student?.name ?? "",
+              email: cert.student?.email ?? "",
             },
             course: {
-              name: cert.course.title,
+              name: cert.course?.title ?? "",
             },
-            issueDate: new Date(cert.issueDate),
-            validFrom: new Date(cert.validFrom),
-            validUntil: new Date(cert.validUntil),
+            issueDate: cert.issueDate ? new Date(cert.issueDate) : undefined,
+            validFrom: cert.validFrom ? new Date(cert.validFrom) : undefined,
+            validUntil: cert.validUntil ? new Date(cert.validUntil) : undefined,
             status: cert.status,
-            createdAt: new Date(cert.createdAt),
+            createdAt: cert.createdAt ? new Date(cert.createdAt) : undefined,
           }))
         );
         setTotalItems(pagination.total);
@@ -162,20 +179,6 @@ export default function CertificatesPage() {
     params.set("page", page.toString());
     router.push(`/admin/certificates?${params.toString()}`);
   };
-
-  const refreshData = useCallback(() => {
-    const page = parseInt(searchParams.get("page") || "1");
-    const search = searchParams.get("search") || "";
-    const sortBy = searchParams.get("sortBy") || "createdAt";
-    const sortOrder =
-      (searchParams.get("sortOrder") as "asc" | "desc") || "desc";
-
-    fetchCertificates(
-      page,
-      search,
-      sortBy ? { key: sortBy, direction: sortOrder } : null
-    );
-  }, [searchParams, fetchCertificates]);
 
   if (status === "loading" || isLoading) {
     return (

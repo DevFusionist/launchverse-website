@@ -9,16 +9,6 @@ import { getAdminSession, requireSuperAdmin } from "@/lib/admin-session";
 // Mark route as dynamic
 export const dynamic = "force-dynamic";
 
-interface Session {
-  user: {
-    name: string;
-    email: string;
-    image?: string;
-    role: "admin" | "super_admin";
-    id: string;
-  };
-}
-
 const querySchema = z.object({
   page: z.string().optional(),
   limit: z.string().optional(),
@@ -34,6 +24,22 @@ const createAdminSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   role: z.literal("admin"),
 });
+
+interface AdminCreateData {
+  name: string;
+  email: string;
+  password: string;
+  role?: string;
+}
+
+interface QueryFilter {
+  $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
+  role?: string;
+}
+
+interface SortConfig {
+  [key: string]: 1 | -1;
+}
 
 export async function GET(request: Request) {
   try {
@@ -61,7 +67,7 @@ export async function GET(request: Request) {
     await connectDB();
 
     // Build query
-    const filter: any = {};
+    const filter: QueryFilter = {};
     if (validatedQuery.search) {
       filter.$or = [
         { name: { $regex: validatedQuery.search, $options: "i" } },
@@ -73,7 +79,7 @@ export async function GET(request: Request) {
     }
 
     // Build sort
-    const sort: any = {};
+    const sort: SortConfig = {};
     if (validatedQuery.sortBy) {
       sort[validatedQuery.sortBy] =
         validatedQuery.sortOrder === "desc" ? -1 : 1;
@@ -162,8 +168,8 @@ export async function POST(request: Request) {
     if (superAdminError) return superAdminError;
 
     // Parse and validate request body
-    const body = await request.json();
-    const validatedData = createAdminSchema.parse(body);
+    const data = (await request.json()) as AdminCreateData;
+    const validatedData = createAdminSchema.parse(data);
 
     // Connect to DB
     await connectDB();
@@ -188,7 +194,8 @@ export async function POST(request: Request) {
     });
 
     // Remove password from response
-    const { password, ...adminWithoutPassword } = admin.toObject();
+    const adminWithoutPassword = admin.toObject();
+    delete adminWithoutPassword.password;
 
     return NextResponse.json({
       data: {

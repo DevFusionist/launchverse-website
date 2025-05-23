@@ -17,6 +17,15 @@ const querySchema = z.object({
   status: z.enum(["enrolled", "completed", "dropped"]).optional(),
 });
 
+interface QueryFilter {
+  $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
+  status?: string;
+}
+
+interface SortConfig {
+  [key: string]: 1 | -1;
+}
+
 export async function GET(request: Request) {
   try {
     // Rate limiting
@@ -43,7 +52,7 @@ export async function GET(request: Request) {
     await connectDB();
 
     // Build query
-    const filter: any = {};
+    const filter: QueryFilter = {};
     if (validatedQuery.search) {
       filter.$or = [
         { name: { $regex: validatedQuery.search, $options: "i" } },
@@ -56,7 +65,7 @@ export async function GET(request: Request) {
     }
 
     // Build sort
-    const sort: any = {};
+    const sort: SortConfig = {};
     if (validatedQuery.sortBy) {
       sort[validatedQuery.sortBy] =
         validatedQuery.sortOrder === "desc" ? -1 : 1;

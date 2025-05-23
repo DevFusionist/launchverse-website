@@ -5,7 +5,6 @@ import { pageTransition } from "@/lib/animations";
 import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import AnimatedNavLink from "@/components/ui/AnimatedNavLink";

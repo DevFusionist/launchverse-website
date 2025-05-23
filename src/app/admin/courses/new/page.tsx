@@ -8,16 +8,12 @@ import { toast } from "react-hot-toast";
 interface CourseFormData {
   title: string;
   description: string;
-  priceRange: {
+  duration: number;
+  price: {
     min: number;
     max: number;
   };
-  duration: {
-    min: number;
-    max: number;
-  };
-  durationUnit: "weeks" | "months";
-  isActive: boolean;
+  status: "active" | "inactive";
 }
 
 export default function NewCoursePage() {
@@ -28,16 +24,12 @@ export default function NewCoursePage() {
   const [formData, setFormData] = useState<CourseFormData>({
     title: "",
     description: "",
-    priceRange: {
+    duration: 0,
+    price: {
       min: 0,
       max: 0,
     },
-    duration: {
-      min: 0,
-      max: 0,
-    },
-    durationUnit: "weeks",
-    isActive: true,
+    status: "active",
   });
 
   if (status === "loading") {
@@ -108,7 +100,10 @@ export default function NewCoursePage() {
       setFormData((prev) => ({
         ...prev,
         [parent]: {
-          ...(prev[parent as keyof CourseFormData] as Record<string, any>),
+          ...(prev[parent as keyof CourseFormData] as Record<
+            string,
+            string | number
+          >),
           [child]: type === "number" ? Number(value) : value,
         },
       }));
@@ -168,18 +163,18 @@ export default function NewCoursePage() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
               <label
-                htmlFor="priceRange.min"
+                htmlFor="price.min"
                 className="block text-sm font-medium text-neon-text-light dark:text-neon-text-dark"
               >
                 Minimum Price (₹)
               </label>
               <input
                 type="number"
-                id="priceRange.min"
-                name="priceRange.min"
+                id="price.min"
+                name="price.min"
                 required
                 min="0"
-                value={formData.priceRange.min}
+                value={formData.price.min}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-neon-text-light dark:text-neon-text-dark shadow-sm focus:border-neon-primary dark:focus:border-neon-primary-dark focus:outline-none focus:ring-1 focus:ring-neon-primary dark:focus:ring-neon-primary-dark"
               />
@@ -187,58 +182,18 @@ export default function NewCoursePage() {
 
             <div>
               <label
-                htmlFor="priceRange.max"
+                htmlFor="price.max"
                 className="block text-sm font-medium text-neon-text-light dark:text-neon-text-dark"
               >
                 Maximum Price (₹)
               </label>
               <input
                 type="number"
-                id="priceRange.max"
-                name="priceRange.max"
+                id="price.max"
+                name="price.max"
                 required
                 min="0"
-                value={formData.priceRange.max}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-neon-text-light dark:text-neon-text-dark shadow-sm focus:border-neon-primary dark:focus:border-neon-primary-dark focus:outline-none focus:ring-1 focus:ring-neon-primary dark:focus:ring-neon-primary-dark"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="duration.min"
-                className="block text-sm font-medium text-neon-text-light dark:text-neon-text-dark"
-              >
-                Minimum Duration
-              </label>
-              <input
-                type="number"
-                id="duration.min"
-                name="duration.min"
-                required
-                min="0"
-                value={formData.duration.min}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-neon-text-light dark:text-neon-text-dark shadow-sm focus:border-neon-primary dark:focus:border-neon-primary-dark focus:outline-none focus:ring-1 focus:ring-neon-primary dark:focus:ring-neon-primary-dark"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="duration.max"
-                className="block text-sm font-medium text-neon-text-light dark:text-neon-text-dark"
-              >
-                Maximum Duration
-              </label>
-              <input
-                type="number"
-                id="duration.max"
-                name="duration.max"
-                required
-                min="0"
-                value={formData.duration.max}
+                value={formData.price.max}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-neon-text-light dark:text-neon-text-dark shadow-sm focus:border-neon-primary dark:focus:border-neon-primary-dark focus:outline-none focus:ring-1 focus:ring-neon-primary dark:focus:ring-neon-primary-dark"
               />
@@ -247,35 +202,39 @@ export default function NewCoursePage() {
 
           <div>
             <label
-              htmlFor="durationUnit"
+              htmlFor="duration"
               className="block text-sm font-medium text-neon-text-light dark:text-neon-text-dark"
             >
-              Duration Unit
+              Duration (months)
             </label>
-            <select
-              id="durationUnit"
-              name="durationUnit"
+            <input
+              type="number"
+              id="duration"
+              name="duration"
               required
-              value={formData.durationUnit}
+              min="0"
+              value={formData.duration}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-neon-text-light dark:text-neon-text-dark shadow-sm focus:border-neon-primary dark:focus:border-neon-primary-dark focus:outline-none focus:ring-1 focus:ring-neon-primary dark:focus:ring-neon-primary-dark"
-            >
-              <option value="weeks">Weeks</option>
-              <option value="months">Months</option>
-            </select>
+            />
           </div>
 
           <div className="flex items-center">
             <input
               type="checkbox"
-              id="isActive"
-              name="isActive"
-              checked={formData.isActive}
-              onChange={handleChange}
+              id="status"
+              name="status"
+              checked={formData.status === "active"}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  status: e.target.checked ? "active" : "inactive",
+                }))
+              }
               className="h-4 w-4 rounded border-gray-300 dark:border-gray-700 text-neon-primary dark:text-neon-primary-dark focus:ring-neon-primary dark:focus:ring-neon-primary-dark"
             />
             <label
-              htmlFor="isActive"
+              htmlFor="status"
               className="ml-2 block text-sm text-neon-text-light dark:text-neon-text-dark"
             >
               Active

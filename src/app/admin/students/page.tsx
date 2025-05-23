@@ -5,6 +5,23 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DataTable from "@/components/admin/DataTable";
 
+interface APIStudent {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  course: {
+    title: string;
+  };
+  enrollmentDate: string;
+  completionDate?: string;
+  status: "enrolled" | "completed" | "dropped";
+  createdAt: string;
+  _count: {
+    certificates: number;
+  };
+}
+
 interface Student {
   id: string;
   name: string;
@@ -78,8 +95,8 @@ export default function StudentsPage() {
         }
         const { data, pagination } = await response.json();
         setStudents(
-          data.map((student: any) => ({
-            id: student._id.toString(),
+          data.map((student: APIStudent) => ({
+            id: student._id,
             name: student.name,
             email: student.email,
             phone: student.phone,
@@ -162,20 +179,6 @@ export default function StudentsPage() {
     params.set("page", page.toString());
     router.push(`/admin/students?${params.toString()}`);
   };
-
-  const refreshData = useCallback(() => {
-    const page = parseInt(searchParams.get("page") || "1");
-    const search = searchParams.get("search") || "";
-    const sortBy = searchParams.get("sortBy") || "createdAt";
-    const sortOrder =
-      (searchParams.get("sortOrder") as "asc" | "desc") || "desc";
-
-    fetchStudents(
-      page,
-      search,
-      sortBy ? { key: sortBy, direction: sortOrder } : null
-    );
-  }, [searchParams, fetchStudents]);
 
   if (status === "loading" || isLoading) {
     return (

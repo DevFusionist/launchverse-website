@@ -106,7 +106,7 @@ export default function RootLayout({
     window.addEventListener("load", () => {
       navigator.serviceWorker
         .register("/sw.js")
-        .then((registration) => {
+        .then(() => {
           // Service worker registered successfully
         })
         .catch((err) => {

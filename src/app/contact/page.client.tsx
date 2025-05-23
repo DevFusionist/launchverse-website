@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { textReveal } from "@/lib/animations";
 import AnimatedLayout from "@/components/ui/AnimatedLayout";
-import AnimatedForm, { AnimatedFormField } from "@/components/ui/AnimatedForm";
+import { AnimatedFormField } from "@/components/ui/AnimatedForm";
 import Script from "next/script";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,7 +67,7 @@ const contactFormSchema = z.object({
   message: z.string().min(10, "Message must be at least 10 characters"),
 });
 
-interface ContactClientProps {}
+type ContactClientProps = Record<never, never>;
 
 export default function ContactClient({}: ContactClientProps) {
   const {

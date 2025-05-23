@@ -14,16 +14,19 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
   useEffect(() => {
     // Log the error to an error reporting service
     console.error("Error caught by error boundary:", error);
-  }, [error]);
+    // Handle authentication errors by redirecting to login
+    if (
+      error.message.includes("Unauthorized") ||
+      error.message.includes("auth")
+    ) {
+      router.push("/admin/login");
+    }
+  }, [error, router]);
 
-  // Handle authentication errors by redirecting to login
   if (
     error.message.includes("Unauthorized") ||
     error.message.includes("auth")
   ) {
-    useEffect(() => {
-      router.push("/admin/login");
-    }, [router]);
     return null;
   }
 

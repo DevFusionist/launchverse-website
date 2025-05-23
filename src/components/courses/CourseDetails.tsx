@@ -155,14 +155,14 @@ export default function CourseDetails({
         </div>
       </div>
 
-      {/* What You'll Learn */}
+      {/* What You&apos;ll Learn */}
       <div className="mt-12">
         <h2 className="text-2xl font-bold text-neon-text-light dark:text-neon-text-dark">
-          What You'll Learn
+          What You&apos;ll Learn
         </h2>
         <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {course.description
-            .split("What You'll Learn:")[1]
+            .split("What You&apos;ll Learn:")[1]
             ?.split("Career Opportunities:")[0]
             ?.split("\n")
             .filter((line: string) => line.trim().startsWith("•"))

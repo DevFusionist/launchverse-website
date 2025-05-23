@@ -27,7 +27,7 @@ interface Column<T> {
   nestedKey?: string;
 }
 
-interface DataTableProps<T extends Record<string, any>> {
+interface DataTableProps<T> {
   columns: Column<T>[];
   data: T[];
   itemsPerPage?: number;
@@ -43,7 +43,7 @@ interface DataTableProps<T extends Record<string, any>> {
   searchTerm?: string;
 }
 
-export default function DataTable<T extends Record<string, any>>({
+export default function DataTable<T>({
   columns,
   data,
   itemsPerPage = 10,
@@ -80,17 +80,7 @@ export default function DataTable<T extends Record<string, any>>({
   // Calculate pagination
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  const truncateText = (text: string, maxLength: number = 100) => {
-    if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength) + "...";
-  };
-
-  const formatValue = (
-    value: any,
-    type?: string,
-    nestedKey?: string,
-    item?: T
-  ) => {
+  const formatValue = (value: unknown, type?: string, nestedKey?: string) => {
     if (value === null || value === undefined) return "";
 
     switch (type) {
@@ -99,68 +89,42 @@ export default function DataTable<T extends Record<string, any>>({
           year: "numeric",
           month: "short",
           day: "numeric",
-        }).format(new Date(value));
+        }).format(new Date(value as string | number | Date));
       case "currency":
         if (typeof value === "object" && value !== null) {
-          if (value.min !== undefined && value.max !== undefined) {
-            return `₹${value.min.toLocaleString()} - ₹${value.max.toLocaleString()}`;
+          const obj = value as { min?: number; max?: number };
+          if (obj.min !== undefined && obj.max !== undefined) {
+            return `₹${obj.min.toLocaleString()} - ₹${obj.max.toLocaleString()}`;
           }
           return `₹${Number(value).toLocaleString()}`;
         }
         return `₹${Number(value).toLocaleString()}`;
-      case "duration":
-        if (typeof value === "object" && value !== null) {
-          const unit = value.durationUnit || "months";
-          if (value.min !== undefined && value.max !== undefined) {
-            return `${value.min} - ${value.max} ${unit}`;
-          }
-          return `${value} ${unit}`;
-        }
-        return String(value);
       case "role":
-        return value === "super_admin" ? "Super Admin" : "Admin";
+        return String(value).charAt(0).toUpperCase() + String(value).slice(1);
       case "count":
-        if (typeof value === "object" && value !== null) {
-          const count = Object.values(value)[0];
-          return typeof count === "number" ? count.toString() : String(count);
-        }
-        return String(value);
+        return Number(value).toLocaleString();
       case "list":
-        if (Array.isArray(value)) {
-          return value.map((item) => item.name || item).join(", ");
-        }
-        return String(value);
+        return Array.isArray(value)
+          ? value.map((v) => String(v)).join(", ")
+          : String(value);
       case "nested":
-        if (typeof value === "object" && value !== null && nestedKey) {
-          return value[nestedKey] || "";
+        if (
+          typeof value === "object" &&
+          value !== null &&
+          nestedKey &&
+          nestedKey in value
+        ) {
+          return String((value as Record<string, unknown>)[nestedKey]);
         }
-        return String(value);
-      case "text":
-        if (typeof value === "boolean") {
-          return value ? "Active" : "Inactive";
-        }
-        return String(value);
+        return "";
+      case "duration":
+        return typeof value === "number"
+          ? `${value} ${value === 1 ? "month" : "months"}`
+          : String(value);
       case "description":
-        return (
-          <div className="flex flex-col gap-2">
-            <span>{truncateText(String(value))}</span>
-            {String(value).length > 100 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setModalState({
-                    isOpen: true,
-                    title: item?.title || "",
-                    description: String(value),
-                  });
-                }}
-                className="text-sm text-neon-primary dark:text-neon-primary-dark hover:underline focus:outline-none"
-              >
-                Read More
-              </button>
-            )}
-          </div>
-        );
+        return String(value).length > 100
+          ? String(value).slice(0, 100) + "..."
+          : String(value);
       default:
         return String(value);
     }
@@ -228,8 +192,7 @@ export default function DataTable<T extends Record<string, any>>({
                     {formatValue(
                       item[column.accessor],
                       column.type,
-                      column.nestedKey,
-                      item
+                      column.nestedKey
                     )}
                   </td>
                 ))}

@@ -14,11 +14,11 @@ export class AppError extends Error {
 }
 
 export class ValidationError extends AppError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: unknown) {
     super(message, 400, "VALIDATION_ERROR");
     this.details = details;
   }
-  details?: any;
+  details?: unknown;
 }
 
 export class AuthError extends AppError {
@@ -76,12 +76,12 @@ export function handleError(error: unknown) {
 }
 
 // Helper function to wrap async server actions with error handling
-export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
-  fn: T
-): (...args: Parameters<T>) => Promise<ReturnType<T>> {
+export function withErrorHandling<
+  T extends (...args: unknown[]) => Promise<unknown>
+>(fn: T): (...args: Parameters<T>) => Promise<ReturnType<T>> {
   return async (...args: Parameters<T>) => {
     try {
-      return await fn(...args);
+      return (await fn(...args)) as ReturnType<T>;
     } catch (error) {
       throw error instanceof AppError
         ? error

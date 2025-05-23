@@ -185,24 +185,19 @@
   backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-color: var(--glass-border);
-  .dark & {
-    border-color: var(--glass-border-dark);
-  }
   box-shadow: var(--glass-shadow);
-  .dark & {
-    box-shadow: var(--glass-shadow-dark);
-  }
   background-color: var(--glass-background);
-  .dark & {
-    background-color: var(--glass-background-dark);
-  }
-
   transition-property: all;
   transition-duration: 300ms;
 }
 
-.glass-effect-overlay {
+.dark .glass-effect {
+  border-color: var(--glass-border-dark);
+  box-shadow: var(--glass-shadow-dark);
+  background-color: var(--glass-background-dark);
+}
 
+.glass-effect-overlay {
   position: absolute;
   inset: 0;
   opacity: 0.05;
@@ -223,14 +218,14 @@
   }
 
   &:hover {
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+      0 4px 6px -4px rgb(0 0 0 / 0.1);
     transform: scale(1.02);
   }
 }
 
 /* Glass effect neon */
 .glass-effect-neon {
-
   position: relative;
 }
 
@@ -241,19 +236,23 @@
   z-index: -10;
   border-radius: inherit;
 
-  padding: 1px;  
-  background-image: linear-gradient(to right, var(--neon-primary), var(--neon-secondary), var(--neon-accent));
+  padding: 1px;
+  background-image: linear-gradient(
+    to right,
+    var(--neon-primary),
+    var(--neon-secondary),
+    var(--neon-accent)
+  );
   opacity: 0;
   transition-property: opacity;
-  transition-duration: 300ms;}
+  transition-duration: 300ms;
+}
 
 .glass-effect-neon:hover::before {
-
   opacity: 100%;
 }
 
 .glass-effect-neon-hover {
-
   box-shadow: var(--neon-glow-primary);
 }
 

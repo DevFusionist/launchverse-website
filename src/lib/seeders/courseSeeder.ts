@@ -630,14 +630,6 @@ Our graduates have successfully secured positions at leading companies across va
   },
 ];
 
-// Helper function to generate slug
-function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
 // Export the seeding function
 export async function seedCourses() {
   try {
