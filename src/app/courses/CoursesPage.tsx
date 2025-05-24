@@ -133,13 +133,13 @@ export default function CoursesPage({
   return (
     <>
       <CoursesJsonLd courses={courses} />
-      <AnimatedLayout className="section-gradient py-24 sm:py-32">
+      <AnimatedLayout className="py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <motion.div
             className="mx-auto max-w-2xl text-center"
             variants={textReveal}
           >
-            <h1 className="text-3xl font-bold tracking-tight gradient-text sm:text-4xl">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-neon-text-light dark:text-neon-text-dark">
               Explore Our Professional Training Courses
             </h1>
             <p className="mt-2 text-lg leading-8 text-neon-text-light/80 dark:text-neon-text-dark/80">
@@ -168,7 +168,7 @@ export default function CoursesPage({
                 {courses.map((course) => (
                   <AnimatedCard
                     key={course._id}
-                    className="flex flex-col items-start rounded-lg border border-neon-primary/20 dark:border-neon-primary-dark/20 bg-gradient-to-br from-white via-neon-primary/5 to-neon-accent/10 dark:bg-neon-card-dark p-6 relative group shadow-lg hover:shadow-xl transition-shadow duration-300"
+                    className="flex flex-col items-start rounded-lg border border-neon-primary/20 dark:border-neon-primary-dark/20 bg-neon-card-light dark:bg-neon-card-dark p-6 relative group shadow-lg hover:shadow-xl transition-shadow duration-300"
                   >
                     <div className="absolute inset-0 z-0">
                       <Link

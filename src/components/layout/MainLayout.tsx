@@ -77,15 +77,13 @@ function Navigation() {
       <div className="glass-effect-overlay" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <Link
-                href="/"
-                className="text-2xl font-bold text-neon-primary dark:text-neon-primary-dark hover:text-neon-primary-dark dark:hover:text-neon-primary transition-colors duration-200"
-              >
-                Launch Verse Academy
-              </Link>
-            </div>
+          <div className="flex-1 flex items-center">
+            <Link
+              href="/"
+              className="text-2xl font-bold text-neon-primary dark:text-neon-primary-dark hover:text-neon-primary-dark dark:hover:text-neon-primary transition-colors duration-200"
+            >
+              Launch Verse Academy
+            </Link>
             <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-8">
               {navigation.map((item) => (
                 <AnimatedNavLink key={item.name} href={item.href}>

@@ -82,11 +82,10 @@
       var(--background) 50%,
       var(--neon-background) 100%
     );
-    --gradient-background-dark: linear-gradient(
-      135deg,
-      rgba(15, 23, 42, 0.95) 0%,
-      rgba(30, 41, 59, 0.95) 50%,
-      rgba(15, 23, 42, 0.95) 100%
+    --gradient-background-dark: radial-gradient(
+      ellipse at 50% 30%,
+      #1e293b 0%,
+      #0f172a 100%
     );
   }
 
@@ -131,37 +130,6 @@
     --neon-glow-accent-hover: 0 0 10px var(--neon-accent),
       0 0 20px var(--neon-accent), 0 0 30px var(--neon-accent),
       0 0 40px var(--neon-accent);
-
-    /* Enhanced dark mode gradients */
-    --gradient-primary: linear-gradient(
-      135deg,
-      var(--neon-primary) 0%,
-      var(--neon-secondary) 50%,
-      var(--neon-accent) 100%
-    );
-    --gradient-secondary: linear-gradient(
-      135deg,
-      var(--neon-secondary) 0%,
-      var(--neon-accent) 50%,
-      var(--neon-primary) 100%
-    );
-    --gradient-accent: linear-gradient(
-      135deg,
-      var(--neon-accent) 0%,
-      var(--neon-primary) 50%,
-      var(--neon-secondary) 100%
-    );
-    --gradient-subtle: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.05) 0%,
-      rgba(255, 255, 255, 0.02) 100%
-    );
-    --gradient-dark: linear-gradient(
-      135deg,
-      rgba(0, 0, 0, 0.3) 0%,
-      rgba(0, 0, 0, 0.2) 100%
-    );
-    --gradient-background: var(--gradient-background-dark);
   }
 
   html {
@@ -176,6 +144,10 @@
     -moz-osx-font-smoothing: grayscale;
     background-image: var(--gradient-background);
     background-attachment: fixed;
+  }
+
+  .dark body {
+    background-image: none;
   }
 }
 
@@ -553,4 +525,12 @@
   @apply transition-all duration-300;
   @apply shadow-md;
   @apply bg-[var(--glass-background)] dark:bg-[var(--glass-background-dark)];
+}
+
+/* Remove dark mode gradient overrides */
+.dark .section-gradient::before,
+.dark .section-gradient::after,
+.dark .hero-gradient::before,
+.dark .hero-gradient::after {
+  display: none;
 }
