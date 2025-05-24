@@ -380,7 +380,11 @@ export default function HomeClient() {
                           size="sm"
                           className="w-full"
                         >
-                          Learn more
+                          {course.title === "Web Development (WordPress)"
+                            ? "Explore Web Development"
+                            : course.title === "Web Designing"
+                            ? "Discover Web Design"
+                            : "Master Graphic Design"}
                           <ArrowRightIcon
                             className="ml-1 h-4 w-4"
                             aria-hidden="true"

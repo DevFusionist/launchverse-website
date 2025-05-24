@@ -69,6 +69,12 @@ const contactFormSchema = z.object({
 
 type ContactClientProps = Record<never, never>;
 
+const whatsappMessage = encodeURIComponent(
+  "Hi Launch Verse Academy! I am interested to know more."
+);
+const businessWhatsAppNumber = "7001478078";
+const personalWhatsAppNumber = "7508162363";
+
 export default function ContactClient({}: ContactClientProps) {
   const {
     register,
@@ -134,12 +140,14 @@ export default function ContactClient({}: ContactClientProps) {
                   </h3>
                   <p className="mt-2 text-base leading-7 text-neon-text-light/80 dark:text-neon-text-dark/80">
                     <a
-                      href="https://wa.me/7001478078?text=Hi%20Launch%20Verse%20Academy!%20I%20am%20interested%20to%20know%20more."
+                      href={`https://wa.me/${businessWhatsAppNumber}?text=${whatsappMessage}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-neon-primary dark:text-neon-primary-dark underline hover:text-neon-primary-dark dark:hover:text-neon-primary transition-colors"
+                      className="text-neon-primary dark:text-neon-primary-dark underline hover:text-neon-primary-dark dark:hover:text-neon-primary transition-colors inline-flex items-center gap-2"
+                      aria-label={`Contact us on WhatsApp at ${businessWhatsAppNumber}`}
                     >
-                      7001478078
+                      <span>{businessWhatsAppNumber}</span>
+                      <span className="sr-only">(Opens in new tab)</span>
                     </a>
                   </p>
                 </div>
@@ -149,10 +157,12 @@ export default function ContactClient({}: ContactClientProps) {
                   </h3>
                   <p className="mt-2 text-base leading-7 text-neon-text-light/80 dark:text-neon-text-dark/80">
                     <a
-                      href="tel:7508162363"
-                      className="text-neon-primary dark:text-neon-primary-dark underline hover:text-neon-primary-dark dark:hover:text-neon-primary transition-colors"
+                      href={`tel:${personalWhatsAppNumber}`}
+                      className="text-neon-primary dark:text-neon-primary-dark underline hover:text-neon-primary-dark dark:hover:text-neon-primary transition-colors inline-flex items-center gap-2"
+                      aria-label={`Call us at ${personalWhatsAppNumber}`}
                     >
-                      7508162363
+                      <span>{personalWhatsAppNumber}</span>
+                      <span className="sr-only">(Opens phone dialer)</span>
                     </a>
                   </p>
                 </div>

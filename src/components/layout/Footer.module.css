@@ -1,0 +1,39 @@
+.footer {
+  @apply bg-neon-background-light dark:bg-neon-background-dark border-t border-neon-primary/20 dark:border-neon-primary-dark/20;
+}
+
+.footerContainer {
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12;
+}
+
+.footerGrid {
+  @apply grid grid-cols-1 gap-8 md:grid-cols-3;
+}
+
+.footerSection {
+  @apply space-y-4;
+}
+
+.footerTitle {
+  @apply text-sm font-semibold uppercase tracking-wider text-neon-primary dark:text-neon-primary-dark;
+}
+
+.footerText {
+  @apply text-base text-neon-text-light dark:text-neon-text-dark;
+}
+
+.footerLink {
+  @apply block text-base text-neon-text-light dark:text-neon-text-dark hover:text-neon-primary dark:hover:text-neon-primary-dark transition-colors duration-200;
+}
+
+.footerDivider {
+  @apply mt-8 border-t border-neon-primary/20 dark:border-neon-primary-dark/20 pt-8;
+}
+
+.footerCopyright {
+  @apply text-center text-base text-neon-text-light dark:text-neon-text-dark;
+}
+
+.contactLink {
+  @apply text-neon-primary dark:text-neon-primary-dark underline hover:text-neon-primary-dark dark:hover:text-neon-primary transition-colors;
+}

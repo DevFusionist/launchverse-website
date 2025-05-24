@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next lint && next build",
+    "build": "next lint && ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",
+    "analyze": "ANALYZE=true next build",
     "seed:courses": "dotenv -e .env.local -- tsx --tsconfig tsconfig.seed.json scripts/seed-courses.ts",
     "seed:super-admin": "dotenv -e .env.local -- tsx --tsconfig tsconfig.seed.json scripts/create-super-admin.ts"
   },
@@ -35,9 +36,11 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.1",
     "react-hot-toast": "^2.4.1",
+    "sharp": "^0.33.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^14.2.29",
     "@types/bcryptjs": "^2.4.6",
     "@types/lru-cache": "^7.10.10",
     "@types/node": "^20.11.16",
@@ -46,6 +49,7 @@
     "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "autoprefixer": "^10.4.17",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.4",
     "dotenv-cli": "^7.3.0",
     "eslint": "^8.56.0",

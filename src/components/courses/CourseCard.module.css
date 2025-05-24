@@ -1,0 +1,68 @@
+.card {
+  @apply relative overflow-hidden transition-all duration-300;
+  @apply rounded-xl p-6;
+  @apply border border-[var(--neon-border)];
+  @apply bg-[var(--glass-background)] dark:bg-[var(--neon-card)];
+  @apply hover:shadow-lg hover:translate-y-[-2px];
+  @apply dark:hover:shadow-[0_0_10px_rgba(59,130,246,0.5)];
+}
+
+.cardContent {
+  @apply relative z-10;
+  @apply text-[var(--neon-text)] dark:text-[var(--neon-text)];
+}
+
+.cardLink {
+  @apply absolute inset-0 z-20;
+}
+
+/* Add a subtle background to improve text visibility in dark mode */
+.card:hover {
+  @apply dark:bg-[#2a3a53];
+}
+
+/* Ensure text is always visible */
+.card :global(h3),
+.card :global(p),
+.card :global(span) {
+  @apply dark:text-white text-[var(--neon-text)];
+}
+
+/* Add a subtle text shadow in dark mode for better readability */
+.dark .card :global(h3),
+.dark .card :global(p),
+.dark .card :global(span) {
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.title {
+  @apply mt-3 text-lg font-semibold leading-6 text-neon-text-light dark:text-neon-text-dark;
+}
+
+.description {
+  @apply mt-5 line-clamp-3 text-sm leading-6 text-neon-text-light/80 dark:text-neon-text-dark/80;
+}
+
+.metaInfo {
+  @apply mt-4 flex items-center gap-x-4 text-xs;
+}
+
+.price {
+  @apply text-neon-text-light/60 dark:text-neon-text-dark/60;
+}
+
+.priceLabel {
+  @apply font-medium text-neon-text-light dark:text-neon-text-dark;
+}
+
+.duration {
+  @apply text-neon-text-light/60 dark:text-neon-text-dark/60;
+}
+
+.durationLabel {
+  @apply font-medium text-neon-text-light dark:text-neon-text-dark;
+}
+
+.comingSoon {
+  @apply mt-4 inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/30 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-400;
+}

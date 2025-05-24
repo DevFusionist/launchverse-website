@@ -1,0 +1,39 @@
+.button {
+  @apply relative inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+}
+
+.primary {
+  @apply bg-neon-primary dark:bg-neon-primary-dark text-white hover:bg-neon-primary/90 dark:hover:bg-neon-primary-dark/90 shadow-neon;
+}
+
+.secondary {
+  @apply bg-neon-secondary dark:bg-neon-secondary-dark text-neon-text-light dark:text-neon-text-dark hover:bg-neon-secondary/80 dark:hover:bg-neon-secondary-dark/80;
+}
+
+.outline {
+  @apply border border-neon-primary/20 dark:border-neon-primary-dark/20 bg-transparent hover:bg-neon-primary/5 dark:hover:bg-neon-primary-dark/5;
+}
+
+.ghost {
+  @apply hover:bg-neon-primary/5 dark:hover:bg-neon-primary-dark/5;
+}
+
+.sm {
+  @apply h-9 px-3 text-sm;
+}
+
+.md {
+  @apply h-10 px-4 py-2;
+}
+
+.lg {
+  @apply h-11 px-8 text-lg;
+}
+
+.fullWidth {
+  @apply w-full;
+}
+
+.spinner {
+  @apply mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent;
+}

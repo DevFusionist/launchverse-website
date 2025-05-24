@@ -10,10 +10,18 @@ import ThemeToggle from "@/components/theme/ThemeToggle";
 import AnimatedNavLink from "@/components/ui/AnimatedNavLink";
 
 const navigation = [
-  { name: "Home", href: "/" },
-  { name: "Courses", href: "/courses" },
-  { name: "Verify Certificate", href: "/verify" },
-  { name: "Contact", href: "/contact" },
+  { name: "Home", href: "/", ariaLabel: "Go to homepage" },
+  { name: "Courses", href: "/courses", ariaLabel: "Browse all courses" },
+  {
+    name: "Verify Certificate",
+    href: "/verify",
+    ariaLabel: "Verify your certificate",
+  },
+  {
+    name: "Contact",
+    href: "/contact",
+    ariaLabel: "Contact Launch Verse Academy",
+  },
 ];
 
 interface MainLayoutProps {
@@ -86,7 +94,11 @@ function Navigation() {
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-8">
               {navigation.map((item) => (
-                <AnimatedNavLink key={item.name} href={item.href}>
+                <AnimatedNavLink
+                  key={item.name}
+                  href={item.href}
+                  aria-label={item.ariaLabel}
+                >
                   {item.name}
                 </AnimatedNavLink>
               ))}
@@ -124,6 +136,7 @@ function Navigation() {
                   ? "border-neon-primary dark:border-neon-primary-dark bg-neon-primary/10 dark:bg-neon-primary-dark/10 text-neon-primary dark:text-neon-primary-dark"
                   : "border-transparent text-neon-text-light dark:text-neon-text-dark hover:border-neon-primary/50 dark:hover:border-neon-primary-dark/50 hover:bg-neon-primary/5 dark:hover:bg-neon-primary-dark/5"
               }`}
+              aria-label={item.ariaLabel}
             >
               {item.name}
             </Link>
@@ -133,6 +146,13 @@ function Navigation() {
     </nav>
   );
 }
+
+const businessWhatsAppNumber = "7001478078";
+const personalWhatsAppNumber = "7508162363";
+const whatsappMessage = encodeURIComponent(
+  "Hi Launch Verse Academy! I am interested to know more."
+);
+
 export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <>
@@ -171,16 +191,26 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   <p className="text-base text-neon-text-light dark:text-neon-text-dark">
                     Business WhatsApp:{" "}
                     <a
-                      href="https://wa.me/7001478078?text=Hi%20Launch%20Verse%20Academy!%20I%20am%20interested%20to%20know%20more."
+                      href={`https://wa.me/${businessWhatsAppNumber}?text=${whatsappMessage}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-neon-primary dark:text-neon-primary-dark underline hover:text-neon-primary-dark dark:hover:text-neon-primary transition-colors"
+                      className="text-neon-primary dark:text-neon-primary-dark underline hover:text-neon-primary-dark dark:hover:text-neon-primary transition-colors inline-flex items-center gap-2"
+                      aria-label={`Contact us on WhatsApp at ${businessWhatsAppNumber}`}
                     >
-                      7001478078
+                      <span>{businessWhatsAppNumber}</span>
+                      <span className="sr-only">(Opens in new tab)</span>
                     </a>
                   </p>
                   <p className="text-base text-neon-text-light dark:text-neon-text-dark">
-                    WhatsApp/Calls: 7508162363
+                    WhatsApp/Calls:{" "}
+                    <a
+                      href={`tel:${personalWhatsAppNumber}`}
+                      className="text-neon-primary dark:text-neon-primary-dark underline hover:text-neon-primary-dark dark:hover:text-neon-primary transition-colors inline-flex items-center gap-2"
+                      aria-label={`Call us at ${personalWhatsAppNumber}`}
+                    >
+                      <span>{personalWhatsAppNumber}</span>
+                      <span className="sr-only">(Opens phone dialer)</span>
+                    </a>
                   </p>
                   <p className="text-base text-neon-text-light dark:text-neon-text-dark">
                     Hours: 9 AM to 10 PM daily
@@ -197,6 +227,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                       key={item.name}
                       href={item.href}
                       className="block text-base text-neon-text-light dark:text-neon-text-dark hover:text-neon-primary dark:hover:text-neon-primary-dark transition-colors duration-200"
+                      aria-label={item.ariaLabel}
                     >
                       {item.name}
                     </Link>

@@ -1,0 +1,55 @@
+.nav {
+  @apply fixed top-0 left-0 right-0 z-50 w-full glass-effect backdrop-blur-lg bg-opacity-80 dark:bg-opacity-80 shadow-lg;
+}
+
+.navOverlay {
+  @apply glass-effect-overlay;
+}
+
+.navContainer {
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+.navContent {
+  @apply flex h-16 items-center justify-between;
+}
+
+.navLeft {
+  @apply flex-1 flex items-center;
+}
+
+.brand {
+  @apply text-2xl font-bold text-neon-primary dark:text-neon-primary-dark hover:text-neon-primary-dark dark:hover:text-neon-primary transition-colors duration-200;
+}
+
+.navLinks {
+  @apply hidden sm:ml-6 sm:flex sm:items-center sm:space-x-8;
+}
+
+.navRight {
+  @apply flex items-center space-x-4;
+}
+
+.mobileMenuButton {
+  @apply sm:hidden inline-flex items-center justify-center rounded-md p-2 text-neon-text-light dark:text-neon-text-dark hover:bg-neon-primary/10 dark:hover:bg-neon-primary-dark/10 focus:outline-none focus:ring-2 focus:ring-neon-primary dark:focus:ring-neon-primary-dark focus:ring-offset-2 dark:focus:ring-offset-neon-background-dark;
+}
+
+.mobileMenu {
+  @apply sm:hidden;
+}
+
+.mobileMenuContent {
+  @apply space-y-1 pb-3 pt-2;
+}
+
+.mobileMenuItem {
+  @apply block border-l-4 py-2 pl-3 pr-4 text-base font-medium transition-colors duration-200;
+}
+
+.mobileMenuItemActive {
+  @apply border-neon-primary dark:border-neon-primary-dark bg-neon-primary/10 dark:bg-neon-primary-dark/10 text-neon-primary dark:text-neon-primary-dark;
+}
+
+.mobileMenuItemInactive {
+  @apply border-transparent text-neon-text-light dark:text-neon-text-dark hover:border-neon-primary/50 dark:hover:border-neon-primary-dark/50 hover:bg-neon-primary/5 dark:hover:bg-neon-primary-dark/5;
+}

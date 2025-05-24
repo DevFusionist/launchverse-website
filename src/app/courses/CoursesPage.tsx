@@ -1,15 +1,20 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
 import { staggerContainer, textReveal } from "@/lib/animations";
 import AnimatedLayout from "@/components/ui/AnimatedLayout";
-import AnimatedCard from "@/components/ui/AnimatedCard";
-import NeonButton from "@/components/ui/NeonButton";
-import Script from "next/script";
+import dynamic from "next/dynamic";
 import { Course } from "@/types/course";
-import CourseDetails from "@/components/courses/CourseDetails";
+import Script from "next/script";
+
+// Dynamically import CourseCard
+const CourseCard = dynamic(() => import("@/components/courses/CourseCard"), {
+  loading: () => (
+    <div className="animate-pulse">
+      <div className="h-64 bg-neon-primary/10 dark:bg-neon-primary-dark/10 rounded-lg" />
+    </div>
+  ),
+});
 
 interface CoursesPageProps {
   courses: Course[];
@@ -166,38 +171,7 @@ export default function CoursesPage({
                 variants={staggerContainer}
               >
                 {courses.map((course) => (
-                  <AnimatedCard
-                    key={course._id}
-                    className="flex flex-col items-start rounded-lg border border-neon-primary/20 dark:border-neon-primary-dark/20 bg-neon-card-light dark:bg-neon-card-dark p-6 relative group shadow-lg hover:shadow-xl transition-shadow duration-300"
-                  >
-                    <div className="absolute inset-0 z-0">
-                      <Link
-                        href={`/courses/${course.slug}`}
-                        className="block w-full h-full cursor-pointer"
-                      />
-                    </div>
-                    <div className="relative z-10 w-full">
-                      <CourseDetails course={course} variant="preview" />
-                      {!course.isComingSoon && (
-                        <div className="mt-4">
-                          <NeonButton
-                            href={`/courses/${course.slug}`}
-                            variant="secondary"
-                            size="sm"
-                            disabled={course.isComingSoon}
-                          >
-                            {course.isComingSoon ? "Coming Soon" : "Learn more"}
-                            {!course.isComingSoon && (
-                              <ArrowRightIcon
-                                className="ml-1 h-4 w-4"
-                                aria-hidden="true"
-                              />
-                            )}
-                          </NeonButton>
-                        </div>
-                      )}
-                    </div>
-                  </AnimatedCard>
+                  <CourseCard key={course._id} course={course} />
                 ))}
               </motion.div>
             </>
