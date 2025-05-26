@@ -24,11 +24,56 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Course, Enrollment } from '@prisma/client';
+import { StudentStatus, EnrollmentStatus } from '@prisma/client';
 import useSWR from 'swr';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/hooks/use-toast';
+import {
+  AnimatedSection,
+  fadeIn,
+  slideIn,
+  staggerContainer,
+  staggerItem,
+  MotionDiv,
+  cardVariants,
+} from '@/components/ui/motion';
+import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
+
+interface Course {
+  id: string;
+  title: string;
+  duration: number | { min: number; max: number };
+}
+
+interface CoursesResponse {
+  courses: Course[];
+}
+
+interface Enrollment {
+  id: string;
+  courseId: string;
+  studentId: string;
+  status: EnrollmentStatus;
+  startDate: Date;
+  endDate: Date | null;
+  course: Course;
+}
+
+interface StudentWithDetails {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  status: StudentStatus;
+  enrollments: Enrollment[];
+  _count: {
+    enrollments: number;
+    certificates: number;
+    placements: number;
+  };
+}
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -78,9 +123,10 @@ export default function EditStudentPage({
     console.log('Student Data:', studentData);
   }, [studentData]);
 
-  const { data: courses, error: coursesError } = useSWR<{
-    courses: CourseWithDuration[];
-  }>('/api/admin/courses', fetcher);
+  const { data: courses } = useSWR<CoursesResponse>(
+    '/api/admin/courses?status=ACTIVE',
+    fetcher
+  );
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -116,7 +162,7 @@ export default function EditStudentPage({
   if (status === 'loading' || studentLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary transition-colors duration-200"></div>
       </div>
     );
   }
@@ -130,8 +176,10 @@ export default function EditStudentPage({
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Error</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-2xl font-bold transition-colors duration-200 hover:text-primary">
+            Error
+          </h2>
+          <p className="text-muted-foreground transition-colors duration-200 hover:text-primary/80">
             Failed to load student details
           </p>
         </div>
@@ -182,197 +230,249 @@ export default function EditStudentPage({
 
   return (
     <div className="container max-w-2xl py-8">
-      <Card>
+      <Card className="transition-all duration-200 hover:shadow-md">
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="transition-colors duration-200 group-hover:text-primary">
             {params.id === 'new' ? 'Add New Student' : 'Edit Student'}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter student name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="Enter student email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone (Optional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="tel"
-                        placeholder="Enter phone number"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {params.id === 'new'
-                        ? 'Password'
-                        : 'New Password (Optional)'}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder={
-                          params.id === 'new'
-                            ? 'Enter password'
-                            : 'Leave blank to keep current password'
-                        }
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || studentData?.student?.status}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="ACTIVE">Active</SelectItem>
-                        <SelectItem value="INACTIVE">Inactive</SelectItem>
-                        <SelectItem value="GRADUATED">Graduated</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {params.id === 'new' && (
+              <div className="space-y-6">
                 <FormField
                   control={form.control}
-                  name="courses"
-                  render={() => (
+                  name="name"
+                  render={({ field }) => (
                     <FormItem>
-                      <div className="mb-4">
-                        <FormLabel>Courses</FormLabel>
-                        <p className="text-sm text-muted-foreground">
-                          Select the courses to enroll the student in
-                        </p>
-                      </div>
-                      <ScrollArea className="h-[200px] rounded-md border p-4">
-                        <div className="space-y-4">
-                          {courses?.courses?.map((course) => (
-                            <FormField
-                              key={course.id}
-                              control={form.control}
-                              name="courses"
-                              render={({ field }) => (
-                                <FormItem
-                                  key={course.id}
-                                  className="flex flex-row items-start space-x-3 space-y-0"
-                                >
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value?.includes(course.id)}
-                                      onCheckedChange={(checked) => {
-                                        const currentValue = field.value || [];
-                                        return checked
-                                          ? field.onChange([
-                                              ...currentValue,
-                                              course.id,
-                                            ])
-                                          : field.onChange(
-                                              currentValue.filter(
-                                                (value) => value !== course.id
-                                              )
-                                            );
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <div className="space-y-1 leading-none">
-                                    <FormLabel className="font-normal">
-                                      {course.title}
-                                    </FormLabel>
-                                    <p className="text-sm text-muted-foreground">
-                                      Duration:{' '}
-                                      {(() => {
-                                        const duration = course.duration as
-                                          | number
-                                          | { min: number; max: number };
-                                        return typeof duration === 'object'
-                                          ? `${duration.min}-${duration.max} weeks`
-                                          : `${duration} weeks`;
-                                      })()}
-                                    </p>
-                                  </div>
-                                </FormItem>
-                              )}
-                            />
-                          ))}
-                        </div>
-                      </ScrollArea>
-                      <FormMessage />
+                      <FormLabel className="transition-colors duration-200 group-hover:text-primary/80">
+                        Name
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className={cn(
+                            'transition-all duration-200',
+                            'focus:border-primary/20 focus:ring-1 focus:ring-primary/20',
+                            'hover:border-primary/20'
+                          )}
+                        />
+                      </FormControl>
+                      <FormMessage className="transition-colors duration-200" />
                     </FormItem>
                   )}
                 />
-              )}
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="transition-colors duration-200 group-hover:text-primary/80">
+                        Email
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="email"
+                          className={cn(
+                            'transition-all duration-200',
+                            'focus:border-primary/20 focus:ring-1 focus:ring-primary/20',
+                            'hover:border-primary/20'
+                          )}
+                        />
+                      </FormControl>
+                      <FormMessage className="transition-colors duration-200" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="transition-colors duration-200 group-hover:text-primary/80">
+                        Phone
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className={cn(
+                            'transition-all duration-200',
+                            'focus:border-primary/20 focus:ring-1 focus:ring-primary/20',
+                            'hover:border-primary/20'
+                          )}
+                        />
+                      </FormControl>
+                      <FormMessage className="transition-colors duration-200" />
+                    </FormItem>
+                  )}
+                />
+
+                {params.id === 'new' && (
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="transition-colors duration-200 group-hover:text-primary/80">
+                          Password
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="password"
+                            className={cn(
+                              'transition-all duration-200',
+                              'focus:border-primary/20 focus:ring-1 focus:ring-primary/20',
+                              'hover:border-primary/20'
+                            )}
+                          />
+                        </FormControl>
+                        <FormMessage className="transition-colors duration-200" />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="transition-colors duration-200 group-hover:text-primary/80">
+                        Status
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={params.id === 'new'}
+                      >
+                        <FormControl>
+                          <SelectTrigger
+                            className={cn(
+                              'transition-all duration-200',
+                              'hover:border-primary/20 focus:border-primary/20',
+                              'group-hover:border-primary/20'
+                            )}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="ACTIVE">Active</SelectItem>
+                          <SelectItem value="INACTIVE">Inactive</SelectItem>
+                          <SelectItem value="GRADUATED">Graduated</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="transition-colors duration-200" />
+                    </FormItem>
+                  )}
+                />
+
+                {courses?.courses && (
+                  <FormField
+                    control={form.control}
+                    name="courses"
+                    render={() => (
+                      <FormItem>
+                        <div className="mb-4">
+                          <FormLabel className="transition-colors duration-200 group-hover:text-primary/80">
+                            Enroll in Courses
+                          </FormLabel>
+                        </div>
+                        <ScrollArea className="h-[200px] rounded-md border p-4">
+                          <div className="space-y-4">
+                            {courses.courses.map((course) => (
+                              <div
+                                key={course.id}
+                                className="flex items-center space-x-2"
+                              >
+                                <FormField
+                                  key={course.id}
+                                  control={form.control}
+                                  name="courses"
+                                  render={({ field }) => {
+                                    return (
+                                      <FormItem
+                                        key={course.id}
+                                        className="flex flex-row items-start space-x-3 space-y-0"
+                                      >
+                                        <FormControl>
+                                          <Checkbox
+                                            checked={field.value?.includes(
+                                              course.id
+                                            )}
+                                            onCheckedChange={(checked) => {
+                                              return checked
+                                                ? field.onChange([
+                                                    ...(field.value || []),
+                                                    course.id,
+                                                  ])
+                                                : field.onChange(
+                                                    field.value?.filter(
+                                                      (value) =>
+                                                        value !== course.id
+                                                    )
+                                                  );
+                                            }}
+                                            className={cn(
+                                              'transition-all duration-200',
+                                              'hover:border-primary/20',
+                                              'group-hover:border-primary/20'
+                                            )}
+                                          />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">
+                                          {course.title}
+                                        </FormLabel>
+                                      </FormItem>
+                                    );
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
 
               <div className="flex justify-end gap-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => router.back()}
+                  className={cn(
+                    'transition-all duration-200',
+                    'hover:bg-muted hover:text-primary',
+                    'active:scale-95'
+                  )}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Saving...' : 'Save Student'}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={cn(
+                    'transition-all duration-200',
+                    'hover:bg-primary/90',
+                    'active:scale-95'
+                  )}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {params.id === 'new' ? 'Creating...' : 'Saving...'}
+                    </>
+                  ) : params.id === 'new' ? (
+                    'Create Student'
+                  ) : (
+                    'Save Changes'
+                  )}
                 </Button>
               </div>
             </form>

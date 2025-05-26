@@ -51,6 +51,7 @@ import {
 import { CertificateStatus } from '@prisma/client';
 import useSWR from 'swr';
 import { toast } from '@/hooks/use-toast';
+import { AnimatedSection, fadeIn, slideIn } from '@/components/ui/motion';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -252,210 +253,156 @@ export default function CertificatesPage() {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Certificates</h1>
-          <p className="text-muted-foreground">
-            Manage and track all issued certificates
-          </p>
-        </div>
-        <Button onClick={() => router.push('/admin/certificates/generate')}>
-          Generate Certificate
-        </Button>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search certificates..."
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Select
-                value={statusFilter}
-                onValueChange={(value) =>
-                  setStatusFilter(value as CertificateStatus | 'ALL')
-                }
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Status</SelectItem>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="REVOKED">Revoked</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {selectedCertificates.length > 0 && (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleBulkDownload}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download Selected
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setIsBulkRevokeDialogOpen(true)}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Revoke Selected
-                </Button>
-              </div>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : error ? (
-            <div className="text-center text-red-500">
-              Failed to load certificates
-            </div>
-          ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px]">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300"
-                        checked={
-                          selectedCertificates.length ===
-                          filteredCertificates?.length
-                        }
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedCertificates(
-                              filteredCertificates?.map((c) => c.id) || []
-                            );
-                          } else {
-                            setSelectedCertificates([]);
-                          }
-                        }}
-                      />
-                    </TableHead>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Student</TableHead>
-                    <TableHead>Course</TableHead>
-                    <TableHead>Issued By</TableHead>
-                    <TableHead>Issued At</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCertificates?.map((certificate) => (
-                    <TableRow key={certificate.id}>
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 rounded border-gray-300"
-                          checked={selectedCertificates.includes(
-                            certificate.id
-                          )}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedCertificates([
-                                ...selectedCertificates,
-                                certificate.id,
-                              ]);
-                            } else {
-                              setSelectedCertificates(
-                                selectedCertificates.filter(
-                                  (id) => id !== certificate.id
-                                )
-                              );
-                            }
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell className="font-mono">
-                        {certificate.code}
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">
-                            {certificate.student.name}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {certificate.student.email}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{certificate.course.title}</TableCell>
-                      <TableCell>{certificate.issuedBy.name}</TableCell>
-                      <TableCell>
-                        {new Date(certificate.issuedAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="secondary"
-                          className={
-                            certificate.status === 'ACTIVE'
-                              ? 'bg-green-500/10 text-green-500'
-                              : 'bg-red-500/10 text-red-500'
-                          }
-                        >
-                          {certificate.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedCertificate(certificate);
-                              setIsViewDialogOpen(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDownload(certificate.id)}
-                            disabled={isDownloading}
-                          >
-                            {isDownloading ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Download className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {(!filteredCertificates ||
-                    filteredCertificates.length === 0) && (
-                    <TableRow>
-                      <TableCell colSpan={8} className="py-8 text-center">
-                        No certificates found
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+    <div className="space-y-8 p-8">
+      <AnimatedSection
+        variants={fadeIn}
+        className="flex items-center justify-between"
+      >
+        <h1 className="text-3xl font-bold">Certificates</h1>
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={() => router.push('/admin/certificates/generate')}
+            className="transition-transform hover:scale-105 active:scale-95"
+          >
+            Generate Certificate
+          </Button>
+          {selectedCertificates.length > 0 && (
+            <Button
+              variant="destructive"
+              onClick={() => setIsBulkRevokeDialogOpen(true)}
+              className="transition-transform hover:scale-105 active:scale-95"
+            >
+              Revoke Selected
+            </Button>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedSection>
+
+      <AnimatedSection variants={slideIn}>
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <CardTitle>Certificate List</CardTitle>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="relative flex-1 sm:w-64">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search certificates..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <Select
+                  value={statusFilter}
+                  onValueChange={(value) =>
+                    setStatusFilter(value as CertificateStatus | 'ALL')
+                  }
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All Status</SelectItem>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="REVOKED">Revoked</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : error ? (
+              <div className="text-center text-red-500">
+                Failed to load certificates
+              </div>
+            ) : !data ? (
+              <div className="text-center text-muted-foreground">
+                No data available
+              </div>
+            ) : (
+              <>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Student</TableHead>
+                        <TableHead>Course</TableHead>
+                        <TableHead>Issue Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Verification Code</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {data.certificates.map((certificate, index) => (
+                        <AnimatedSection
+                          key={certificate.id}
+                          variants={fadeIn}
+                          custom={index}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <TableRow>
+                            <TableCell className="font-medium">
+                              {certificate.student.name}
+                            </TableCell>
+                            <TableCell>{certificate.course.title}</TableCell>
+                            <TableCell>
+                              {new Date(
+                                certificate.issuedAt
+                              ).toLocaleDateString()}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  certificate.status === 'ACTIVE'
+                                    ? 'default'
+                                    : 'destructive'
+                                }
+                              >
+                                {certificate.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="font-mono text-sm">
+                              {certificate.code}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedCertificate(certificate);
+                                  setIsViewDialogOpen(true);
+                                }}
+                                className="transition-transform hover:scale-105 active:scale-95"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDownload(certificate.id)}
+                                disabled={isDownloading}
+                                className="transition-transform hover:scale-105 active:scale-95"
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        </AnimatedSection>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </AnimatedSection>
 
       <Dialog
         open={isBulkRevokeDialogOpen}

@@ -12,7 +12,8 @@ const VALID_ROUTES = [
   '/courses', // Courses page
   '/courses/:path*', // Individual course pages
   '/blog', // Blog page
-  '/blog/:path*', // Individual blog posts
+  '/blog/[id]', // Individual blog post pages
+  '/blog/[id]/:path*', // Any additional blog post related pages
   '/certificates', // Certificates page
   '/certificates/:path*', // Individual certificate pages
   '/verify', // Certificate verification page
@@ -54,6 +55,13 @@ const VALID_ROUTES = [
 // Helper function to check if a route is valid
 function isValidRoute(pathname: string, routes: string[]): boolean {
   return routes.some((route) => {
+    // Handle dynamic routes with [id]
+    if (route.includes('[id]')) {
+      const pattern = route.replace('[id]', '\\d+');
+      const regex = new RegExp(`^${pattern}$`);
+      return regex.test(pathname);
+    }
+    // Handle catch-all routes
     if (route.includes(':path*')) {
       const baseRoute = route.replace(':path*', '');
       return pathname.startsWith(baseRoute);

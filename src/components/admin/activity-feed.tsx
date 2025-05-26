@@ -4,6 +4,13 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import useSWR from 'swr';
+import {
+  MotionDiv,
+  staggerContainer,
+  staggerItem,
+  cardVariants,
+} from '@/components/ui/motion';
+import { cn } from '@/lib/utils';
 
 interface Activity {
   id: string;
@@ -56,13 +63,15 @@ export function ActivityFeed({ limit = 10 }: ActivityFeedProps) {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="group relative transition-all duration-200 hover:shadow-md">
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <CardTitle className="transition-colors group-hover:text-primary">
+            Recent Activity
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex h-[400px] items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-primary transition-colors group-hover:border-primary/80"></div>
           </div>
         </CardContent>
       </Card>
@@ -71,12 +80,14 @@ export function ActivityFeed({ limit = 10 }: ActivityFeedProps) {
 
   if (error || !data?.activities) {
     return (
-      <Card>
+      <Card className="group relative transition-all duration-200 hover:shadow-md">
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <CardTitle className="transition-colors group-hover:text-primary">
+            Recent Activity
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-[400px] items-center justify-center text-muted-foreground">
+          <div className="flex h-[400px] items-center justify-center text-muted-foreground transition-colors group-hover:text-primary/80">
             Failed to load activities
           </div>
         </CardContent>
@@ -85,53 +96,79 @@ export function ActivityFeed({ limit = 10 }: ActivityFeedProps) {
   }
 
   return (
-    <Card>
+    <Card className="group relative transition-all duration-200 hover:shadow-md">
       <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="transition-colors group-hover:text-primary">
+            Recent Activity
+          </CardTitle>
+          <Badge
+            variant="outline"
+            className="transition-all duration-200 group-hover:border-primary/20 group-hover:text-primary"
+          >
+            Live Updates
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">
-          <div className="space-y-4">
+          <MotionDiv
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="space-y-4"
+          >
             {data.activities.length === 0 ? (
-              <div className="py-8 text-center text-muted-foreground">
+              <div className="py-8 text-center text-muted-foreground transition-colors group-hover:text-primary/80">
                 No recent activities
               </div>
             ) : (
-              data.activities.map((activity) => (
-                <div
+              data.activities.map((activity, index) => (
+                <MotionDiv
                   key={activity.id}
-                  className="flex items-start space-x-4 rounded-lg border p-4"
+                  variants={staggerItem}
+                  className={cn(
+                    'group/item relative cursor-pointer transition-all duration-200',
+                    'flex items-start space-x-4 rounded-lg border bg-card p-4',
+                    'hover:border-primary/20 hover:shadow-md',
+                    'active:scale-[0.98]'
+                  )}
                 >
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">
+                      <p className="text-sm font-medium transition-colors group-hover/item:text-primary">
                         {activity.admin.name}{' '}
-                        <span className="font-normal text-muted-foreground">
+                        <span className="font-normal text-muted-foreground transition-colors group-hover/item:text-primary/80">
                           {activity.action}ed a {activity.entity}
                         </span>
                       </p>
                       <Badge
                         variant="secondary"
-                        className={getActionColor(activity.action)}
+                        className={cn(
+                          'transition-all duration-200',
+                          'group-hover/item:scale-105',
+                          getActionColor(activity.action)
+                        )}
                       >
                         {activity.action}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground transition-colors group-hover/item:text-primary/60">
                       {formatDistanceToNow(new Date(activity.createdAt), {
                         addSuffix: true,
                       })}
                     </p>
                     {activity.details && (
-                      <p className="mt-1 text-sm text-muted-foreground">
+                      <p className="mt-1 text-sm text-muted-foreground transition-colors group-hover/item:text-primary/80">
                         {JSON.parse(activity.details).message}
                       </p>
                     )}
                   </div>
-                </div>
+                  <div className="absolute inset-0 rounded-lg opacity-0 ring-1 ring-inset ring-primary/10 transition-opacity duration-200 group-hover/item:opacity-100" />
+                </MotionDiv>
               ))
             )}
-          </div>
+          </MotionDiv>
         </ScrollArea>
       </CardContent>
     </Card>

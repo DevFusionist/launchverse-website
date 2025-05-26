@@ -418,7 +418,13 @@ export default function CourseDetailsPage({
             </div>
             <div>
               <label className="text-sm font-medium">Fee</label>
-              <p>${data.course.fee.toFixed(2)}</p>
+              <p>
+                ₹
+                {data.course.fee.toLocaleString('en-IN', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium">Created</label>

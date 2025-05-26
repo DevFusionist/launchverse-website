@@ -25,8 +25,9 @@ import { StudentStatus, Student } from '@prisma/client';
 import useSWR from 'swr';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Search, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Eye, Trash2, Search as SearchIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -94,7 +95,7 @@ export default function StudentsPage() {
   if (status === 'loading') {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary transition-colors duration-200"></div>
       </div>
     );
   }
@@ -141,197 +142,189 @@ export default function StudentsPage() {
   };
 
   return (
-    <div className="container py-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Students</CardTitle>
-          <Button onClick={() => router.push('/admin/students/new')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Student
-          </Button>
+    <div className="space-y-8 p-8">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold transition-colors duration-200 hover:text-primary">
+          Students
+        </h1>
+        <Button
+          onClick={() => router.push('/admin/students/new')}
+          className={cn(
+            'group relative transition-all duration-200',
+            'hover:scale-105 hover:shadow-md',
+            'active:scale-95'
+          )}
+        >
+          <Plus className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
+          Add New Student
+        </Button>
+      </div>
+
+      <Card className="transition-all duration-200 hover:shadow-md">
+        <CardHeader>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+              Student List
+            </CardTitle>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="relative flex-1 sm:w-64">
+                <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors duration-200 group-hover:text-primary" />
+                <Input
+                  placeholder="Search students..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className={cn(
+                    'pl-9 transition-all duration-200',
+                    'focus:border-primary/20 focus:ring-1 focus:ring-primary/20',
+                    'hover:border-primary/20'
+                  )}
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={handleStatusChange}>
+                <SelectTrigger
+                  className={cn(
+                    'w-[180px] transition-all duration-200',
+                    'hover:border-primary/20 focus:border-primary/20',
+                    'group-hover:border-primary/20'
+                  )}
+                >
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Status</SelectItem>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="INACTIVE">Inactive</SelectItem>
+                  <SelectItem value="GRADUATED">Graduated</SelectItem>
+                  <SelectItem value="SUSPENDED_VIOLATION">
+                    Suspended (Violation)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-6 flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search students..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-8"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={handleStatusChange}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Status</SelectItem>
-                <SelectItem value="ACTIVE">Active</SelectItem>
-                <SelectItem value="INACTIVE">Inactive</SelectItem>
-                <SelectItem value="GRADUATED">Graduated</SelectItem>
-                <SelectItem value="SUSPENDED_VIOLATION">
-                  Suspended (Violation)
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground transition-colors duration-200 group-hover:text-primary" />
             </div>
           ) : error ? (
-            <div className="text-center text-red-500">
+            <div className="text-center text-red-500 transition-colors duration-200 group-hover:text-red-600">
               Failed to load students
             </div>
           ) : !data ? (
-            <div className="text-center text-muted-foreground">
-              No data available
+            <div className="text-center text-muted-foreground transition-colors duration-200 group-hover:text-primary/80">
+              No students found
             </div>
           ) : (
-            <>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Active Courses</TableHead>
-                      <TableHead>Enrollments</TableHead>
-                      <TableHead>Certificates</TableHead>
-                      <TableHead>Placements</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.students && data.students.length > 0 ? (
-                      data.students.map((student: StudentWithCounts) => (
-                        <TableRow key={student.id}>
-                          <TableCell className="font-medium">
-                            {student.name}
-                          </TableCell>
-                          <TableCell>{student.email}</TableCell>
-                          <TableCell>{student.phone || '-'}</TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="secondary"
-                              className={statusColors[student.status]}
-                            >
-                              {student.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {student.enrollments.length > 0 ? (
-                              <div className="space-y-1">
-                                {student.enrollments.map(
-                                  (enrollment, index) => (
-                                    <div key={index} className="text-sm">
-                                      {enrollment.course.title}
-                                      <Badge
-                                        variant="secondary"
-                                        className={`ml-2 ${
-                                          enrollment.status === 'ENROLLED'
-                                            ? 'bg-green-100 text-green-800'
-                                            : enrollment.status ===
-                                                'TERMINATED_VIOLATION'
-                                              ? 'bg-red-100 text-red-800'
-                                              : 'bg-gray-100 text-gray-800'
-                                        }`}
-                                      >
-                                        {enrollment.status ===
-                                        'TERMINATED_VIOLATION'
-                                          ? 'Terminated (Violation)'
-                                          : enrollment.status.toLowerCase()}
-                                      </Badge>
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                            ) : (
-                              'No enrollments'
-                            )}
-                          </TableCell>
-                          <TableCell>{student._count.enrollments}</TableCell>
-                          <TableCell>{student._count.certificates}</TableCell>
-                          <TableCell>{student._count.placements}</TableCell>
-                          <TableCell>
-                            {format(new Date(student.createdAt), 'MMM d, yyyy')}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                router.push(`/admin/students/${student.id}`)
-                              }
-                            >
-                              View Details
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                router.push(
-                                  `/admin/students/${student.id}/edit`
-                                )
-                              }
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-red-600 hover:text-red-700"
-                              onClick={() => handleDelete(student.id)}
-                            >
-                              Delete
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={9}
-                          className="h-24 text-center text-muted-foreground"
+            <div className="w-full overflow-auto rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[25%]">Name</TableHead>
+                    <TableHead className="w-[25%]">Email</TableHead>
+                    <TableHead className="w-[10%]">Status</TableHead>
+                    <TableHead className="w-[10%] text-center">
+                      Enrollments
+                    </TableHead>
+                    <TableHead className="w-[10%] text-center">
+                      Certificates
+                    </TableHead>
+                    <TableHead className="w-[10%] text-center">
+                      Placements
+                    </TableHead>
+                    <TableHead className="w-[10%] text-right">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.students.map((student) => (
+                    <TableRow
+                      key={student.id}
+                      onClick={() =>
+                        router.push(`/admin/students/${student.id}`)
+                      }
+                      className={cn(
+                        'group/item transition-all duration-200',
+                        'hover:bg-muted/50',
+                        'active:scale-[0.98]'
+                      )}
+                    >
+                      <TableCell className="font-medium transition-colors duration-200 group-hover/item:text-primary">
+                        {student.name}
+                      </TableCell>
+                      <TableCell className="transition-colors duration-200 group-hover/item:text-primary/80">
+                        {student.email}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            statusColors[student.status],
+                            'transition-all duration-200',
+                            'group-hover/item:scale-105'
+                          )}
                         >
-                          No students found
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {data?.pagination && data.pagination.pages > 1 && (
-                <div className="mt-4 flex justify-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setPage((p) =>
-                        Math.min(data?.pagination?.pages || 1, p + 1)
-                      )
-                    }
-                    disabled={page === (data?.pagination?.pages || 1)}
-                  >
-                    Next
-                  </Button>
-                </div>
-              )}
-            </>
+                          {student.status.replace('_', ' ')}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center transition-colors duration-200 group-hover/item:text-primary/80">
+                        {student._count.enrollments}
+                      </TableCell>
+                      <TableCell className="text-center transition-colors duration-200 group-hover/item:text-primary/80">
+                        {student._count.certificates}
+                      </TableCell>
+                      <TableCell className="text-center transition-colors duration-200 group-hover/item:text-primary/80">
+                        {student._count.placements}
+                      </TableCell>
+                      <TableCell>
+                        <div
+                          className="flex items-center justify-end gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                          }}
+                        >
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              router.push(`/admin/students/${student.id}`);
+                            }}
+                            className={cn(
+                              'transition-all duration-200',
+                              'hover:bg-primary/10 hover:text-primary',
+                              'active:scale-95'
+                            )}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleDelete(student.id);
+                            }}
+                            className={cn(
+                              'transition-all duration-200',
+                              'hover:bg-destructive/10 hover:text-destructive',
+                              'active:scale-95'
+                            )}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

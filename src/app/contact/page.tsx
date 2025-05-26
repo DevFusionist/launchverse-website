@@ -7,6 +7,19 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AnimatedSection,
+  ParallaxSection,
+  fadeIn,
+  slideIn,
+  scaleIn,
+} from '@/components/ui/motion';
+import {
+  HoverCard,
+  AnimatedButton,
+  AnimatedIcon,
+  AnimatedInput,
+} from '@/components/ui/enhanced-motion';
 
 const contactInfo = [
   {
@@ -30,159 +43,167 @@ export default function ContactPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsSubmitting(true);
 
-    // In a real app, this would be an API call
+    // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     toast({
-      title: 'Message sent!',
-      description: 'We will get back to you shortly.',
+      title: 'Message Sent',
+      description: 'Thank you for contacting us. We will get back to you soon.',
     });
 
     setIsSubmitting(false);
-    (event.target as HTMLFormElement).reset();
-  }
+    (e.target as HTMLFormElement).reset();
+  };
 
   return (
-    <div className="container py-12">
-      {/* Header */}
-      <div className="mb-12 text-center">
-        <h1 className="text-4xl font-bold tracking-tight">Contact Us</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-          Have questions? We'd love to hear from you. Send us a message and we'll
-          respond as soon as possible.
-        </p>
-      </div>
-
-      <div className="grid gap-12 lg:grid-cols-2">
-        {/* Contact Form */}
-        <div>
-          <Card>
-            <CardContent className="p-6">
-              <form onSubmit={onSubmit} className="space-y-6">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="name"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Name
-                    </label>
-                    <Input
-                      id="name"
-                      name="name"
-                      placeholder="John Doe"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="email"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Email
-                    </label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="john@example.com"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="subject"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Subject
-                  </label>
-                  <Input
-                    id="subject"
-                    name="subject"
-                    placeholder="Course Inquiry"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="message"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Message
-                  </label>
-                  <Textarea
-                    id="message"
-                    name="message"
-                    placeholder="Tell us about your inquiry..."
-                    required
-                    className="min-h-[150px]"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    'Sending...'
-                  ) : (
-                    <>
-                      Send Message
-                      <Send className="ml-2 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Contact Information */}
-        <div className="space-y-8">
-          <div>
-            <h2 className="mb-4 text-2xl font-semibold">Get in Touch</h2>
-            <p className="text-muted-foreground">
-              We're here to help and answer any questions you might have. We look
-              forward to hearing from you.
+    <div className="flex flex-col gap-16">
+      {/* Hero Section */}
+      <ParallaxSection
+        speed={0.2}
+        className="relative overflow-hidden bg-background py-20 sm:py-32"
+      >
+        <div className="container relative">
+          <AnimatedSection
+            variants={fadeIn}
+            className="mx-auto max-w-2xl text-center"
+          >
+            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+              Get in Touch
+            </h1>
+            <p className="mt-6 text-lg leading-8 text-muted-foreground">
+              Have questions? We're here to help. Reach out to us and we'll get
+              back to you as soon as possible.
             </p>
-          </div>
-
-          <div className="grid gap-6">
-            {contactInfo.map((info) => (
-              <Card key={info.title}>
-                <CardContent className="flex items-center p-6">
-                  <div className="mr-4 rounded-full bg-primary/10 p-3">
-                    <info.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">{info.title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {info.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Map */}
-          <Card>
-            <CardContent className="p-0">
-              <div className="aspect-[4/3] w-full bg-muted">
-                {/* In a real app, this would be an embedded Google Map */}
-                <div className="flex h-full items-center justify-center text-muted-foreground">
-                  Map Placeholder
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          </AnimatedSection>
         </div>
-      </div>
+      </ParallaxSection>
+
+      {/* Contact Form and Info Section */}
+      <section className="container">
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-2">
+          {/* Contact Form */}
+          <AnimatedSection variants={slideIn}>
+            <Card>
+              <CardContent className="p-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="name"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Name
+                      </label>
+                      <AnimatedInput className="mt-2">
+                        <Input
+                          id="name"
+                          placeholder="Your name"
+                          required
+                          disabled={isSubmitting}
+                        />
+                      </AnimatedInput>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Email
+                      </label>
+                      <AnimatedInput className="mt-2">
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="your.email@example.com"
+                          required
+                          disabled={isSubmitting}
+                        />
+                      </AnimatedInput>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="message"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Message
+                      </label>
+                      <AnimatedInput className="mt-2">
+                        <Textarea
+                          id="message"
+                          placeholder="Your message"
+                          required
+                          disabled={isSubmitting}
+                          className="min-h-[120px]"
+                        />
+                      </AnimatedInput>
+                    </div>
+                  </div>
+                  <AnimatedButton
+                    type="submit"
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      'Sending...'
+                    ) : (
+                      <>
+                        Send Message
+                        <AnimatedIcon className="ml-2">
+                          <Send className="h-4 w-4" />
+                        </AnimatedIcon>
+                      </>
+                    )}
+                  </AnimatedButton>
+                </form>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
+
+          {/* Contact Information */}
+          <div className="space-y-8">
+            <AnimatedSection variants={fadeIn}>
+              <div>
+                <h2 className="mb-4 text-2xl font-semibold">
+                  Contact Information
+                </h2>
+                <p className="text-muted-foreground">
+                  We're here to help and answer any questions you might have. We
+                  look forward to hearing from you.
+                </p>
+              </div>
+            </AnimatedSection>
+
+            <div className="grid gap-6">
+              {contactInfo.map((info, index) => (
+                <AnimatedSection
+                  key={info.title}
+                  variants={slideIn}
+                  custom={index}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <HoverCard>
+                    <div className="flex items-start gap-4">
+                      <AnimatedIcon className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                        <info.icon className="h-5 w-5 text-primary" />
+                      </AnimatedIcon>
+                      <div>
+                        <h3 className="font-semibold">{info.title}</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {info.description}
+                        </p>
+                      </div>
+                    </div>
+                  </HoverCard>
+                </AnimatedSection>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
-} 
+}

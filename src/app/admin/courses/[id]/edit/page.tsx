@@ -41,7 +41,7 @@ const formSchema = z.object({
   fee: z.coerce
     .number()
     .min(0, 'Fee cannot be negative')
-    .max(100000, 'Fee cannot exceed $100,000'),
+    .max(100000, 'Fee cannot exceed ₹1,00,000'),
   status: z.enum(['ACTIVE', 'INACTIVE', 'UPCOMING'] as const),
 });
 
@@ -233,7 +233,7 @@ export default function EditCoursePage({ params }: { params: { id: string } }) {
                   name="fee"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Fee ($)</FormLabel>
+                      <FormLabel>Fee (₹)</FormLabel>
                       <FormControl>
                         <Input
                           type="number"

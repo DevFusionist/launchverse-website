@@ -12,6 +12,14 @@ import {
 import { Search, Users, BookOpen, Award, Briefcase } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
+import {
+  MotionDiv,
+  staggerContainer,
+  staggerItem,
+  scaleIn,
+  cardVariants,
+} from '@/components/ui/motion';
+import { cn } from '@/lib/utils';
 
 interface SearchResult {
   id: string;
@@ -150,50 +158,104 @@ export function SearchBar() {
   };
 
   return (
-    <>
-      <Button
-        variant="outline"
-        className="relative h-9 w-9 p-0 xl:h-10 xl:w-60 xl:justify-start xl:px-3 xl:py-2"
-        onClick={() => setOpen(true)}
+    <div className="relative">
+      <MotionDiv
+        variants={scaleIn}
+        initial="hidden"
+        animate="visible"
+        className="relative"
       >
-        <Search className="h-4 w-4 xl:mr-2" />
-        <span className="hidden xl:inline-flex">Search...</span>
-        <span className="sr-only">Search</span>
-        <kbd className="pointer-events-none absolute right-1.5 top-2 hidden h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 xl:flex">
-          <span className="text-xs">⌘</span>K
-        </kbd>
-      </Button>
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput
-          placeholder="Search students, courses, certificates..."
-          value={query}
-          onValueChange={setQuery}
-        />
-        <CommandList>
-          <CommandEmpty>
-            {isLoading ? 'Searching...' : 'No results found.'}
-          </CommandEmpty>
-          <CommandGroup heading="Results">
-            {results.map((result) => {
-              const Icon = result.icon;
-              return (
-                <CommandItem
-                  key={`${result.type}-${result.id}`}
-                  onSelect={() => handleSelect(result)}
-                >
-                  <Icon className="mr-2 h-4 w-4" />
-                  <div className="flex flex-col">
-                    <span>{result.title}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {result.subtitle}
-                    </span>
+        <Button
+          variant="outline"
+          className={cn(
+            'group relative h-9 w-9 p-0 xl:h-10 xl:w-60 xl:justify-start xl:px-3 xl:py-2',
+            'transition-all duration-200',
+            'hover:border-primary/20 hover:shadow-md',
+            'active:scale-[0.98]'
+          )}
+          onClick={() => setOpen(true)}
+        >
+          <Search className="h-4 w-4 transition-transform duration-200 group-hover:scale-110 xl:mr-2" />
+          <span className="hidden transition-colors group-hover:text-primary xl:inline-flex">
+            Search...
+          </span>
+          <span className="sr-only">Search</span>
+          <kbd className="pointer-events-none absolute right-1.5 top-2 hidden h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 transition-colors group-hover:border-primary/20 xl:flex">
+            <span className="text-xs transition-colors group-hover:text-primary">
+              ⌘
+            </span>
+            K
+          </kbd>
+        </Button>
+        <div
+          className={cn(
+            'transition-all duration-200',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out',
+            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+            'data-[state=closed]:slide-out-to-top-[2%] data-[state=open]:slide-in-from-top-[2%]'
+          )}
+        >
+          <CommandDialog open={open} onOpenChange={setOpen}>
+            <CommandInput
+              placeholder="Search students, courses, certificates..."
+              value={query}
+              onValueChange={setQuery}
+              className={cn(
+                'transition-colors duration-200',
+                'focus:border-primary/20'
+              )}
+            />
+            <CommandList>
+              <CommandEmpty className="text-muted-foreground transition-colors duration-200">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-t-2 border-primary transition-colors duration-200" />
                   </div>
-                </CommandItem>
-              );
-            })}
-          </CommandGroup>
-        </CommandList>
-      </CommandDialog>
-    </>
+                ) : (
+                  'No results found.'
+                )}
+              </CommandEmpty>
+              {results.length > 0 ? (
+                <MotionDiv
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="show"
+                  className="p-2"
+                >
+                  {results.map((result) => {
+                    const Icon = result.icon;
+                    return (
+                      <MotionDiv
+                        key={`${result.type}-${result.id}`}
+                        variants={staggerItem}
+                        className={cn(
+                          'group/item relative cursor-pointer transition-all duration-200',
+                          'flex items-center space-x-2 rounded-md p-2',
+                          'hover:bg-accent hover:shadow-sm',
+                          'active:scale-[0.98]'
+                        )}
+                        onClick={() => handleSelect(result)}
+                      >
+                        <Icon className="h-4 w-4 text-muted-foreground transition-all duration-200 group-hover/item:scale-110 group-hover/item:text-primary" />
+                        <div className="flex flex-col">
+                          <span className="transition-colors duration-200 group-hover/item:text-primary">
+                            {result.title}
+                          </span>
+                          <span className="text-xs text-muted-foreground transition-colors duration-200 group-hover/item:text-primary/80">
+                            {result.subtitle}
+                          </span>
+                        </div>
+                        <div className="absolute inset-0 rounded-md opacity-0 ring-1 ring-inset ring-primary/10 transition-opacity duration-200 group-hover/item:opacity-100" />
+                      </MotionDiv>
+                    );
+                  })}
+                </MotionDiv>
+              ) : null}
+            </CommandList>
+          </CommandDialog>
+        </div>
+      </MotionDiv>
+    </div>
   );
 }

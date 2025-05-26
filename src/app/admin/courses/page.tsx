@@ -27,6 +27,7 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Plus, Search, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { AnimatedSection, fadeIn, slideIn } from '@/components/ui/motion';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -128,161 +129,185 @@ export default function CoursesPage() {
   };
 
   return (
-    <div className="container py-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Courses</CardTitle>
-          <Button onClick={() => router.push('/admin/courses/new')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Course
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-6 flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search courses..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-8"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={handleStatusChange}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Status</SelectItem>
-                <SelectItem value="ACTIVE">Active</SelectItem>
-                <SelectItem value="INACTIVE">Inactive</SelectItem>
-                <SelectItem value="UPCOMING">Upcoming</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+    <div className="space-y-8 p-8">
+      <AnimatedSection
+        variants={fadeIn}
+        className="flex items-center justify-between"
+      >
+        <h1 className="text-3xl font-bold">Courses</h1>
+        <Button
+          onClick={() => router.push('/admin/courses/new')}
+          className="transition-transform hover:scale-105 active:scale-95"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add New Course
+        </Button>
+      </AnimatedSection>
 
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : error ? (
-            <div className="text-center text-red-500">
-              Failed to load courses
-            </div>
-          ) : (
-            <>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Duration</TableHead>
-                      <TableHead>Fee</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Enrollments</TableHead>
-                      <TableHead>Certificates</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data?.courses.map((course: CourseWithCounts) => (
-                      <TableRow key={course.id}>
-                        <TableCell className="font-medium">
-                          {course.title}
-                        </TableCell>
-                        <TableCell className="max-w-md truncate">
-                          {course.description}
-                        </TableCell>
-                        <TableCell>{course.duration} weeks</TableCell>
-                        <TableCell>${course.fee.toFixed(2)}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="secondary"
-                            className={statusColors[course.status]}
-                          >
-                            {course.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{course._count.enrollments}</TableCell>
-                        <TableCell>{course._count.certificates}</TableCell>
-                        <TableCell>
-                          {format(new Date(course.createdAt), 'MMM d, yyyy')}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              router.push(`/admin/courses/${course.id}`)
-                            }
-                          >
-                            View
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              router.push(`/admin/courses/${course.id}/edit`)
-                            }
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                            onClick={() => handleDelete(course.id)}
-                          >
-                            Delete
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {data?.courses.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={9} className="py-8 text-center">
-                          No courses found
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Pagination */}
-              {data && data.totalPages > 1 && (
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    Showing {data.courses.length} of {data.total} courses
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page === 1}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setPage((p) => Math.min(data.totalPages, p + 1))
-                      }
-                      disabled={page === data.totalPages}
-                    >
-                      Next
-                    </Button>
-                  </div>
+      <AnimatedSection variants={slideIn}>
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <CardTitle>Course List</CardTitle>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="relative flex-1 sm:w-64">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search courses..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9"
+                  />
                 </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
+                <Select value={statusFilter} onValueChange={handleStatusChange}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All Status</SelectItem>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="INACTIVE">Inactive</SelectItem>
+                    <SelectItem value="UPCOMING">Upcoming</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : error ? (
+              <div className="text-center text-red-500">
+                Failed to load courses
+              </div>
+            ) : !data ? (
+              <div className="text-center text-muted-foreground">
+                No data available
+              </div>
+            ) : (
+              <>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Duration</TableHead>
+                        <TableHead>Level</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Students</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {data.courses.map((course, index) => (
+                        <AnimatedSection
+                          key={course.id}
+                          variants={fadeIn}
+                          custom={index}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <TableRow>
+                            <TableCell className="font-medium">
+                              {course.title}
+                            </TableCell>
+                            <TableCell className="max-w-md truncate">
+                              {course.description}
+                            </TableCell>
+                            <TableCell>{course.duration} weeks</TableCell>
+                            <TableCell>
+                              ₹
+                              {course.fee.toLocaleString('en-IN', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant="secondary"
+                                className={statusColors[course.status]}
+                              >
+                                {course.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{course._count.enrollments}</TableCell>
+                            <TableCell>
+                              {new Date(course.createdAt).toLocaleDateString()}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  router.push(`/admin/courses/${course.id}`)
+                                }
+                                className="transition-transform hover:scale-105 active:scale-95"
+                              >
+                                View
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  router.push(
+                                    `/admin/courses/${course.id}/edit`
+                                  )
+                                }
+                                className="transition-transform hover:scale-105 active:scale-95"
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-600 transition-transform hover:scale-105 hover:text-red-700 active:scale-95"
+                                onClick={() => handleDelete(course.id)}
+                              >
+                                Delete
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        </AnimatedSection>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {data && data.totalPages > 1 && (
+                  <AnimatedSection variants={fadeIn} className="mt-4">
+                    <div className="flex justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        className="transition-transform hover:scale-105 active:scale-95"
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setPage((p) => Math.min(data.totalPages, p + 1))
+                        }
+                        disabled={page === data.totalPages}
+                        className="transition-transform hover:scale-105 active:scale-95"
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </AnimatedSection>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </AnimatedSection>
     </div>
   );
 }

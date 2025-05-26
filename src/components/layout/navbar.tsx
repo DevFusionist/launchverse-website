@@ -15,6 +15,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { AnimatedSection, fadeIn, slideIn } from '@/components/ui/motion';
+import {
+  AnimatedIcon,
+  AnimatedBadge,
+  AnimatedButton,
+} from '@/components/ui/enhanced-motion';
 
 type NavItem = {
   name: string;
@@ -83,9 +89,9 @@ export function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
-        <div className="mr-4 flex">
+    <nav className="sticky top-0 z-50 flex w-full items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between">
+        <AnimatedSection variants={fadeIn} className="mr-4 flex">
           <Link
             href={
               isAdminRoute
@@ -96,144 +102,192 @@ export function Navbar() {
             }
             className="mr-6 flex items-center space-x-2"
           >
-            <span className="font-bold">Launch Verse</span>
+            <AnimatedBadge>
+              <span className="font-bold text-foreground">Launch Verse</span>
+            </AnimatedBadge>
             {isAdminRoute && (
-              <span className="text-sm text-muted-foreground">(Admin)</span>
+              <AnimatedBadge>
+                <span className="text-sm text-muted-foreground">(Admin)</span>
+              </AnimatedBadge>
             )}
             {isStudentRoute && (
-              <span className="text-sm text-muted-foreground">(Student)</span>
+              <AnimatedBadge>
+                <span className="text-sm text-muted-foreground">(Student)</span>
+              </AnimatedBadge>
             )}
           </Link>
-        </div>
+        </AnimatedSection>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex md:flex-1">
-          <div className="flex items-center space-x-6">
-            {navigation.map((item) => (
-              <Link
+          <div className="flex h-16 items-center space-x-6">
+            {navigation.map((item, index) => (
+              <AnimatedSection
                 key={item.href}
-                href={item.href}
-                className={cn(
-                  'text-sm font-medium transition-colors hover:text-primary',
-                  pathname === item.href
-                    ? 'text-foreground'
-                    : 'text-foreground/60'
-                )}
+                variants={slideIn}
+                custom={index}
+                className="flex items-center"
               >
-                {item.name}
-              </Link>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    'flex h-16 items-center text-sm font-medium transition-colors',
+                    pathname === item.href
+                      ? 'text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  <AnimatedBadge className="flex items-center">
+                    {item.name}
+                  </AnimatedBadge>
+                </Link>
+              </AnimatedSection>
             ))}
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex h-16 items-center space-x-4">
           {session ? (
-            <Button
+            <AnimatedButton
               variant="ghost"
               size="sm"
               onClick={handleSignOut}
-              className="flex items-center space-x-2 hover:bg-destructive/10 hover:text-destructive"
+              className="flex items-center space-x-2 text-foreground hover:bg-destructive/10 hover:text-destructive"
             >
-              <LogOut className="h-4 w-4" />
+              <AnimatedIcon>
+                <LogOut className="h-4 w-4" />
+              </AnimatedIcon>
               <span>Sign Out</span>
-            </Button>
+            </AnimatedButton>
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
+                <AnimatedButton
                   variant="ghost"
                   size="sm"
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 text-foreground"
                 >
-                  <LogIn className="h-4 w-4" />
+                  <AnimatedIcon>
+                    <LogIn className="h-4 w-4" />
+                  </AnimatedIcon>
                   <span>Login</span>
-                </Button>
+                </AnimatedButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href="/login?mode=admin">Login as Admin</Link>
+                  <Link href="/login?mode=admin" className="text-foreground">
+                    Login as Admin
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/login?mode=student">Login as Student</Link>
+                  <Link href="/login?mode=student" className="text-foreground">
+                    Login as Student
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <Button
+          <AnimatedButton
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="text-foreground"
           >
-            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <AnimatedIcon>
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            </AnimatedIcon>
             <span className="sr-only">Toggle theme</span>
-          </Button>
+          </AnimatedButton>
 
           {/* Mobile menu button */}
-          <Button
+          <AnimatedButton
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="text-foreground md:hidden"
             onClick={() => setIsOpen(!isOpen)}
           >
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <AnimatedIcon>
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </AnimatedIcon>
             <span className="sr-only">Toggle menu</span>
-          </Button>
+          </AnimatedButton>
         </div>
       </div>
 
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="md:hidden">
+        <AnimatedSection
+          variants={slideIn}
+          className="md:hidden"
+          initial="initial"
+          animate="animate"
+          exit="exit"
+        >
           <div className="container space-y-4 pb-4 pt-2">
-            {navigation.map((item) => (
-              <Link
+            {navigation.map((item, index) => (
+              <AnimatedSection
                 key={item.href}
-                href={item.href}
-                className={cn(
-                  'block text-sm font-medium transition-colors hover:text-primary',
-                  pathname === item.href
-                    ? 'text-foreground'
-                    : 'text-foreground/60'
-                )}
-                onClick={() => setIsOpen(false)}
+                variants={slideIn}
+                custom={index}
               >
-                {item.name}
-              </Link>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    'block text-sm font-medium transition-colors',
+                    pathname === item.href
+                      ? 'text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <AnimatedBadge>{item.name}</AnimatedBadge>
+                </Link>
+              </AnimatedSection>
             ))}
             {session ? (
-              <Button
+              <AnimatedButton
                 variant="ghost"
                 size="sm"
                 onClick={() => {
                   handleSignOut();
                   setIsOpen(false);
                 }}
-                className="w-full justify-start hover:bg-destructive/10 hover:text-destructive"
+                className="w-full justify-start text-foreground hover:bg-destructive/10 hover:text-destructive"
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <AnimatedIcon>
+                  <LogOut className="mr-2 h-4 w-4" />
+                </AnimatedIcon>
                 <span>Sign Out</span>
-              </Button>
+              </AnimatedButton>
             ) : (
               <>
-                <Link
-                  href="/login?mode=admin"
-                  className="block w-full px-2 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Login as Admin
-                </Link>
-                <Link
-                  href="/login?mode=student"
-                  className="block w-full px-2 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Login as Student
-                </Link>
+                <AnimatedSection variants={slideIn} custom={0}>
+                  <Link
+                    href="/login?mode=admin"
+                    className="block w-full px-2 py-1.5 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <AnimatedBadge>Login as Admin</AnimatedBadge>
+                  </Link>
+                </AnimatedSection>
+                <AnimatedSection variants={slideIn} custom={1}>
+                  <Link
+                    href="/login?mode=student"
+                    className="block w-full px-2 py-1.5 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <AnimatedBadge>Login as Student</AnimatedBadge>
+                  </Link>
+                </AnimatedSection>
               </>
             )}
           </div>
-        </div>
+        </AnimatedSection>
       )}
     </nav>
   );
