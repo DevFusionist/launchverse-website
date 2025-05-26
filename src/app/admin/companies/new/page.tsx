@@ -1,0 +1,457 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import useSWR from 'swr';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from '@/hooks/use-toast';
+import { Loader2, Upload, X } from 'lucide-react';
+import Image from 'next/image';
+
+const companyFormSchema = z.object({
+  name: z.string().min(2, 'Company name must be at least 2 characters'),
+  website: z
+    .string()
+    .url('Please enter a valid URL')
+    .optional()
+    .or(z.literal('')),
+  description: z.string().optional(),
+  industry: z.string().optional(),
+  location: z.string().optional(),
+  contactPersonEmail: z
+    .string()
+    .email('Invalid email address')
+    .optional()
+    .or(z.literal('')),
+  logo: z.string().optional(),
+  logoFile: z.any().optional(),
+});
+
+type CompanyFormValues = z.infer<typeof companyFormSchema>;
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+export default function CompanyFormPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const companyId = searchParams.get('id');
+  const isEditMode = !!companyId;
+  console.log('isEditMode', isEditMode);
+  const { data: companyData, error: companyError } = useSWR<{
+    company: CompanyFormValues;
+  }>(isEditMode ? `/api/admin/companies/${companyId}` : null, fetcher);
+
+  const form = useForm<CompanyFormValues>({
+    resolver: zodResolver(companyFormSchema),
+    defaultValues: {
+      name: '',
+      website: '',
+      description: '',
+      industry: '',
+      location: '',
+      logo: '',
+    },
+  });
+
+  // Update form with company data when in edit mode
+  useEffect(() => {
+    if (isEditMode && companyData?.company) {
+      form.reset(companyData.company);
+    }
+  }, [isEditMode, companyData, form]);
+
+  if (status === 'loading' || (isEditMode && !companyData && !companyError)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (status === 'unauthenticated') {
+    router.replace('/admin/login');
+    return null;
+  }
+
+  if (isEditMode && companyError) {
+    return (
+      <div className="container py-8">
+        <div className="text-center text-red-500">
+          Failed to load company details
+        </div>
+      </div>
+    );
+  }
+
+  const handleLogoUpload = async (file: File) => {
+    try {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      form.setValue('logo', data.url);
+      toast({
+        title: 'Logo Uploaded',
+        description: 'Company logo has been uploaded successfully.',
+      });
+    } catch (error: any) {
+      console.error('Error uploading logo:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Upload Failed',
+        description: error.message || 'Failed to upload logo',
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDeleteLogo = async () => {
+    const logoUrl = form.watch('logo');
+    if (!logoUrl) return;
+
+    try {
+      setIsUploading(true);
+      const response = await fetch(
+        `/api/upload?url=${encodeURIComponent(logoUrl)}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to delete logo');
+      }
+
+      form.setValue('logo', '');
+      form.setValue('logoFile', undefined);
+      toast({
+        title: 'Logo Deleted',
+        description: 'Company logo has been deleted successfully.',
+      });
+    } catch (error: any) {
+      console.error('Error deleting logo:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Delete Failed',
+        description: error.message || 'Failed to delete logo',
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const onSubmit = async (data: CompanyFormValues) => {
+    try {
+      setIsSubmitting(true);
+
+      // If there's a new logo file, upload it first and wait for the URL
+      let logoUrl = data.logo;
+      if (data.logoFile) {
+        const formData = new FormData();
+        formData.append('file', data.logoFile);
+
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload logo');
+        }
+
+        const uploadData = await uploadResponse.json();
+        logoUrl = uploadData.url;
+      }
+
+      const url = isEditMode
+        ? `/api/admin/companies/${companyId}`
+        : '/api/admin/companies';
+
+      const response = await fetch(url, {
+        method: isEditMode ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: data.name,
+          website: data.website,
+          description: data.description,
+          industry: data.industry,
+          location: data.location,
+          contactPersonEmail: data.contactPersonEmail,
+          logo: logoUrl, // Use the uploaded logo URL
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw {
+          message:
+            result.error ||
+            `Failed to ${isEditMode ? 'update' : 'create'} company`,
+        };
+      }
+
+      toast({
+        title: isEditMode ? 'Company Updated' : 'Company Created',
+        description: `Company has been ${isEditMode ? 'updated' : 'created'} successfully.`,
+      });
+
+      router.push('/admin/companies');
+    } catch (error: any) {
+      console.error(
+        `Error ${isEditMode ? 'updating' : 'creating'} company:`,
+        error
+      );
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description:
+          error.message ||
+          `Failed to ${isEditMode ? 'update' : 'create'} company`,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="container py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">
+          {isEditMode ? 'Edit Company' : 'Add New Company'}
+        </h1>
+        <p className="text-muted-foreground">
+          {isEditMode
+            ? 'Update company profile'
+            : 'Create a new company profile'}
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Company Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Company Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter company name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Website</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://company.com"
+                        {...field}
+                        value={field.value || ''}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter the company's website URL
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="logoFile"
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem>
+                    <FormLabel>Company Logo</FormLabel>
+                    <FormControl>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                onChange(file);
+                              }
+                            }}
+                            {...field}
+                          />
+                        </div>
+                        {form.watch('logo') && (
+                          <div className="relative inline-block">
+                            <div className="relative h-32 w-32 overflow-hidden rounded-lg border">
+                              <Image
+                                src={form.watch('logo') as string}
+                                alt="Company logo"
+                                fill
+                                className="object-cover"
+                                sizes="128px"
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
+                              onClick={handleDeleteLogo}
+                              disabled={isUploading}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      Upload a company logo (max 2MB, PNG/JPG)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="industry"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Industry</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., Technology, Healthcare"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Bangalore, India" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="contactPersonEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact Person Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="e.g. hr@company.com"
+                        {...field}
+                        value={field.value || ''}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter company description"
+                        className="min-h-[100px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.back()}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting || isUploading}>
+                  {isSubmitting || isUploading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {isUploading
+                        ? 'Uploading...'
+                        : isEditMode
+                          ? 'Updating...'
+                          : 'Creating...'}
+                    </>
+                  ) : isEditMode ? (
+                    'Update Company'
+                  ) : (
+                    'Create Company'
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

@@ -1,0 +1,227 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String        @id @default(cuid()) @map("_id")
+  name         String
+  email        String        @unique
+  password     String
+  role         AdminRole     @default(ADMIN)
+  createdById  String?       @map("created_by_id")
+  createdBy    Admin?        @relation("AdminCreator", fields: [createdById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdAdmins Admin[]      @relation("AdminCreator")
+  certificatesIssued Certificate[] @relation("CertificateIssuer")
+  certificatesRevoked Certificate[] @relation("CertificateRevoker")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  activityLogs ActivityLog[]
+  companiesCreated    Company[]   @relation("CompanyCreatedBy")
+  companiesUpdated    Company[]   @relation("CompanyUpdatedBy")
+  placementsCreated   Placement[] @relation("PlacementCreatedBy")
+  placementsUpdated   Placement[] @relation("PlacementUpdatedBy")
+  invitations       AdminInvitation[] @relation("AdminInvitations")
+}
+
+model Student {
+  id           String        @id @default(cuid()) @map("_id")
+  name         String
+  email        String        @unique
+  phone        String?
+  password     String?       // Hashed password for student login
+  enrolledAt   DateTime      @default(now())
+  status       StudentStatus @default(ACTIVE)
+  enrollments  Enrollment[]
+  certificates Certificate[]
+  placements   Placement[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Course {
+  id           String        @id @default(cuid()) @map("_id")
+  title        String
+  description  String
+  duration     Int // in weeks
+  fee          Float
+  status       CourseStatus  @default(ACTIVE)
+  enrollments  Enrollment[]
+  certificates Certificate[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Enrollment {
+  id        String           @id @default(cuid()) @map("_id")
+  studentId String          @map("student_id")
+  student   Student          @relation(fields: [studentId], references: [id])
+  courseId  String          @map("course_id")
+  course    Course           @relation(fields: [courseId], references: [id])
+  status    EnrollmentStatus @default(ENROLLED)
+  startDate DateTime
+  endDate   DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([studentId, courseId])
+}
+
+model Certificate {
+  id         String            @id @default(cuid()) @map("_id")
+  code       String            @unique
+  studentId  String           @map("student_id")
+  student    Student           @relation(fields: [studentId], references: [id])
+  courseId   String           @map("course_id")
+  course     Course            @relation(fields: [courseId], references: [id])
+  issuedById String           @map("issued_by_id")
+  issuedBy   Admin             @relation("CertificateIssuer", fields: [issuedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  revokedById String?         @map("revoked_by_id")
+  revokedBy   Admin?           @relation("CertificateRevoker", fields: [revokedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  issuedAt   DateTime          @default(now())
+  revokedAt  DateTime?
+  status     CertificateStatus @default(ACTIVE)
+  revocationReason RevocationReason?
+  revocationNotes String?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+}
+
+model Company {
+  id          String      @id @default(cuid()) @map("_id")
+  name        String
+  website     String?
+  description String?
+  industry    String?     // Company's industry sector
+  location    String?     // Company's location/office
+  logo        String?     // URL to company logo
+  contactPersonEmail String? // Email of the contact person
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  placements  Placement[]
+  createdBy   Admin       @relation("CompanyCreatedBy", fields: [createdById], references: [id])
+  createdById String
+  updatedBy   Admin       @relation("CompanyUpdatedBy", fields: [updatedById], references: [id])
+  updatedById String
+
+  @@index([name])
+  @@index([industry])
+  @@index([location])
+}
+
+model Placement {
+  id          String    @id @default(cuid()) @map("_id")
+  student     Student   @relation(fields: [studentId], references: [id])
+  studentId   String
+  company     Company   @relation(fields: [companyId], references: [id])
+  companyId   String
+  position    String
+  package     Float     // Annual package in LPA
+  offerDate   DateTime  // Date when the offer was made
+  joiningDate DateTime
+  status      PlacementStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdBy   Admin     @relation("PlacementCreatedBy", fields: [createdById], references: [id])
+  createdById String
+  updatedBy   Admin     @relation("PlacementUpdatedBy", fields: [updatedById], references: [id])
+  updatedById String
+
+  @@index([studentId])
+  @@index([companyId])
+  @@index([status])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid()) @map("_id")
+  action    String
+  entity    String   // The type of entity (e.g., "student", "course", "certificate")
+  entityId  String   @map("entity_id")
+  details   String   // JSON string containing additional details
+  adminId   String   @map("admin_id")
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([adminId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+model AdminInvitation {
+  id        String   @id @default(cuid()) @map("_id")
+  email     String   @unique
+  name      String
+  role      AdminRole @default(ADMIN) // Only ADMIN role is allowed for invitations
+  otp       String
+  otpExpiry DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  invitedBy Admin    @relation("AdminInvitations", fields: [invitedById], references: [id])
+  invitedById String
+
+  @@index([invitedById])
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  STUDENT
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  GRADUATED
+  SUSPENDED_VIOLATION
+}
+
+enum CourseStatus {
+  ACTIVE
+  INACTIVE
+  UPCOMING
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  COMPLETED
+  CANCELLED
+  TERMINATED_VIOLATION
+}
+
+enum CertificateStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum RevocationReason {
+  MISUSE_VIOLATION
+  ADMINISTRATIVE_ERROR
+}
+
+enum PlacementStatus {
+  PENDING
+  OFFERED
+  JOINED
+  DECLINED
+}
+
+enum ActivityAction {
+  INVITE_ADMIN
+  VERIFY_ADMIN
+  SETUP_ADMIN
+}
+
+enum EntityType {
+  ADMIN
+  ADMIN_INVITATION
+}
