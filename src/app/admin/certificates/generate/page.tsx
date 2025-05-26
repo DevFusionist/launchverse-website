@@ -31,6 +31,21 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import useSWR from 'swr';
 import { toast } from '@/hooks/use-toast';
+import {
+  AnimatedSection,
+  fadeIn,
+  slideIn,
+  staggerContainer,
+  staggerItem,
+  cardVariants,
+  MotionDiv,
+  buttonVariants,
+  iconVariants,
+  PageTransition,
+} from '@/components/ui/motion';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -70,9 +85,89 @@ export default function GenerateCertificatePage() {
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
-      </div>
+      <PageTransition>
+        <div className="container mx-auto py-8">
+          <AnimatedSection variants={fadeIn} className="mb-8">
+            <MotionDiv
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="h-8 w-48 bg-muted rounded-md mb-2"
+            />
+            <MotionDiv
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="h-4 w-64 bg-muted rounded-md"
+            />
+          </AnimatedSection>
+
+          <AnimatedSection variants={slideIn}>
+            <Card className="group hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <MotionDiv
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="h-6 w-48 bg-muted rounded-md mb-2"
+                />
+                <MotionDiv
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="h-4 w-96 bg-muted rounded-md"
+                />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <MotionDiv
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      className="h-4 w-20 bg-muted rounded-md"
+                    />
+                    <MotionDiv
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.4 }}
+                      className="h-10 w-full bg-muted rounded-md"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <MotionDiv
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.5 }}
+                      className="h-4 w-20 bg-muted rounded-md"
+                    />
+                    <MotionDiv
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.6 }}
+                      className="h-10 w-full bg-muted rounded-md"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-4">
+                    <MotionDiv
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.7 }}
+                      className="h-10 w-24 bg-muted rounded-md"
+                    />
+                    <MotionDiv
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.8 }}
+                      className="h-10 w-40 bg-muted rounded-md"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
+        </div>
+      </PageTransition>
     );
   }
 
@@ -116,96 +211,160 @@ export default function GenerateCertificatePage() {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Generate Certificate</h1>
-        <p className="text-muted-foreground">
-          Create a new certificate for a student
-        </p>
+    <PageTransition>
+      <div className="container mx-auto py-8">
+        <AnimatedSection variants={fadeIn} className="mb-8">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-3xl font-bold"
+          >
+            Generate Certificate
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-muted-foreground"
+          >
+            Create a new certificate for a student
+          </motion.p>
+        </AnimatedSection>
+
+        <AnimatedSection variants={slideIn}>
+          <Card className="group hover:shadow-lg transition-all duration-300">
+            <CardHeader>
+              <CardTitle className="group-hover:text-primary transition-colors">Certificate Details</CardTitle>
+              <CardDescription>
+                Select a student and course to generate a certificate
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="studentId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Student</FormLabel>
+                        <MotionDiv
+                          initial={{ scale: 1 }}
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="transition-all duration-200 hover:border-primary/50">
+                                <SelectValue placeholder="Select a student" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {students?.students.map((student) => (
+                                <SelectItem key={student.id} value={student.id}>
+                                  {student.name} ({student.email})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </MotionDiv>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="courseId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Course</FormLabel>
+                        <MotionDiv
+                          initial={{ scale: 1 }}
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="transition-all duration-200 hover:border-primary/50">
+                                <SelectValue placeholder="Select a course" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {courses?.courses.map((course) => (
+                                <SelectItem key={course.id} value={course.id}>
+                                  {course.title}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </MotionDiv>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex justify-end gap-4">
+                    <MotionDiv
+                      variants={buttonVariants}
+                      whileHover={{ scale: 1.05, rotate: -2, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+                      whileTap={{ scale: 0.95, rotate: 1 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                    >
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => router.back()}
+                        className="transition-all duration-200"
+                      >
+                        Cancel
+                      </Button>
+                    </MotionDiv>
+                    <MotionDiv
+                      variants={buttonVariants}
+                      whileHover={{ scale: 1.05, rotate: 2, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+                      whileTap={{ scale: 0.95, rotate: -1 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                    >
+                      <Button
+                        type="submit"
+                        disabled={isGenerating}
+                        className={cn(
+                          'transition-all duration-200',
+                          'hover:bg-primary/90',
+                          'active:scale-95'
+                        )}
+                      >
+                        {isGenerating ? (
+                          <>
+                            <MotionDiv
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                              className="mr-2"
+                            >
+                              <Loader2 className="h-4 w-4" />
+                            </MotionDiv>
+                            Generating...
+                          </>
+                        ) : (
+                          'Generate Certificate'
+                        )}
+                      </Button>
+                    </MotionDiv>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </AnimatedSection>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Certificate Details</CardTitle>
-          <CardDescription>
-            Select a student and course to generate a certificate
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="studentId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Student</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a student" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {students?.students.map((student) => (
-                          <SelectItem key={student.id} value={student.id}>
-                            {student.name} ({student.email})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="courseId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Course</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a course" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {courses?.courses.map((course) => (
-                          <SelectItem key={course.id} value={course.id}>
-                            {course.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex justify-end gap-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.back()}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isGenerating}>
-                  {isGenerating ? 'Generating...' : 'Generate Certificate'}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+    </PageTransition>
   );
 }

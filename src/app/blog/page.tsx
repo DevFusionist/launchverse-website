@@ -1,9 +1,9 @@
 'use client';
 
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, ArrowRight, Calendar, Clock, Tag } from 'lucide-react';
+import { Search, ArrowRight, Calendar, Clock, Tag, ChevronRight, User } from 'lucide-react';
 import Link from 'next/link';
 import { ROUTES } from '@/lib/constants';
 import {
@@ -12,6 +12,12 @@ import {
   fadeIn,
   slideIn,
   scaleIn,
+  staggerContainer,
+  staggerItem,
+  buttonVariants,
+  iconVariants,
+  MotionDiv,
+  PageTransition,
 } from '@/components/ui/motion';
 import {
   HoverCard,
@@ -21,6 +27,13 @@ import {
   AnimatedBadge,
 } from '@/components/ui/enhanced-motion';
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock blog data - in a real app, this would come from a CMS or database
 const blogPosts = [
@@ -79,134 +92,362 @@ const categories = [
   'Events',
 ];
 
+// Add these variants at the top level of the file
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 20,
+      duration: 0.2
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 20,
+      duration: 0.3
+    }
+  },
+  hover: {
+    y: -5,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 10
+    }
+  }
+};
+
+type BlogPost = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  author: {
+    name: string;
+    image: string;
+  };
+  publishedAt: string;
+  readTime: number;
+  image: string;
+  tags: string[];
+};
+
 export default function BlogPage() {
+  const { toast } = useToast();
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const router = useRouter();
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1); // Reset to first page on new search
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Fetch posts
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        setIsLoading(true);
+        const response = await fetch(
+          `/api/blog?page=${page}&search=${encodeURIComponent(debouncedSearch)}`
+        );
+        if (!response.ok) throw new Error('Failed to fetch posts');
+        const data = await response.json();
+        setPosts(data.posts);
+        setTotalPages(data.totalPages);
+      } catch (error) {
+        setError('Failed to load blog posts');
+        toast({
+          title: 'Error',
+          description: 'Failed to load blog posts',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPosts();
+  }, [page, debouncedSearch]);
+
   return (
-    <div className="flex flex-col gap-16">
-      {/* Hero Section */}
-      <ParallaxSection
-        speed={0.2}
-        className="relative overflow-hidden bg-background py-20 sm:py-32"
-      >
-        <div className="container relative">
+    <PageTransition>
+      <div className="container py-8">
+        <AnimatedSection
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          className="mb-8"
+        >
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-3xl font-bold"
+          >
+            Blog
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-muted-foreground"
+          >
+            Latest insights, tutorials, and updates from our team
+          </motion.p>
+        </AnimatedSection>
+
+        <AnimatedSection
+          variants={slideIn}
+          initial="hidden"
+          animate="visible"
+          className="mb-8"
+        >
+          <Card className="transition-all duration-300 hover:shadow-lg">
+            <CardHeader>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                  Search Articles
+                </CardTitle>
+                <MotionDiv
+                  variants={fadeIn}
+                  className="relative flex-1 sm:w-64 z-30"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                >
+                  <MotionDiv
+                    initial={{ scale: 1 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="relative"
+                  >
+                    <MotionDiv
+                      initial={{ opacity: 0.5 }}
+                      whileHover={{ opacity: 1 }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2"
+                    >
+                      <Search className="h-4 w-4 text-muted-foreground" />
+                    </MotionDiv>
+                    <Input
+                      placeholder="Search articles..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className={cn(
+                        "pl-9 transition-all duration-200",
+                        "focus:ring-2 focus:ring-primary/20",
+                        "hover:border-primary/50"
+                      )}
+                    />
+                  </MotionDiv>
+                </MotionDiv>
+              </div>
+            </CardHeader>
+          </Card>
+        </AnimatedSection>
+
+        {isLoading ? (
           <AnimatedSection
             variants={fadeIn}
-            className="mx-auto max-w-2xl text-center"
+            initial="hidden"
+            animate="visible"
+            className="flex justify-center py-8"
           >
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              Blog & News
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Stay updated with the latest industry trends, student success
-              stories, and career insights.
-            </p>
-          </AnimatedSection>
-        </div>
-      </ParallaxSection>
-
-      {/* Search and Filter Section */}
-      <section className="container">
-        <AnimatedSection variants={fadeIn} className="mx-auto max-w-5xl">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <AnimatedInput className="relative flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input placeholder="Search articles..." className="pl-9" />
-              </div>
-            </AnimatedInput>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category, index) => (
-                <AnimatedSection
-                  key={category}
-                  variants={slideIn}
-                  custom={index}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <AnimatedButton
-                    variant={category === 'All' ? 'default' : 'outline'}
-                    size="sm"
-                  >
-                    {category}
-                  </AnimatedButton>
-                </AnimatedSection>
-              ))}
-            </div>
-          </div>
-        </AnimatedSection>
-      </section>
-
-      {/* Blog Posts Grid */}
-      <section className="container">
-        <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {blogPosts.map((post, index) => (
-            <AnimatedSection
-              key={post.id}
-              variants={slideIn}
-              custom={index}
-              transition={{ delay: index * 0.1 }}
+            <MotionDiv
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             >
-              <Link href={`${ROUTES.blog}/${post.id}`}>
-                <HoverCard className="h-full">
-                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-t-lg">
-                    <Image
-                      src={post.image}
-                      alt={post.title}
-                      fill
-                      className="object-cover transition-transform hover:scale-105"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                  </div>
-                  <CardHeader>
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                      <AnimatedBadge variant="outline" className="text-xs">
-                        {post.category}
-                      </AnimatedBadge>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {post.date}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {post.readTime}
-                      </span>
-                    </div>
-                    <h2 className="mt-2 text-xl font-semibold">{post.title}</h2>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{post.excerpt}</p>
-                    <div className="mt-4 flex items-center justify-between">
-                      <AnimatedButton
-                        variant="ghost"
-                        size="sm"
-                        className="group"
-                      >
-                        Read More
-                        <AnimatedIcon className="ml-2">
-                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </AnimatedIcon>
-                      </AnimatedButton>
-                    </div>
-                  </CardContent>
-                </HoverCard>
-              </Link>
-            </AnimatedSection>
-          ))}
-        </div>
-      </section>
+              <Loader2 className="h-8 w-8 text-muted-foreground" />
+            </MotionDiv>
+          </AnimatedSection>
+        ) : error ? (
+          <AnimatedSection
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            className="text-center text-red-500"
+          >
+            Failed to load blog posts
+          </AnimatedSection>
+        ) : !posts?.length ? (
+          <AnimatedSection
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            className="text-center text-muted-foreground"
+          >
+            No articles found
+          </AnimatedSection>
+        ) : (
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+          >
+            <AnimatePresence mode="popLayout">
+              {posts.map((post, index) => (
+                <motion.div
+                  key={post.id}
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  whileHover="hover"
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="group relative"
+                >
+                  <Card className="h-full transition-all duration-300">
+                    <CardHeader>
+                      <div className="relative aspect-video overflow-hidden rounded-lg">
+                        <Image
+                          src={post.image}
+                          alt={post.title}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                      <CardTitle className="mt-4 line-clamp-2 transition-colors duration-200 group-hover:text-primary">
+                        {post.title}
+                      </CardTitle>
+                      <CardDescription className="line-clamp-2">
+                        {post.excerpt}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4" />
+                            <span>{post.author.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            <span>{post.readTime} min read</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {post.tags.map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="secondary"
+                              className="transition-all duration-200 group-hover:scale-105"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                        <MotionDiv
+                          whileHover={{ x: 5 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-between group-hover:text-primary"
+                            onClick={() => router.push(`/blog/${post.slug}`)}
+                          >
+                            Read More
+                            <ChevronRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                          </Button>
+                        </MotionDiv>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
 
-      {/* Pagination */}
-      <section className="container">
-        <AnimatedSection variants={fadeIn} className="mx-auto max-w-7xl">
-          <div className="flex justify-center gap-2">
-            <AnimatedButton variant="outline" disabled>
-              Previous
-            </AnimatedButton>
-            <AnimatedButton variant="outline">1</AnimatedButton>
-            <AnimatedButton variant="outline">2</AnimatedButton>
-            <AnimatedButton variant="outline">3</AnimatedButton>
-            <AnimatedButton variant="outline">Next</AnimatedButton>
-          </div>
-        </AnimatedSection>
-      </section>
-    </div>
+        {totalPages > 1 && (
+          <AnimatedSection
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            className="mt-8"
+          >
+            <div className="flex justify-center gap-2">
+              <MotionDiv
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className={cn(
+                    'transition-all duration-200',
+                    'hover:bg-primary/10 hover:text-primary',
+                    'active:scale-95'
+                  )}
+                >
+                  Previous
+                </Button>
+              </MotionDiv>
+              <MotionDiv
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className={cn(
+                    'transition-all duration-200',
+                    'hover:bg-primary/10 hover:text-primary',
+                    'active:scale-95'
+                  )}
+                >
+                  Next
+                </Button>
+              </MotionDiv>
+            </div>
+          </AnimatedSection>
+        )}
+      </div>
+    </PageTransition>
   );
 }

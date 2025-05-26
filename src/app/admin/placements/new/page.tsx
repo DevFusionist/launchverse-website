@@ -27,6 +27,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import useSWR from 'swr';
 import { toast } from '@/hooks/use-toast';
+import { AnimatedSection, fadeIn, slideIn, staggerContainer, staggerItem, cardVariants, buttonVariants, iconVariants, MotionDiv, PageTransition } from '@/components/ui/motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   studentId: z.string().min(1, 'Student is required'),
@@ -39,6 +43,59 @@ const formSchema = z.object({
 });
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+// Add these variants at the top level of the file
+const formVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.3,
+      staggerChildren: 0.05,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const fieldVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 20,
+      duration: 0.2
+    }
+  }
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 20,
+      duration: 0.2
+    }
+  }
+};
 
 export default function NewPlacementPage() {
   const router = useRouter();
@@ -96,185 +153,350 @@ export default function NewPlacementPage() {
   }
 
   return (
-    <div className="container py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Record New Placement</h1>
-        <p className="text-muted-foreground">
-          Add a new student placement record
-        </p>
-      </div>
+    <PageTransition>
+      <div className="container py-8">
+        <AnimatedSection
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          className="mb-8"
+        >
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-3xl font-bold"
+          >
+            Record New Placement
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-muted-foreground"
+          >
+            Add a new student placement record
+          </motion.p>
+        </AnimatedSection>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Placement Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="studentId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Student</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select student" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {formData?.students.map((student) => (
-                            <SelectItem key={student.id} value={student.id}>
-                              {student.name} ({student.email})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="companyId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Company</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select company" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {formData?.companies.map((company) => (
-                            <SelectItem key={company.id} value={company.id}>
-                              {company.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Position</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g. Software Engineer"
-                          {...field}
+        <AnimatedSection
+          variants={slideIn}
+          initial="hidden"
+          animate="visible"
+          className="group relative"
+        >
+          <Card className="transition-all duration-300 hover:shadow-lg">
+            <CardHeader>
+              <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                Placement Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <motion.div 
+                    variants={formVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="space-y-6"
+                  >
+                    <motion.div 
+                      variants={containerVariants}
+                      className="grid gap-6 md:grid-cols-2"
+                    >
+                      <motion.div variants={itemVariants}>
+                        <FormField
+                          control={form.control}
+                          name="studentId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Student</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <MotionDiv
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.99 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                    className="w-full"
+                                  >
+                                    <SelectTrigger className={cn(
+                                      "w-full transition-all duration-200",
+                                      "hover:border-primary/20 focus:border-primary/20",
+                                      "focus:ring-1 focus:ring-primary/20"
+                                    )}>
+                                      <SelectValue placeholder="Select student" />
+                                    </SelectTrigger>
+                                  </MotionDiv>
+                                </FormControl>
+                                <SelectContent>
+                                  {formData?.students.map((student) => (
+                                    <SelectItem key={student.id} value={student.id}>
+                                      {student.name} ({student.email})
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      </motion.div>
 
-                <FormField
-                  control={form.control}
-                  name="package"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Package (LPA)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder="e.g. 12.5"
-                          {...field}
+                      <motion.div variants={itemVariants}>
+                        <FormField
+                          control={form.control}
+                          name="companyId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Company</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <MotionDiv
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.99 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                    className="w-full"
+                                  >
+                                    <SelectTrigger className={cn(
+                                      "w-full transition-all duration-200",
+                                      "hover:border-primary/20 focus:border-primary/20",
+                                      "focus:ring-1 focus:ring-primary/20"
+                                    )}>
+                                      <SelectValue placeholder="Select company" />
+                                    </SelectTrigger>
+                                  </MotionDiv>
+                                </FormControl>
+                                <SelectContent>
+                                  {formData?.companies.map((company) => (
+                                    <SelectItem key={company.id} value={company.id}>
+                                      {company.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      </motion.div>
 
-                <FormField
-                  control={form.control}
-                  name="offerDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Offer Date</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="date"
-                          max={new Date().toISOString().split('T')[0]}
-                          {...field}
+                      <motion.div variants={itemVariants}>
+                        <FormField
+                          control={form.control}
+                          name="position"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Position</FormLabel>
+                              <FormControl>
+                                <MotionDiv
+                                  whileHover={{ scale: 1.01 }}
+                                  whileTap={{ scale: 0.99 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                  className="w-full"
+                                >
+                                  <Input
+                                    placeholder="e.g. Software Engineer"
+                                    className={cn(
+                                      "w-full transition-all duration-200",
+                                      "hover:border-primary/20 focus:border-primary/20",
+                                      "focus:ring-1 focus:ring-primary/20"
+                                    )}
+                                    {...field}
+                                  />
+                                </MotionDiv>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      </motion.div>
 
-                <FormField
-                  control={form.control}
-                  name="joiningDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Joining Date</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="date"
-                          min={new Date().toISOString().split('T')[0]}
-                          {...field}
+                      <motion.div variants={itemVariants}>
+                        <FormField
+                          control={form.control}
+                          name="package"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Package (LPA)</FormLabel>
+                              <FormControl>
+                                <MotionDiv
+                                  whileHover={{ scale: 1.01 }}
+                                  whileTap={{ scale: 0.99 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                  className="w-full"
+                                >
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="e.g. 12.5"
+                                    className={cn(
+                                      "w-full transition-all duration-200",
+                                      "hover:border-primary/20 focus:border-primary/20",
+                                      "focus:ring-1 focus:ring-primary/20"
+                                    )}
+                                    {...field}
+                                  />
+                                </MotionDiv>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                      </motion.div>
 
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Additional notes about the placement..."
-                        className="h-24"
-                        {...field}
+                      <motion.div variants={itemVariants}>
+                        <FormField
+                          control={form.control}
+                          name="offerDate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Offer Date</FormLabel>
+                              <FormControl>
+                                <MotionDiv
+                                  whileHover={{ scale: 1.01 }}
+                                  whileTap={{ scale: 0.99 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                  className="w-full"
+                                >
+                                  <Input
+                                    type="date"
+                                    max={new Date().toISOString().split('T')[0]}
+                                    className={cn(
+                                      "w-full transition-all duration-200",
+                                      "hover:border-primary/20 focus:border-primary/20",
+                                      "focus:ring-1 focus:ring-primary/20"
+                                    )}
+                                    {...field}
+                                  />
+                                </MotionDiv>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </motion.div>
+
+                      <motion.div variants={itemVariants}>
+                        <FormField
+                          control={form.control}
+                          name="joiningDate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Joining Date</FormLabel>
+                              <FormControl>
+                                <MotionDiv
+                                  whileHover={{ scale: 1.01 }}
+                                  whileTap={{ scale: 0.99 }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                  className="w-full"
+                                >
+                                  <Input
+                                    type="date"
+                                    min={new Date().toISOString().split('T')[0]}
+                                    className={cn(
+                                      "w-full transition-all duration-200",
+                                      "hover:border-primary/20 focus:border-primary/20",
+                                      "focus:ring-1 focus:ring-primary/20"
+                                    )}
+                                    {...field}
+                                  />
+                                </MotionDiv>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </motion.div>
+                    </motion.div>
+
+                    <motion.div variants={itemVariants}>
+                      <FormField
+                        control={form.control}
+                        name="notes"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Notes</FormLabel>
+                            <FormControl>
+                              <MotionDiv
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.99 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                className="w-full"
+                              >
+                                <Textarea
+                                  placeholder="Additional notes about the placement..."
+                                  className={cn(
+                                    "w-full h-24 transition-all duration-200",
+                                    "hover:border-primary/20 focus:border-primary/20",
+                                    "focus:ring-1 focus:ring-primary/20"
+                                  )}
+                                  {...field}
+                                />
+                              </MotionDiv>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    </motion.div>
+                  </motion.div>
 
-              <div className="flex justify-end gap-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.back()}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Creating...' : 'Create Placement'}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+                  <motion.div 
+                    variants={fadeIn}
+                    initial="hidden"
+                    animate="visible"
+                    className="flex justify-end gap-4 pt-4"
+                  >
+                    <MotionDiv
+                      whileHover={{ scale: 1.05, rotate: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => router.back()}
+                        className="group relative z-30"
+                      >
+                        Cancel
+                      </Button>
+                    </MotionDiv>
+
+                    <MotionDiv
+                      whileHover={{ scale: 1.05, rotate: 2 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="group relative z-30"
+                      >
+                        {isSubmitting ? (
+                          <MotionDiv
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="mr-2"
+                          >
+                            <Loader2 className="h-4 w-4" />
+                          </MotionDiv>
+                        ) : null}
+                        {isSubmitting ? 'Creating...' : 'Create Placement'}
+                      </Button>
+                    </MotionDiv>
+                  </motion.div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </AnimatedSection>
+      </div>
+    </PageTransition>
   );
 }

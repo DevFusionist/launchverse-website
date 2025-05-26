@@ -1,209 +1,309 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatedSection, fadeIn, slideIn, staggerContainer, staggerItem, buttonVariants, iconVariants, MotionDiv, PageTransition } from '@/components/ui/motion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import {
-  AnimatedSection,
-  ParallaxSection,
-  fadeIn,
-  slideIn,
-  scaleIn,
-} from '@/components/ui/motion';
-import {
-  HoverCard,
-  AnimatedButton,
-  AnimatedIcon,
-  AnimatedInput,
-} from '@/components/ui/enhanced-motion';
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, XCircle, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const contactInfo = [
   {
     title: 'Email',
-    description: 'info@launchverse.com',
+    value: 'contact@launchverse.com',
     icon: Mail,
+    link: 'mailto:contact@launchverse.com',
   },
   {
     title: 'Phone',
-    description: '+91 98765 43210',
+    value: '+91 1234567890',
     icon: Phone,
+    link: 'tel:+911234567890',
   },
   {
     title: 'Address',
-    description: '123 Tech Park, Bangalore, Karnataka, India - 560103',
+    value: '123 Tech Park, Bangalore, India',
     icon: MapPin,
+    link: 'https://maps.google.com',
   },
 ];
 
 export default function ContactPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    toast({
-      title: 'Message Sent',
-      description: 'Thank you for contacting us. We will get back to you soon.',
-    });
-
-    setIsSubmitting(false);
-    (e.target as HTMLFormElement).reset();
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: 'Message Sent',
+        description: 'We will get back to you soon!',
+      });
+      
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to send message. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="flex flex-col gap-16">
-      {/* Hero Section */}
-      <ParallaxSection
-        speed={0.2}
-        className="relative overflow-hidden bg-background py-20 sm:py-32"
-      >
-        <div className="container relative">
-          <AnimatedSection
-            variants={fadeIn}
-            className="mx-auto max-w-2xl text-center"
+    <PageTransition>
+      <div className="container py-8">
+        <AnimatedSection
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          className="mb-8"
+        >
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-4xl font-bold"
           >
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              Get in Touch
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Have questions? We're here to help. Reach out to us and we'll get
-              back to you as soon as possible.
-            </p>
-          </AnimatedSection>
-        </div>
-      </ParallaxSection>
+            Contact Us
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-xl text-muted-foreground"
+          >
+            Get in touch with our team
+          </motion.p>
+        </AnimatedSection>
 
-      {/* Contact Form and Info Section */}
-      <section className="container">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-2">
-          {/* Contact Form */}
-          <AnimatedSection variants={slideIn}>
-            <Card>
-              <CardContent className="p-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-4">
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Name
-                      </label>
-                      <AnimatedInput className="mt-2">
-                        <Input
-                          id="name"
-                          placeholder="Your name"
-                          required
-                          disabled={isSubmitting}
-                        />
-                      </AnimatedInput>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Email
-                      </label>
-                      <AnimatedInput className="mt-2">
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="your.email@example.com"
-                          required
-                          disabled={isSubmitting}
-                        />
-                      </AnimatedInput>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="message"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Message
-                      </label>
-                      <AnimatedInput className="mt-2">
-                        <Textarea
-                          id="message"
-                          placeholder="Your message"
-                          required
-                          disabled={isSubmitting}
-                          className="min-h-[120px]"
-                        />
-                      </AnimatedInput>
-                    </div>
-                  </div>
-                  <AnimatedButton
-                    type="submit"
-                    className="w-full"
-                    disabled={isSubmitting}
+        <div className="grid gap-8 md:grid-cols-2">
+          <AnimatedSection
+            variants={slideIn}
+            initial="hidden"
+            animate="visible"
+            className="space-y-6"
+          >
+            <Card className="transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                  Send us a Message
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <motion.div
+                    variants={staggerContainer}
+                    initial="hidden"
+                    animate="show"
+                    className="space-y-4"
                   >
-                    {isSubmitting ? (
-                      'Sending...'
-                    ) : (
-                      <>
-                        Send Message
-                        <AnimatedIcon className="ml-2">
-                          <Send className="h-4 w-4" />
-                        </AnimatedIcon>
-                      </>
-                    )}
-                  </AnimatedButton>
+                    <motion.div variants={staggerItem}>
+                      <Input
+                        placeholder="Your Name"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                        className={cn(
+                          "transition-all duration-200",
+                          "focus:ring-2 focus:ring-primary/20",
+                          "hover:border-primary/50"
+                        )}
+                      />
+                    </motion.div>
+                    <motion.div variants={staggerItem}>
+                      <Input
+                        type="email"
+                        placeholder="Your Email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        required
+                        className={cn(
+                          "transition-all duration-200",
+                          "focus:ring-2 focus:ring-primary/20",
+                          "hover:border-primary/50"
+                        )}
+                      />
+                    </motion.div>
+                    <motion.div variants={staggerItem}>
+                      <Input
+                        placeholder="Subject"
+                        value={formData.subject}
+                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                        required
+                        className={cn(
+                          "transition-all duration-200",
+                          "focus:ring-2 focus:ring-primary/20",
+                          "hover:border-primary/50"
+                        )}
+                      />
+                    </motion.div>
+                    <motion.div variants={staggerItem}>
+                      <Textarea
+                        placeholder="Your Message"
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        required
+                        className={cn(
+                          "min-h-[120px] transition-all duration-200",
+                          "focus:ring-2 focus:ring-primary/20",
+                          "hover:border-primary/50"
+                        )}
+                      />
+                    </motion.div>
+                    <motion.div variants={staggerItem}>
+                      <MotionDiv
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      >
+                        <Button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className={cn(
+                            "w-full transition-all duration-200",
+                            "hover:bg-primary/90",
+                            "active:scale-95"
+                          )}
+                        >
+                          <AnimatePresence mode="wait">
+                            {isSubmitting ? (
+                              <motion.div
+                                key="loading"
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                transition={{ duration: 0.2 }}
+                                className="flex items-center gap-2"
+                              >
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Sending...
+                              </motion.div>
+                            ) : (
+                              <motion.div
+                                key="send"
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                transition={{ duration: 0.2 }}
+                                className="flex items-center gap-2"
+                              >
+                                <Send className="h-4 w-4" />
+                                Send Message
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </Button>
+                      </MotionDiv>
+                    </motion.div>
+                  </motion.div>
                 </form>
               </CardContent>
             </Card>
           </AnimatedSection>
 
-          {/* Contact Information */}
-          <div className="space-y-8">
-            <AnimatedSection variants={fadeIn}>
-              <div>
-                <h2 className="mb-4 text-2xl font-semibold">
+          <AnimatedSection
+            variants={slideIn}
+            initial="hidden"
+            animate="visible"
+            className="space-y-6"
+          >
+            <Card className="transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <CardTitle className="transition-colors duration-200 group-hover:text-primary">
                   Contact Information
-                </h2>
-                <p className="text-muted-foreground">
-                  We're here to help and answer any questions you might have. We
-                  look forward to hearing from you.
-                </p>
-              </div>
-            </AnimatedSection>
-
-            <div className="grid gap-6">
-              {contactInfo.map((info, index) => (
-                <AnimatedSection
-                  key={info.title}
-                  variants={slideIn}
-                  custom={index}
-                  transition={{ delay: index * 0.1 }}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <motion.div
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="show"
+                  className="grid gap-4"
                 >
-                  <HoverCard>
-                    <div className="flex items-start gap-4">
-                      <AnimatedIcon className="mt-1 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <info.icon className="h-5 w-5 text-primary" />
-                      </AnimatedIcon>
-                      <div>
-                        <h3 className="font-semibold">{info.title}</h3>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          {info.description}
-                        </p>
+                  {contactInfo.map((info) => (
+                    <motion.a
+                      key={info.title}
+                      href={info.link}
+                      target={info.title === 'Address' ? '_blank' : undefined}
+                      rel={info.title === 'Address' ? 'noopener noreferrer' : undefined}
+                      variants={staggerItem}
+                      className="group flex items-center gap-4 rounded-lg border p-4 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5"
+                    >
+                      <MotionDiv
+                        whileHover={{ scale: 1.2, rotate: 5 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary"
+                      >
+                        <info.icon className="h-5 w-5" />
+                      </MotionDiv>
+                      <div className="flex-1">
+                        <h4 className="font-medium transition-colors duration-200 group-hover:text-primary">
+                          {info.title}
+                        </h4>
+                        <p className="text-sm text-muted-foreground">{info.value}</p>
                       </div>
-                    </div>
-                  </HoverCard>
-                </AnimatedSection>
-              ))}
-            </div>
-          </div>
+                      <MotionDiv
+                        whileHover={{ x: 4 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        className="text-muted-foreground"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </MotionDiv>
+                    </motion.a>
+                  ))}
+                </motion.div>
+              </CardContent>
+            </Card>
+
+            <Card className="transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                  Office Hours
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <motion.div
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="show"
+                  className="space-y-2"
+                >
+                  <motion.div variants={staggerItem} className="flex justify-between">
+                    <span className="text-muted-foreground">Monday - Friday</span>
+                    <span className="font-medium">9:00 AM - 6:00 PM</span>
+                  </motion.div>
+                  <motion.div variants={staggerItem} className="flex justify-between">
+                    <span className="text-muted-foreground">Saturday</span>
+                    <span className="font-medium">10:00 AM - 4:00 PM</span>
+                  </motion.div>
+                  <motion.div variants={staggerItem} className="flex justify-between">
+                    <span className="text-muted-foreground">Sunday</span>
+                    <span className="font-medium">Closed</span>
+                  </motion.div>
+                </motion.div>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
         </div>
-      </section>
-    </div>
+      </div>
+    </PageTransition>
   );
 }

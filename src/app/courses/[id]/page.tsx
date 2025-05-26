@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -22,6 +22,12 @@ import {
   ParallaxSection,
   fadeIn,
   slideIn,
+  staggerContainer,
+  staggerItem,
+  buttonVariants,
+  iconVariants,
+  MotionDiv,
+  PageTransition,
 } from '@/components/ui/motion';
 import {
   AnimatedButton,
@@ -30,250 +36,476 @@ import {
 } from '@/components/ui/enhanced-motion';
 import { ROUTES } from '@/lib/constants';
 import { toast } from '@/hooks/use-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Clock, Users, GraduationCap, ChevronRight, CheckCircle2, BookOpen, Award, Calendar } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-// Using the same mock data for now - in a real app, this would come from an API/database
-const courses = [
-  {
-    id: 1,
-    title: 'Full Stack Web Development',
-    description:
-      'Master modern web development with React, Node.js, and MongoDB',
-    duration: '6 months',
-    level: 'Beginner to Advanced',
-    category: 'Web Development',
-    price: '₹49,999',
-    image:
-      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop',
-    tags: ['React', 'Node.js', 'MongoDB', 'JavaScript'],
-    syllabus: [
-      'HTML5, CSS3, and Modern JavaScript',
-      'React.js and Component Architecture',
-      'Node.js and Express.js Backend Development',
-      'MongoDB Database Design and Integration',
-      'RESTful API Development',
-      'Authentication and Authorization',
-      'Deployment and DevOps Basics',
-    ],
-    requirements: [
-      'Basic computer knowledge',
-      'Familiarity with any programming language',
-      'Dedication to learn and practice',
-    ],
-  },
-  {
-    id: 2,
-    title: 'Data Science & Machine Learning',
-    description: 'Learn data analysis, machine learning, and AI fundamentals',
-    duration: '8 months',
-    level: 'Intermediate',
-    category: 'Data Science',
-    price: '₹69,999',
-    image:
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop',
-    tags: ['Python', 'ML', 'AI', 'Data Analysis'],
-    syllabus: [
-      'Python Programming Fundamentals',
-      'Data Analysis with Pandas and NumPy',
-      'Data Visualization with Matplotlib and Seaborn',
-      'Machine Learning Algorithms',
-      'Deep Learning with TensorFlow',
-      'Natural Language Processing',
-      'Computer Vision Basics',
-    ],
-    requirements: [
-      'Basic programming knowledge',
-      'Understanding of mathematics and statistics',
-      'Analytical thinking',
-    ],
-  },
-  {
-    id: 3,
-    title: 'Digital Marketing Masterclass',
-    description:
-      'Comprehensive digital marketing training with practical projects',
-    duration: '4 months',
-    level: 'Beginner',
-    category: 'Marketing',
-    price: '₹29,999',
-    image:
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop',
-    tags: ['SEO', 'Social Media', 'Content Marketing'],
-    syllabus: [
-      'Digital Marketing Fundamentals',
-      'Search Engine Optimization (SEO)',
-      'Social Media Marketing',
-      'Content Marketing Strategy',
-      'Email Marketing',
-      'Google Analytics and Data Analysis',
-      'Digital Advertising',
-    ],
-    requirements: [
-      'Basic computer skills',
-      'Good communication skills',
-      'Interest in marketing and social media',
-    ],
-  },
-  {
-    id: 4,
-    title: 'UI/UX Design Fundamentals',
-    description:
-      'Master the art of creating beautiful and functional user interfaces',
-    duration: '3 months',
-    level: 'Beginner',
-    category: 'Design',
-    price: '₹39,999',
-    image:
-      'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=2064&auto=format&fit=crop',
-    tags: ['Figma', 'UI Design', 'UX Research'],
-    syllabus: [
-      'Design Principles and Elements',
-      'User Research and Personas',
-      'Wireframing and Prototyping',
-      'UI Design with Figma',
-      'User Experience Design',
-      'Design Systems',
-      'Portfolio Development',
-    ],
-    requirements: [
-      'Basic computer skills',
-      'Creativity and attention to detail',
-      'Interest in design and user experience',
-    ],
-  },
-];
+// Update the course type to match the actual data structure
+type Course = {
+  id: string;
+  title: string;
+  description: string;
+  duration: number;
+  level: string;
+  category: string;
+  fee: number;
+  status: 'ACTIVE' | 'UPCOMING' | 'INACTIVE';
+  overview: string;
+  learningObjectives: string[];
+  curriculum: Array<{
+    title: string;
+    description: string;
+  }>;
+  nextBatchStart: string;
+  _count: {
+    enrollments: number;
+    certificates: number;
+  };
+};
 
-export default function CourseDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const router = useRouter();
-  const { data: session } = useSession();
-  const [isEnrollDialogOpen, setIsEnrollDialogOpen] = useState(false);
-  const [isEnrolling, setIsEnrolling] = useState(false);
-
-  const course = courses.find((c) => c.id === parseInt(params.id));
-
-  if (!course) {
-    notFound();
+// Add these variants at the top level of the file
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1
+    }
   }
+};
 
-  const handleEnrollClick = () => {
-    router.push(`${ROUTES.contact}?course=${encodeURIComponent(course.title)}`);
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 20,
+      duration: 0.2
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 20,
+      duration: 0.3
+    }
+  },
+  hover: {
+    y: -5,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 10
+    }
+  }
+};
+
+export default function CourseDetailsPage({ params }: { params: { id: string } }) {
+  const [course, setCourse] = useState<Course | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isEnrolling, setIsEnrolling] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    async function fetchCourse() {
+      try {
+        const response = await fetch(`/api/courses/${params.id}`);
+        if (!response.ok) throw new Error('Failed to fetch course');
+        const data = await response.json();
+        setCourse(data);
+      } catch (error) {
+        setError('Failed to load course details');
+        toast({
+          title: 'Error',
+          description: 'Failed to load course details',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchCourse();
+  }, [params.id]);
+
+  const handleEnroll = async () => {
+    if (!course) return;
+    
+    try {
+      setIsEnrolling(true);
+      const response = await fetch('/api/student/enrollments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          courseId: course.id,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to enroll');
+
+      toast({
+        title: 'Success',
+        description: 'Successfully enrolled in the course',
+      });
+      router.push('/student/dashboard');
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to enroll in the course',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsEnrolling(false);
+    }
   };
 
   return (
-    <div className="flex flex-col gap-16">
-      {/* Hero Section */}
-      <ParallaxSection
-        speed={0.2}
-        className="relative overflow-hidden bg-background py-20 sm:py-32"
-      >
-        <div className="container relative">
-          <AnimatedSection variants={fadeIn}>
-            <AnimatedButton variant="ghost" asChild className="mb-8">
-              <Link href={ROUTES.courses} className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Courses
-              </Link>
-            </AnimatedButton>
-          </AnimatedSection>
-          <div className="grid gap-8 md:grid-cols-2">
-            <AnimatedSection
-              variants={slideIn}
-              className="relative aspect-video"
+    <PageTransition>
+      <div className="container py-8">
+        {isLoading ? (
+          <AnimatedSection
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            className="flex justify-center py-8"
+          >
+            <MotionDiv
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             >
-              <Image
-                src={course.image}
-                alt={course.title}
-                fill
-                className="rounded-lg object-cover"
-                priority
-              />
+              <Loader2 className="h-8 w-8 text-muted-foreground" />
+            </MotionDiv>
+          </AnimatedSection>
+        ) : error ? (
+          <AnimatedSection
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            className="text-center text-red-500"
+          >
+            Failed to load course details
+          </AnimatedSection>
+        ) : !course ? (
+            <AnimatedSection
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            className="text-center text-muted-foreground"
+          >
+            Course not found
             </AnimatedSection>
+        ) : (
+          <div className="space-y-8">
             <AnimatedSection
               variants={fadeIn}
-              className="flex flex-col justify-center"
+              initial="hidden"
+              animate="visible"
+              className="space-y-4"
             >
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+              <motion.h1
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-4xl font-bold"
+              >
                 {course.title}
-              </h1>
-              <p className="mt-4 text-lg text-muted-foreground">
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-muted-foreground"
+              >
                 {course.description}
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2">
-                {course.tags.map((tag) => (
-                  <AnimatedBadge key={tag} variant="secondary">
-                    {tag}
-                  </AnimatedBadge>
-                ))}
-              </div>
-              <div className="mt-8 flex items-center gap-4">
-                <AnimatedBadge variant="outline" className="text-lg">
-                  {course.price}
-                </AnimatedBadge>
-                <AnimatedBadge variant="outline" className="text-lg">
-                  {course.duration}
-                </AnimatedBadge>
-                <AnimatedBadge variant="outline" className="text-lg">
-                  {course.level}
-                </AnimatedBadge>
-              </div>
+              </motion.p>
             </AnimatedSection>
+
+            <AnimatedSection
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
+            >
+              <motion.div variants={itemVariants}>
+                <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium transition-colors duration-200 group-hover:text-primary">
+                      Duration
+                    </CardTitle>
+                    <MotionDiv
+                      whileHover={{ rotate: 15, scale: 1.1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <Clock className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                    </MotionDiv>
+                  </CardHeader>
+                  <CardContent>
+                    <MotionDiv
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      className="text-2xl font-bold"
+                    >
+                      {course.duration} weeks
+                    </MotionDiv>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium transition-colors duration-200 group-hover:text-primary">
+                      Students
+                    </CardTitle>
+                    <MotionDiv
+                      whileHover={{ rotate: 15, scale: 1.1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <Users className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                    </MotionDiv>
+                  </CardHeader>
+                  <CardContent>
+                    <MotionDiv
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      className="text-2xl font-bold"
+                    >
+                      {course._count.enrollments}
+                    </MotionDiv>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium transition-colors duration-200 group-hover:text-primary">
+                      Graduates
+                    </CardTitle>
+                    <MotionDiv
+                      whileHover={{ rotate: 15, scale: 1.1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <GraduationCap className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                    </MotionDiv>
+                  </CardHeader>
+                  <CardContent>
+                    <MotionDiv
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      className="text-2xl font-bold"
+                    >
+                      {course._count.certificates}
+                    </MotionDiv>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium transition-colors duration-200 group-hover:text-primary">
+                      Level
+                    </CardTitle>
+                    <MotionDiv
+                      whileHover={{ rotate: 15, scale: 1.1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <BookOpen className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                    </MotionDiv>
+                  </CardHeader>
+                  <CardContent>
+                    <MotionDiv
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      className="text-2xl font-bold"
+                    >
+                  {course.level}
+                    </MotionDiv>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </AnimatedSection>
+
+            <div className="grid gap-8 md:grid-cols-3">
+              <AnimatedSection
+                variants={slideIn}
+                initial="hidden"
+                animate="visible"
+                className="md:col-span-2 space-y-6"
+              >
+                <Card className="transition-all duration-300 hover:shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                      Course Overview
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="prose prose-sm max-w-none"
+                    >
+                      {course.overview}
+                    </motion.div>
+                  </CardContent>
+                </Card>
+
+                <Card className="transition-all duration-300 hover:shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                      What You'll Learn
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <motion.ul
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                      className="grid gap-4 sm:grid-cols-2"
+                    >
+                      {course.learningObjectives.map((objective, index) => (
+                        <motion.li
+                          key={index}
+                          variants={itemVariants}
+                          className="flex items-start gap-2"
+                        >
+                          <MotionDiv
+                            whileHover={{ scale: 1.2, rotate: 5 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                          >
+                            <CheckCircle2 className="h-5 w-5 text-primary" />
+                          </MotionDiv>
+                          <span>{objective}</span>
+                        </motion.li>
+                      ))}
+                    </motion.ul>
+                  </CardContent>
+                </Card>
+
+                <Card className="transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                    <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                      Curriculum
+                    </CardTitle>
+              </CardHeader>
+              <CardContent>
+                    <motion.div
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                      className="space-y-4"
+                    >
+                      {course.curriculum.map((module, index) => (
+                        <motion.div
+                          key={index}
+                          variants={itemVariants}
+                          className="rounded-lg border p-4 transition-all duration-200 hover:border-primary/50"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="font-medium">Module {index + 1}: {module.title}</h4>
+                              <p className="text-sm text-muted-foreground">{module.description}</p>
+                            </div>
+                            <MotionDiv
+                              whileHover={{ rotate: 90 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            >
+                              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                            </MotionDiv>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
+
+              <AnimatedSection
+                variants={slideIn}
+                initial="hidden"
+                animate="visible"
+                className="space-y-6"
+              >
+                <Card className="sticky top-8 transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                    <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                      Enroll Now
+                    </CardTitle>
+              </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-2xl font-bold">
+                        <span>Course Fee</span>
+                        <MotionDiv
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
+                          ₹{course.fee.toLocaleString('en-IN')}
+                        </MotionDiv>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Includes lifetime access and certificate
+                      </p>
+                    </div>
+
+                    <div className="space-y-4">
+                      <MotionDiv
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      >
+                        <Button
+                          className="w-full"
+                          size="lg"
+                          onClick={handleEnroll}
+                          disabled={isEnrolling}
+                        >
+                          {isEnrolling ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Enrolling...
+                            </>
+                          ) : (
+                            'Enroll Now'
+                          )}
+                        </Button>
+                      </MotionDiv>
+
+                      <div className="space-y-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>Next batch starts in {course.nextBatchStart}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Award className="h-4 w-4" />
+                          <span>Certificate included</span>
+                        </div>
+                      </div>
+                    </div>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
+        </div>
           </div>
-        </div>
-      </ParallaxSection>
-
-      {/* Course Details */}
-      <section className="container pb-24">
-        <div className="grid gap-8 md:grid-cols-2">
-          <AnimatedSection variants={fadeIn}>
-            <Card>
-              <CardHeader>
-                <CardTitle>Course Syllabus</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {course.syllabus.map((item, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </AnimatedSection>
-
-          <AnimatedSection variants={fadeIn}>
-            <Card>
-              <CardHeader>
-                <CardTitle>Requirements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {course.requirements.map((item, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </AnimatedSection>
-        </div>
-
-        <AnimatedSection variants={fadeIn} className="mt-8 text-center">
-          <AnimatedButton
-            size="lg"
-            className="px-8"
-            onClick={handleEnrollClick}
-          >
-            Contact for Enrollment
-          </AnimatedButton>
-        </AnimatedSection>
-      </section>
+        )}
     </div>
+    </PageTransition>
   );
 }

@@ -39,6 +39,8 @@ import {
 } from '@prisma/client';
 import useSWR from 'swr';
 import { toast } from '@/hooks/use-toast';
+import { AnimatedSection, fadeIn, slideIn, staggerContainer, staggerItem, cardVariants } from '@/components/ui/motion';
+import { cn } from '@/lib/utils';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -110,9 +112,14 @@ export default function CourseDetailsPage({
 
   if (status === 'loading' || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
-      </div>
+      <AnimatedSection
+        variants={fadeIn}
+        initial="hidden"
+        animate="visible"
+        className="flex min-h-screen items-center justify-center"
+      >
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary transition-colors duration-200"></div>
+      </AnimatedSection>
     );
   }
 
@@ -250,7 +257,7 @@ export default function CourseDetailsPage({
           setStatusChangeDialog((prev) => ({ ...prev, isOpen: open }))
         }
       >
-        <DialogContent>
+        <DialogContent className="transition-all duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
           <DialogHeader>
             <DialogTitle>Confirm Status Change</DialogTitle>
             <DialogDescription>
@@ -289,7 +296,7 @@ export default function CourseDetailsPage({
         open={isNewEnrollmentDialogOpen}
         onOpenChange={setIsNewEnrollmentDialogOpen}
       >
-        <DialogContent>
+        <DialogContent className="transition-all duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
           <DialogHeader>
             <DialogTitle>New Enrollment</DialogTitle>
             <DialogDescription>
@@ -336,30 +343,57 @@ export default function CourseDetailsPage({
       </Dialog>
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{data.course.title}</h1>
-          <p className="text-muted-foreground">{data.course.description}</p>
+      <AnimatedSection
+        variants={fadeIn}
+        initial="hidden"
+        animate="visible"
+        className="flex items-center justify-between"
+      >
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold transition-colors duration-200 hover:text-primary">
+            {data.course.title}
+          </h1>
+          <p className="text-muted-foreground transition-colors duration-200 hover:text-primary/80">
+            {data.course.description}
+          </p>
         </div>
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/admin/courses/${params.id}/edit`)}
+          <AnimatedSection
+            variants={cardVariants}
+            initial="initial"
+            whileHover="hover"
+            whileTap="tap"
+            className="relative"
           >
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit
-          </Button>
-          <Dialog
-            open={isDeleteDialogOpen}
-            onOpenChange={setIsDeleteDialogOpen}
-          >
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/admin/courses/${params.id}/edit`)}
+              className="group relative z-30 transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
+            >
+              <Pencil className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:rotate-12" />
+              Edit
+            </Button>
+          </AnimatedSection>
+
+          <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </Button>
+              <AnimatedSection
+                variants={cardVariants}
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                className="relative"
+              >
+                <Button
+                  variant="destructive"
+                  className="group relative z-30 transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
+                >
+                  <Trash2 className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:rotate-12" />
+                  Delete
+                </Button>
+              </AnimatedSection>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="transition-all duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
               <DialogHeader>
                 <DialogTitle>Delete Course</DialogTitle>
                 <DialogDescription>
@@ -381,237 +415,325 @@ export default function CourseDetailsPage({
             </DialogContent>
           </Dialog>
         </div>
-      </div>
+      </AnimatedSection>
 
       {/* Course Info */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Course Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Status</label>
-              <div className="flex items-center gap-2">
-                <Select
-                  value={data.course.status}
-                  onValueChange={handleStatusChange}
-                  disabled={Boolean(isUpdating)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ACTIVE">Active</SelectItem>
-                    <SelectItem value="INACTIVE">Inactive</SelectItem>
-                    <SelectItem value="UPCOMING">Upcoming</SelectItem>
-                  </SelectContent>
-                </Select>
-                {isUpdating === 'status' && (
-                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
-                )}
+        <AnimatedSection
+          variants={cardVariants}
+          initial="initial"
+          animate="animate"
+          whileHover="hover"
+          className="group relative"
+        >
+          <Card className="transition-all duration-200 hover:shadow-md">
+            <CardHeader>
+              <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                Course Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="relative z-20">
+                <label className="text-sm font-medium transition-colors duration-200 group-hover:text-primary/80">Status</label>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={data.course.status}
+                    onValueChange={handleStatusChange}
+                    disabled={Boolean(isUpdating)}
+                  >
+                    <SelectTrigger className="transition-all duration-200 hover:border-primary/20 focus:border-primary/20 focus:ring-1 focus:ring-primary/20">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ACTIVE">Active</SelectItem>
+                      <SelectItem value="INACTIVE">Inactive</SelectItem>
+                      <SelectItem value="UPCOMING">Upcoming</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {isUpdating === 'status' && (
+                    <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-t-2 border-primary transition-colors duration-200"></div>
+                  )}
+                </div>
               </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium">Duration</label>
-              <p>{data.course.duration} weeks</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium">Fee</label>
-              <p>
-                ₹
-                {data.course.fee.toLocaleString('en-IN', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium">Created</label>
-              <p>{new Date(data.course.createdAt).toLocaleDateString()}</p>
-            </div>
-          </CardContent>
-        </Card>
+              <div>
+                <label className="text-sm font-medium">Duration</label>
+                <p>{data.course.duration} weeks</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Fee</label>
+                <p>
+                  ₹
+                  {data.course.fee.toLocaleString('en-IN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Created</label>
+                <p>{new Date(data.course.createdAt).toLocaleDateString()}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </AnimatedSection>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Statistics</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-medium">Total Enrollments</p>
-              <p className="text-2xl font-bold">
-                {data.course._count.enrollments}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium">Certificates Issued</p>
-              <p className="text-2xl font-bold">
-                {data.course._count.certificates}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium">Active Enrollments</p>
-              <p className="text-2xl font-bold">
-                {
-                  data.course.enrollments.filter((e) => e.status === 'ENROLLED')
-                    .length
-                }
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium">Completed</p>
-              <p className="text-2xl font-bold">
-                {
-                  data.course.enrollments.filter(
-                    (e) => e.status === 'COMPLETED'
-                  ).length
-                }
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <AnimatedSection
+          variants={cardVariants}
+          initial="initial"
+          animate="animate"
+          whileHover="hover"
+          className="group relative"
+        >
+          <Card className="transition-all duration-200 hover:shadow-md">
+            <CardHeader>
+              <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                Statistics
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium">Total Enrollments</p>
+                <p className="text-2xl font-bold">
+                  {data.course._count.enrollments}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Certificates Issued</p>
+                <p className="text-2xl font-bold">
+                  {data.course._count.certificates}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Active Enrollments</p>
+                <p className="text-2xl font-bold">
+                  {
+                    data.course.enrollments.filter((e) => e.status === 'ENROLLED')
+                      .length
+                  }
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Completed</p>
+                <p className="text-2xl font-bold">
+                  {
+                    data.course.enrollments.filter(
+                      (e) => e.status === 'COMPLETED'
+                    ).length
+                  }
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </AnimatedSection>
       </div>
 
       {/* Enrollments */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Enrollments</CardTitle>
-          <Button size="sm" onClick={() => setIsNewEnrollmentDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Enrollment
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Student</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Start Date</TableHead>
-                <TableHead>End Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.course.enrollments.map((enrollment) => (
-                <TableRow key={enrollment.id}>
-                  <TableCell className="font-medium">
-                    {enrollment.student.name}
-                  </TableCell>
-                  <TableCell>{enrollment.student.email}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={
-                        enrollment.status === 'ENROLLED'
-                          ? 'bg-green-500/10 text-green-500'
-                          : enrollment.status === 'COMPLETED'
-                            ? 'bg-blue-500/10 text-blue-500'
-                            : 'bg-yellow-500/10 text-yellow-500'
-                      }
+      <AnimatedSection
+        variants={cardVariants}
+        initial="initial"
+        animate="animate"
+        whileHover="hover"
+        className="group relative"
+      >
+        <Card className="transition-all duration-200 hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+              Enrollments
+            </CardTitle>
+            <AnimatedSection
+              variants={cardVariants}
+              initial="initial"
+              whileHover="hover"
+              whileTap="tap"
+              className="relative"
+            >
+              <Button
+                size="sm"
+                onClick={() => setIsNewEnrollmentDialogOpen(true)}
+                className="group relative z-30 transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
+              >
+                <Plus className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
+                New Enrollment
+              </Button>
+            </AnimatedSection>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="px-6">Student</TableHead>
+                    <TableHead className="px-6">Email</TableHead>
+                    <TableHead className="px-6">Status</TableHead>
+                    <TableHead className="px-6">Start Date</TableHead>
+                    <TableHead className="px-6">End Date</TableHead>
+                    <TableHead className="px-6 pr-8">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.course.enrollments.map((enrollment) => (
+                    <TableRow
+                      key={enrollment.id}
+                      className="group/item transition-colors duration-200 hover:bg-muted/50"
                     >
-                      {enrollment.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(enrollment.startDate).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    {enrollment.endDate
-                      ? new Date(enrollment.endDate).toLocaleDateString()
-                      : '-'}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        router.push(`/admin/students/${enrollment.student.id}`)
-                      }
-                    >
-                      View Student
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {data.course.enrollments.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center">
-                    No enrollments found
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                      <TableCell className="font-medium px-6 py-4 transition-colors duration-200 group-hover/item:text-primary">
+                        {enrollment.student.name}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 transition-colors duration-200 group-hover/item:text-primary/80">
+                        {enrollment.student.email}
+                      </TableCell>
+                      <TableCell className="px-6 py-4">
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            enrollment.status === 'ENROLLED'
+                              ? 'bg-green-500/10 text-green-500'
+                              : enrollment.status === 'COMPLETED'
+                                ? 'bg-blue-500/10 text-blue-500'
+                                : 'bg-yellow-500/10 text-yellow-500',
+                            'transition-all duration-200 group-hover/item:scale-105'
+                          )}
+                        >
+                          {enrollment.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="px-6 py-4 transition-colors duration-200 group-hover/item:text-primary/80">
+                        {new Date(enrollment.startDate).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 transition-colors duration-200 group-hover/item:text-primary/80">
+                        {enrollment.endDate
+                          ? new Date(enrollment.endDate).toLocaleDateString()
+                          : '-'}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 pr-8">
+                        <AnimatedSection
+                          variants={cardVariants}
+                          initial="initial"
+                          whileHover="hover"
+                          whileTap="tap"
+                          className="relative"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              router.push(`/admin/students/${enrollment.student.id}`)
+                            }
+                            className="group relative z-30 transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
+                          >
+                            View Student
+                          </Button>
+                        </AnimatedSection>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {data.course.enrollments.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="py-8 text-center">
+                        No enrollments found
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </AnimatedSection>
 
       {/* Certificates */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Certificates</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Code</TableHead>
-                <TableHead>Student</TableHead>
-                <TableHead>Issued By</TableHead>
-                <TableHead>Issued At</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.course.certificates.map((certificate) => (
-                <TableRow key={certificate.id}>
-                  <TableCell className="font-mono">
-                    {certificate.code}
-                  </TableCell>
-                  <TableCell>{certificate.student.name}</TableCell>
-                  <TableCell>{certificate.issuedBy.name}</TableCell>
-                  <TableCell>
-                    {new Date(certificate.issuedAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={
-                        certificate.status === 'ACTIVE'
-                          ? 'bg-green-500/10 text-green-500'
-                          : 'bg-red-500/10 text-red-500'
-                      }
+      <AnimatedSection
+        variants={cardVariants}
+        initial="initial"
+        animate="animate"
+        whileHover="hover"
+        className="group relative"
+      >
+        <Card className="transition-all duration-200 hover:shadow-md">
+          <CardHeader>
+            <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+              Certificates
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="px-6">Code</TableHead>
+                    <TableHead className="px-6">Student</TableHead>
+                    <TableHead className="px-6">Issued By</TableHead>
+                    <TableHead className="px-6">Issued At</TableHead>
+                    <TableHead className="px-6">Status</TableHead>
+                    <TableHead className="px-6 pr-8">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.course.certificates.map((certificate) => (
+                    <TableRow
+                      key={certificate.id}
+                      className="group/item transition-colors duration-200 hover:bg-muted/50"
                     >
-                      {certificate.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        router.push(`/admin/certificates/${certificate.id}`)
-                      }
-                    >
-                      View Details
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {data.course.certificates.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center">
-                    No certificates found
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                      <TableCell className="font-mono px-6 py-4 transition-colors duration-200 group-hover/item:text-primary">
+                        {certificate.code}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 transition-colors duration-200 group-hover/item:text-primary/80">
+                        {certificate.student.name}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 transition-colors duration-200 group-hover/item:text-primary/80">
+                        {certificate.issuedBy.name}
+                      </TableCell>
+                      <TableCell className="px-6 py-4 transition-colors duration-200 group-hover/item:text-primary/80">
+                        {new Date(certificate.issuedAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="px-6 py-4">
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            certificate.status === 'ACTIVE'
+                              ? 'bg-green-500/10 text-green-500'
+                              : 'bg-red-500/10 text-red-500',
+                            'transition-all duration-200 group-hover/item:scale-105'
+                          )}
+                        >
+                          {certificate.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="px-6 py-4 pr-8">
+                        <AnimatedSection
+                          variants={cardVariants}
+                          initial="initial"
+                          whileHover="hover"
+                          whileTap="tap"
+                          className="relative"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              router.push(`/admin/certificates/${certificate.id}`)
+                            }
+                            className="group relative z-30 transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
+                          >
+                            View Details
+                          </Button>
+                        </AnimatedSection>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {data.course.certificates.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="py-8 text-center">
+                        No certificates found
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </AnimatedSection>
     </div>
   );
 }

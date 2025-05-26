@@ -124,7 +124,7 @@ model Placement {
   companyId   String
   position    String
   package     Float     // Annual package in LPA
-  offerDate   DateTime  // Date when the offer was made
+  offerDate   DateTime? // Made optional by adding ?
   joiningDate DateTime
   status      PlacementStatus @default(PENDING)
   notes       String?

@@ -2,36 +2,18 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatedSection, fadeIn, slideIn, staggerContainer, staggerItem, buttonVariants, iconVariants, MotionDiv, PageTransition } from '@/components/ui/motion';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Search, Shield, Clock, Lock } from 'lucide-react';
-import {
-  AnimatedSection,
-  ParallaxSection,
-  fadeIn,
-  slideIn,
-  scaleIn,
-} from '@/components/ui/motion';
-import {
-  HoverCard,
-  AnimatedButton,
-  AnimatedIcon,
-  AnimatedInput,
-  AnimatedErrorField,
-  AnimatedError,
-} from '@/components/ui/enhanced-motion';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, Search, Shield, Clock, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Loader2 } from 'lucide-react';
 
-export default function VerifyCertificateLandingPage() {
+export default function VerifyCertificatePage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,146 +44,228 @@ export default function VerifyCertificateLandingPage() {
       router.push(`/verify/${code.toUpperCase()}`);
     } catch (err) {
       setError('An error occurred while verifying the certificate');
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'An error occurred. Please try again.',
+      });
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex flex-col gap-16">
-      {/* Hero Section */}
-      <ParallaxSection
-        speed={0.2}
-        className="relative overflow-hidden bg-background py-20 sm:py-32"
-      >
-        <div className="container relative">
-          <AnimatedSection
-            variants={fadeIn}
-            className="mx-auto max-w-2xl text-center"
-          >
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              Verify Your Certificate
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Enter your certificate code to verify its authenticity and view
-              its details
-            </p>
-          </AnimatedSection>
-        </div>
-      </ParallaxSection>
+    <PageTransition>
+      <div className="flex flex-col gap-16">
+        <AnimatedSection
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          className="relative overflow-hidden bg-background py-20 sm:py-32"
+        >
+          <div className="container relative">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mx-auto max-w-2xl text-center"
+            >
+              <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+                Verify Your Certificate
+              </h1>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mt-6 text-lg leading-8 text-muted-foreground"
+              >
+                Enter your certificate code to verify its authenticity and view its details
+              </motion.p>
+            </motion.div>
+          </div>
+        </AnimatedSection>
 
-      {/* Verification Form */}
-      <section className="container">
-        <div className="mx-auto max-w-2xl">
-          <AnimatedSection variants={scaleIn}>
-            <HoverCard>
-              <CardHeader>
-                <AnimatedSection variants={fadeIn}>
-                  <CardTitle>Certificate Verification</CardTitle>
-                  <CardDescription>
-                    Enter the unique code found on your certificate
-                  </CardDescription>
-                </AnimatedSection>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <AnimatedSection variants={slideIn}>
-                    <div className="flex gap-4">
-                      <AnimatedErrorField error={error} className="flex-1">
-                        <Input
-                          type="text"
-                          placeholder="Enter certificate code"
-                          value={code}
-                          onChange={(e) => {
-                            const value = e.target.value.toUpperCase();
-                            setCode(value);
-                            setError(null);
-                          }}
-                          className={cn(
-                            'font-mono text-lg',
-                            error &&
-                              'border-destructive focus-visible:ring-destructive'
-                          )}
-                          maxLength={16}
-                          disabled={isSubmitting}
-                        />
-                      </AnimatedErrorField>
-                      <AnimatedButton
-                        type="submit"
-                        size="lg"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Verifying...
-                          </>
-                        ) : (
-                          <>
-                            <Search className="mr-2 h-5 w-5" />
-                            Verify
-                          </>
+        <section className="container">
+          <div className="mx-auto max-w-2xl">
+            <AnimatedSection
+              variants={slideIn}
+              initial="hidden"
+              animate="visible"
+            >
+              <Card className="transition-all duration-300 hover:shadow-lg">
+                <CardHeader>
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="space-y-2"
+                  >
+                    <CardTitle>Certificate Verification</CardTitle>
+                    <CardDescription>
+                      Enter the unique code found on your certificate
+                    </CardDescription>
+                  </motion.div>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <motion.div
+                      variants={staggerContainer}
+                      initial="hidden"
+                      animate="show"
+                      className="space-y-4"
+                    >
+                      <motion.div variants={staggerItem}>
+                        <div className="relative">
+                          <MotionDiv
+                            initial={{ opacity: 0.5 }}
+                            whileHover={{ opacity: 1 }}
+                            className="absolute left-3 top-1/2 -translate-y-1/2"
+                          >
+                            <Search className="h-4 w-4 text-muted-foreground" />
+                          </MotionDiv>
+                          <Input
+                            type="text"
+                            placeholder="Enter certificate code"
+                            value={code}
+                            onChange={(e) => {
+                              const value = e.target.value.toUpperCase();
+                              setCode(value);
+                              setError(null);
+                            }}
+                            className={cn(
+                              'pl-9 font-mono text-lg transition-all duration-200',
+                              'focus:ring-2 focus:ring-primary/20',
+                              'hover:border-primary/50',
+                              error && 'border-destructive focus-visible:ring-destructive'
+                            )}
+                            maxLength={16}
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                        {error && (
+                          <motion.p
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-2 text-sm text-destructive"
+                          >
+                            {error}
+                          </motion.p>
                         )}
-                      </AnimatedButton>
-                    </div>
-                  </AnimatedSection>
-                </form>
+                      </motion.div>
 
-                <AnimatedSection variants={slideIn} className="mt-8">
-                  <div className="rounded-lg bg-muted p-4">
-                    <h3 className="mb-2 font-semibold">
-                      Where to find your code?
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Your certificate code is a unique identifier printed on
-                      your certificate. It starts with "LV-" followed by 6
-                      alphanumeric characters (e.g., LV-XXXXXX).
-                    </p>
-                  </div>
-                </AnimatedSection>
-              </CardContent>
-            </HoverCard>
-          </AnimatedSection>
+                      <motion.div variants={staggerItem}>
+                        <MotionDiv
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
+                          <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className={cn(
+                              "w-full transition-all duration-200",
+                              "hover:bg-primary/90",
+                              "active:scale-95"
+                            )}
+                          >
+                            <AnimatePresence mode="wait">
+                              {isSubmitting ? (
+                                <motion.div
+                                  key="loading"
+                                  initial={{ opacity: 0, scale: 0.8 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.8 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  Verifying...
+                                </motion.div>
+                              ) : (
+                                <motion.div
+                                  key="verify"
+                                  initial={{ opacity: 0, scale: 0.8 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.8 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Search className="h-4 w-4" />
+                                  Verify Certificate
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </Button>
+                        </MotionDiv>
+                      </motion.div>
+                    </motion.div>
+                  </form>
 
-          {/* Features Grid */}
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            <AnimatedSection variants={slideIn} custom={0}>
-              <HoverCard className="text-center">
-                <AnimatedIcon className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <Shield className="h-6 w-6 text-primary" />
-                </AnimatedIcon>
-                <h3 className="mb-2 font-semibold">Instant Verification</h3>
-                <p className="text-sm text-muted-foreground">
-                  Get immediate results about your certificate's authenticity
-                </p>
-              </HoverCard>
-            </AnimatedSection>
-            <AnimatedSection variants={slideIn} custom={1}>
-              <HoverCard className="text-center">
-                <AnimatedIcon className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <Clock className="h-6 w-6 text-primary" />
-                </AnimatedIcon>
-                <h3 className="mb-2 font-semibold">Detailed Information</h3>
-                <p className="text-sm text-muted-foreground">
-                  View complete certificate details including issue date and
-                  status
-                </p>
-              </HoverCard>
-            </AnimatedSection>
-            <AnimatedSection variants={slideIn} custom={2}>
-              <HoverCard className="text-center">
-                <AnimatedIcon className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <Lock className="h-6 w-6 text-primary" />
-                </AnimatedIcon>
-                <h3 className="mb-2 font-semibold">Secure & Reliable</h3>
-                <p className="text-sm text-muted-foreground">
-                  Our verification system ensures the integrity of your
-                  credentials
-                </p>
-              </HoverCard>
+                  <motion.div
+                    variants={staggerContainer}
+                    initial="hidden"
+                    animate="show"
+                    className="mt-8 grid gap-6 md:grid-cols-3"
+                  >
+                    <motion.div variants={staggerItem}>
+                      <Card className="text-center transition-all duration-300 hover:shadow-lg">
+                        <CardContent className="pt-6">
+                          <MotionDiv
+                            whileHover={{ scale: 1.2, rotate: 5 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10"
+                          >
+                            <Shield className="h-6 w-6 text-primary" />
+                          </MotionDiv>
+                          <h3 className="mb-2 font-semibold">Instant Verification</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Get immediate results about your certificate's authenticity
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+
+                    <motion.div variants={staggerItem}>
+                      <Card className="text-center transition-all duration-300 hover:shadow-lg">
+                        <CardContent className="pt-6">
+                          <MotionDiv
+                            whileHover={{ scale: 1.2, rotate: 5 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10"
+                          >
+                            <Clock className="h-6 w-6 text-primary" />
+                          </MotionDiv>
+                          <h3 className="mb-2 font-semibold">Detailed Information</h3>
+                          <p className="text-sm text-muted-foreground">
+                            View complete certificate details including issue date and status
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+
+                    <motion.div variants={staggerItem}>
+                      <Card className="text-center transition-all duration-300 hover:shadow-lg">
+                        <CardContent className="pt-6">
+                          <MotionDiv
+                            whileHover={{ scale: 1.2, rotate: 5 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10"
+                          >
+                            <Lock className="h-6 w-6 text-primary" />
+                          </MotionDiv>
+                          <h3 className="mb-2 font-semibold">Secure & Reliable</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Our verification system ensures the integrity of your credentials
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </motion.div>
+                </CardContent>
+              </Card>
             </AnimatedSection>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
+    </PageTransition>
   );
 }

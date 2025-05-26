@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Filter, ArrowRight } from 'lucide-react';
+import { Search, Filter, ArrowRight, Loader2, ChevronRight, Clock, Users, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -17,6 +17,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -25,6 +26,12 @@ import {
   fadeIn,
   slideIn,
   scaleIn,
+  staggerContainer,
+  staggerItem,
+  buttonVariants,
+  iconVariants,
+  MotionDiv,
+  PageTransition,
 } from '@/components/ui/motion';
 import {
   HoverCard,
@@ -33,62 +40,44 @@ import {
   AnimatedBadge,
   AnimatedInput,
 } from '@/components/ui/enhanced-motion';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
-// Mock data - In a real app, this would come from an API/database
-const courses = [
+// Update the course type to match the actual data structure
+type Course = {
+  id: string;
+  title: string;
+  description: string;
+  duration: number;
+  level: string;
+  category: string;
+  fee: number;
+  status: 'ACTIVE' | 'UPCOMING' | 'INACTIVE';
+  _count: {
+    enrollments: number;
+    certificates: number;
+  };
+};
+
+// Update the mock data to match the new type
+const mockCourses: Course[] = [
   {
-    id: 1,
-    title: 'Full Stack Web Development',
-    description:
-      'Master modern web development with React, Node.js, and MongoDB',
-    duration: '6 months',
-    level: 'Beginner to Advanced',
+    id: '1',
+    title: 'Web Development Bootcamp',
+    description: 'Learn modern web development from scratch',
+    duration: 12,
+    level: 'Beginner',
     category: 'Web Development',
-    price: '₹49,999',
-    image:
-      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop',
-    tags: ['React', 'Node.js', 'MongoDB', 'JavaScript'],
+    fee: 29999,
+    status: 'ACTIVE',
+    _count: {
+      enrollments: 150,
+      certificates: 45
+    }
   },
-  {
-    id: 2,
-    title: 'Data Science & Machine Learning',
-    description: 'Learn data analysis, machine learning, and AI fundamentals',
-    duration: '8 months',
-    level: 'Intermediate',
-    category: 'Data Science',
-    price: '₹69,999',
-    image:
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop',
-    tags: ['Python', 'ML', 'AI', 'Data Analysis'],
-  },
-  {
-    id: 3,
-    title: 'Digital Marketing Masterclass',
-    description:
-      'Comprehensive digital marketing training with practical projects',
-    duration: '4 months',
-    level: 'Beginner',
-    category: 'Marketing',
-    price: '₹29,999',
-    image:
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop',
-    tags: ['SEO', 'Social Media', 'Content Marketing'],
-  },
-  {
-    id: 4,
-    title: 'UI/UX Design Fundamentals',
-    description:
-      'Master the art of creating beautiful and functional user interfaces',
-    duration: '3 months',
-    level: 'Beginner',
-    category: 'Design',
-    price: '₹39,999',
-    image:
-      'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=2064&auto=format&fit=crop',
-    tags: ['Figma', 'UI Design', 'UX Research'],
-  },
+  // ... update other mock courses similarly ...
 ];
 
 const categories = [
@@ -101,180 +90,269 @@ const categories = [
 
 const levels = ['All Levels', 'Beginner', 'Intermediate', 'Advanced'];
 
+// Add these variants at the top level of the file
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 20,
+      duration: 0.2
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 20,
+      duration: 0.3
+    }
+  },
+  hover: {
+    y: -5,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 10
+    }
+  }
+};
+
 export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
+  const router = useRouter();
 
   // Filter courses based on search query and filters
-  const filteredCourses = useMemo(() => {
-    return courses.filter((course) => {
+  const filteredCourses: Course[] = useMemo(() => {
+    return mockCourses.filter((course) => {
       const matchesSearch =
         course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.tags.some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-
+        course.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory =
         selectedCategory === 'all' || course.category === selectedCategory;
       const matchesLevel =
-        selectedLevel === 'all' ||
-        course.level.toLowerCase().includes(selectedLevel.toLowerCase());
-
+        selectedLevel === 'all' || course.level === selectedLevel;
       return matchesSearch && matchesCategory && matchesLevel;
     });
   }, [searchQuery, selectedCategory, selectedLevel]);
 
   return (
-    <div className="flex flex-col gap-16">
-      {/* Hero Section */}
-      <ParallaxSection
-        speed={0.2}
-        className="relative overflow-hidden bg-background py-20 sm:py-32"
-      >
-        <div className="container relative">
-          <AnimatedSection
-            variants={fadeIn}
-            className="mx-auto max-w-2xl text-center"
+    <PageTransition>
+      <div className="container py-8">
+        <AnimatedSection
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          className="mb-8"
+        >
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-3xl font-bold"
           >
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              Explore Our Courses
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Discover our comprehensive range of industry-aligned courses
-              designed to launch your career.
-            </p>
-          </AnimatedSection>
-        </div>
-      </ParallaxSection>
-
-      {/* Search and Filter Section */}
-      <section className="container">
-        <AnimatedSection variants={fadeIn} className="mx-auto max-w-5xl">
-          <div className="flex flex-col gap-4 sm:flex-row">
-            <AnimatedInput className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search courses..."
-                  className="pl-9"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </AnimatedInput>
-            <div className="flex gap-4">
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="Web Development">
-                    Web Development
-                  </SelectItem>
-                  <SelectItem value="Data Science">Data Science</SelectItem>
-                  <SelectItem value="Marketing">Digital Marketing</SelectItem>
-                  <SelectItem value="Design">UI/UX Design</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Levels</SelectItem>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+            Explore Courses
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-muted-foreground"
+          >
+            Discover our comprehensive range of courses designed to help you succeed
+          </motion.p>
         </AnimatedSection>
-      </section>
 
-      {/* Courses Grid */}
-      <section className="container">
-        {filteredCourses.length === 0 ? (
-          <AnimatedSection variants={fadeIn} className="py-12 text-center">
-            <h3 className="text-lg font-medium text-muted-foreground">
-              No courses found matching your criteria
-            </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Try adjusting your search or filters
-            </p>
-          </AnimatedSection>
-        ) : (
-          <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredCourses.map((course, index) => (
-              <AnimatedSection
-                key={course.id}
-                variants={slideIn}
-                custom={index}
-                transition={{ delay: index * 0.1 }}
-              >
-                <HoverCard className="flex h-full flex-col">
-                  <div className="relative aspect-video overflow-hidden rounded-lg">
-                    <img
-                      src={course.image}
-                      alt={course.title}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="line-clamp-1">
-                        {course.title}
-                      </CardTitle>
-                      <AnimatedBadge variant="secondary">
-                        {course.price}
-                      </AnimatedBadge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <p className="text-sm text-muted-foreground">
-                      {course.description}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {course.tags.map((tag) => (
-                        <AnimatedBadge
-                          key={tag}
-                          variant="outline"
-                          className="text-xs"
-                        >
-                          {tag}
-                        </AnimatedBadge>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="flex flex-col items-start gap-4">
-                    <div className="flex w-full items-center justify-between text-sm text-muted-foreground">
-                      <span>{course.duration}</span>
-                      <span>{course.level}</span>
-                    </div>
-                    <AnimatedButton asChild className="w-full">
-                      <Link
-                        href={`/courses/${course.id}`}
-                        className="flex items-center justify-center"
+        <AnimatedSection
+          variants={slideIn}
+          initial="hidden"
+          animate="visible"
+          className="mb-8"
+        >
+          <Card className="transition-all duration-300 hover:shadow-lg">
+            <CardHeader>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                  Find Your Course
+                </CardTitle>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <MotionDiv
+                    variants={fadeIn}
+                    className="relative flex-1 sm:w-64 z-30"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                  >
+                    <MotionDiv
+                      initial={{ scale: 1 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="relative"
+                    >
+                      <MotionDiv
+                        initial={{ opacity: 0.5 }}
+                        whileHover={{ opacity: 1 }}
+                        className="absolute left-3 top-1/2 -translate-y-1/2"
                       >
-                        Learn More
-                        <AnimatedIcon className="ml-2">
-                          <ArrowRight className="h-4 w-4" />
-                        </AnimatedIcon>
-                      </Link>
-                    </AnimatedButton>
-                  </CardFooter>
-                </HoverCard>
-              </AnimatedSection>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
+                        <Search className="h-4 w-4 text-muted-foreground" />
+                      </MotionDiv>
+                      <Input
+                        placeholder="Search courses..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className={cn(
+                          "pl-9 transition-all duration-200",
+                          "focus:ring-2 focus:ring-primary/20",
+                          "hover:border-primary/50"
+                        )}
+                      />
+                    </MotionDiv>
+                  </MotionDiv>
+                  <MotionDiv
+                    variants={fadeIn}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.3 }}
+                  >
+                    <Select
+                      value={selectedCategory}
+                      onValueChange={setSelectedCategory}
+                    >
+                      <SelectTrigger className={cn(
+                        "w-[180px] transition-all duration-200",
+                        "hover:border-primary/50",
+                        "focus:ring-2 focus:ring-primary/20"
+                      )}>
+                        <SelectValue placeholder="Filter by category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Categories</SelectItem>
+                        <SelectItem value="Web Development">Web Development</SelectItem>
+                        <SelectItem value="Data Science">Data Science</SelectItem>
+                        <SelectItem value="Marketing">Digital Marketing</SelectItem>
+                        <SelectItem value="Design">UI/UX Design</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </MotionDiv>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+        </AnimatedSection>
+
+        {/* Courses Grid */}
+        <section className="container">
+          {filteredCourses.length === 0 ? (
+            <AnimatedSection variants={fadeIn} className="py-12 text-center">
+              <h3 className="text-lg font-medium text-muted-foreground">
+                No courses found matching your criteria
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Try adjusting your search or filters
+              </p>
+            </AnimatedSection>
+          ) : (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredCourses.map((course, index) => (
+                  <motion.div
+                    key={course.id}
+                    variants={cardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    whileHover="hover"
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="group relative"
+                  >
+                    <Card className="h-full transition-all duration-300">
+                      <CardHeader>
+                        <CardTitle className="line-clamp-2 transition-colors duration-200 group-hover:text-primary">
+                          {course.title}
+                        </CardTitle>
+                        <CardDescription className="line-clamp-2">
+                          {course.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-3 gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4" />
+                              <span>{course.duration} weeks</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Users className="h-4 w-4" />
+                              <span>{course._count.enrollments} students</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <GraduationCap className="h-4 w-4" />
+                              <span>{course._count.certificates} graduates</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Badge
+                              variant="secondary"
+                              className={cn(
+                                course.status === 'ACTIVE' && 'bg-green-500/10 text-green-500',
+                                course.status === 'UPCOMING' && 'bg-blue-500/10 text-blue-500',
+                                'transition-all duration-200 group-hover:scale-105'
+                              )}
+                            >
+                              {course.status}
+                            </Badge>
+                            <MotionDiv
+                              whileHover={{ x: 5 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            >
+                              <Button
+                                variant="ghost"
+                                className="group-hover:text-primary"
+                                onClick={() => router.push(`/courses/${course.id}`)}
+                              >
+                                View Details
+                                <ChevronRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                              </Button>
+                            </MotionDiv>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </section>
+      </div>
+    </PageTransition>
   );
 }

@@ -24,11 +24,24 @@ import {
   Building2,
   Users,
   TrendingUp,
+  Edit,
 } from 'lucide-react';
 import { StatsCard } from '@/components/admin/stats-card';
 import { toast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  MotionDiv,
+  PageTransition,
+  AnimatedSection,
+  staggerContainer,
+  staggerItem,
+  cardVariants,
+  buttonVariants,
+  iconVariants,
+  fadeIn,
+} from '@/components/ui/motion';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -54,6 +67,8 @@ const defaultStats = {
   averagePackage: 0,
   activeStudents: 0,
 };
+
+const MotionTableRow = motion(TableRow);
 
 export default function CompaniesPage() {
   const router = useRouter();
@@ -140,22 +155,76 @@ export default function CompaniesPage() {
   };
 
   return (
+    <PageTransition>
     <div className="container py-8">
-      <div className="mb-8 flex items-center justify-between">
+        <AnimatedSection variants={fadeIn} className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Companies</h1>
           <p className="text-muted-foreground">
             Manage and track company information
           </p>
         </div>
-        <Button onClick={() => router.push('/admin/companies/new')}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Company
-        </Button>
-      </div>
+          <MotionDiv
+            variants={buttonVariants}
+            whileHover={{ 
+              scale: 1.05,
+              rotate: 2,
+              boxShadow: "0 10px 20px rgba(0,0,0,0.1)"
+            }}
+            whileTap={{ 
+              scale: 0.95,
+              rotate: -1
+            }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 400, 
+              damping: 10 
+            }}
+            className="relative z-10"
+          >
+            <Button 
+              onClick={() => router.push('/admin/companies/new')}
+              className="group relative overflow-hidden bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary transition-all duration-300"
+            >
+              <MotionDiv 
+                variants={iconVariants}
+                whileHover={{ 
+                  rotate: 90,
+                  scale: 1.2
+                }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 400, 
+                  damping: 10 
+                }}
+                className="mr-2 relative z-10"
+              >
+                <Plus className="h-4 w-4" />
+              </MotionDiv>
+              <span className="relative z-10">Add Company</span>
+              <MotionDiv
+                className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                initial={{ x: "-100%" }}
+                whileHover={{ x: "100%" }}
+                transition={{ 
+                  duration: 0.8,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "loop"
+                }}
+              />
+            </Button>
+          </MotionDiv>
+        </AnimatedSection>
 
       {/* Stats Overview */}
-      <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <MotionDiv
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        >
+          <MotionDiv variants={staggerItem}>
         <StatsCard
           title="Total Companies"
           value={stats.total}
@@ -163,6 +232,8 @@ export default function CompaniesPage() {
           description="Registered companies"
           isLoading={isLoading}
         />
+          </MotionDiv>
+          <MotionDiv variants={staggerItem}>
         <StatsCard
           title="Total Placements"
           value={stats.totalPlacements}
@@ -170,6 +241,8 @@ export default function CompaniesPage() {
           description="All time placements"
           isLoading={isLoading}
         />
+          </MotionDiv>
+          <MotionDiv variants={staggerItem}>
         <StatsCard
           title="Average Package"
           value={`₹${stats.averagePackage.toFixed(2)} LPA`}
@@ -177,6 +250,8 @@ export default function CompaniesPage() {
           description="Average annual package"
           isLoading={isLoading}
         />
+          </MotionDiv>
+          <MotionDiv variants={staggerItem}>
         <StatsCard
           title="Active Students"
           value={stats.activeStudents}
@@ -184,54 +259,267 @@ export default function CompaniesPage() {
           description="Currently placed students"
           isLoading={isLoading}
         />
-      </div>
+          </MotionDiv>
+        </MotionDiv>
 
-      <Card>
+        <AnimatedSection variants={fadeIn}>
+          <Card className="relative z-0">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Company List</CardTitle>
-            <div className="relative w-72">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search companies..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-8"
-              />
-            </div>
+                <MotionDiv
+                  variants={fadeIn}
+                  className="relative w-72 z-20"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                >
+                  <MotionDiv
+                    initial={{ scale: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="relative"
+                  >
+                    <MotionDiv
+                      initial={{ opacity: 0.5 }}
+                      whileHover={{ opacity: 1 }}
+                      className="absolute left-2 top-2.5"
+                    >
+                      <Search className="h-4 w-4 text-muted-foreground" />
+                    </MotionDiv>
+                    <Input
+                      placeholder="Search companies..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="pl-8 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50"
+                    />
+                  </MotionDiv>
+                </MotionDiv>
           </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
+            <PageTransition>
+              <div className="container py-8">
+                <AnimatedSection variants={fadeIn} className="mb-8 flex items-center justify-between">
+                  <div>
+                    <MotionDiv
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="h-8 w-48 bg-muted rounded-md mb-2"
+                    />
+                    <MotionDiv
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      className="h-4 w-64 bg-muted rounded-md"
+                    />
+                  </div>
+                  <MotionDiv
+                    variants={buttonVariants}
+                    className="h-10 w-32 bg-muted rounded-md"
+                  />
+                </AnimatedSection>
+
+                {/* Stats Overview Skeleton */}
+                <MotionDiv
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="show"
+                  className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+                >
+                  {[1, 2, 3, 4].map((_, index) => (
+                    <MotionDiv
+                      key={index}
+                      variants={staggerItem}
+                      className="relative overflow-hidden rounded-lg border bg-card p-6"
+                    >
+                      <MotionDiv
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent"
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "100%" }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "linear",
+                          delay: index * 0.2
+                        }}
+                      />
+                      <div className="flex items-center justify-between mb-4">
+                        <MotionDiv
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                          className="h-4 w-24 bg-muted rounded-md"
+                        />
+                        <MotionDiv
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+                          className="h-4 w-4 bg-muted rounded-full"
+                        />
+                      </div>
+                      <MotionDiv
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                        className="h-8 w-16 bg-muted rounded-md"
+                      />
+                    </MotionDiv>
+                  ))}
+                </MotionDiv>
+
+                {/* Table Skeleton */}
+                <AnimatedSection variants={fadeIn}>
+                  <Card className="relative z-0">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <MotionDiv
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5 }}
+                          className="h-6 w-32 bg-muted rounded-md"
+                        />
+                        <MotionDiv
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5, delay: 0.2 }}
+                          className="h-10 w-72 bg-muted rounded-md"
+                        />
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="rounded-md border w-full overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="w-[300px]">
+                                <MotionDiv className="h-4 w-24 bg-muted rounded-md" />
+                              </TableHead>
+                              <TableHead>
+                                <MotionDiv className="h-4 w-20 bg-muted rounded-md" />
+                              </TableHead>
+                              <TableHead>
+                                <MotionDiv className="h-4 w-24 bg-muted rounded-md" />
+                              </TableHead>
+                              <TableHead className="w-[100px]">
+                                <MotionDiv className="h-4 w-16 bg-muted rounded-md" />
+                              </TableHead>
+                              <TableHead className="w-[120px]">
+                                <MotionDiv className="h-4 w-20 bg-muted rounded-md" />
+                              </TableHead>
+                              <TableHead className="w-[120px]">
+                                <MotionDiv className="h-4 w-24 bg-muted rounded-md" />
+                              </TableHead>
+                              <TableHead className="w-[120px]">
+                                <MotionDiv className="h-4 w-20 bg-muted rounded-md" />
+                              </TableHead>
+                              <TableHead className="w-[100px] text-right">
+                                <MotionDiv className="h-4 w-16 bg-muted rounded-md ml-auto" />
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {[1, 2, 3, 4, 5].map((_, index) => (
+                              <MotionTableRow
+                                key={index}
+                                variants={cardVariants}
+                                initial="initial"
+                                animate="show"
+                                transition={{ delay: index * 0.1 }}
+                                className="relative z-0"
+                              >
+                                <TableCell className="w-[300px]">
+                                  <div className="flex items-center gap-2">
+                                    <MotionDiv className="h-8 w-8 bg-muted rounded-full" />
+                                    <div className="space-y-2">
+                                      <MotionDiv className="h-4 w-32 bg-muted rounded-md" />
+                                      <MotionDiv className="h-3 w-48 bg-muted rounded-md" />
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <MotionDiv className="h-4 w-24 bg-muted rounded-md" />
+                                </TableCell>
+                                <TableCell>
+                                  <MotionDiv className="h-4 w-28 bg-muted rounded-md" />
+                                </TableCell>
+                                <TableCell className="w-[100px]">
+                                  <MotionDiv className="h-4 w-12 bg-muted rounded-md" />
+                                </TableCell>
+                                <TableCell className="w-[120px]">
+                                  <MotionDiv className="h-4 w-20 bg-muted rounded-md" />
+                                </TableCell>
+                                <TableCell className="w-[120px]">
+                                  <MotionDiv className="h-4 w-12 bg-muted rounded-md" />
+                                </TableCell>
+                                <TableCell className="w-[120px]">
+                                  <MotionDiv className="h-4 w-24 bg-muted rounded-md" />
+                                </TableCell>
+                                <TableCell className="w-[100px] text-right">
+                                  <div className="flex justify-end gap-2">
+                                    <MotionDiv className="h-8 w-8 bg-muted rounded-md" />
+                                    <MotionDiv className="h-8 w-8 bg-muted rounded-md" />
+                                  </div>
+                                </TableCell>
+                              </MotionTableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </AnimatedSection>
+              </div>
+            </PageTransition>
           ) : error ? (
-            <div className="text-center text-red-500">
+                <MotionDiv
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center text-red-500"
+                >
               Failed to load companies
-            </div>
+                </MotionDiv>
           ) : (
-            <div className="rounded-md border">
+            <div className="rounded-md border w-full overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Company</TableHead>
+                    <TableHead className="w-[300px]">Company</TableHead>
                     <TableHead>Industry</TableHead>
                     <TableHead>Location</TableHead>
-                    <TableHead>Placements</TableHead>
-                    <TableHead>Avg. Package</TableHead>
-                    <TableHead>Active Students</TableHead>
-                    <TableHead>Added On</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="w-[100px]">Placements</TableHead>
+                    <TableHead className="w-[120px]">Avg. Package</TableHead>
+                    <TableHead className="w-[120px]">Active Students</TableHead>
+                    <TableHead className="w-[120px]">Added On</TableHead>
+                    <TableHead className="w-[100px] text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data?.companies.map((company) => (
-                    <TableRow key={company.id}>
-                      <TableCell>
+                  {data?.companies.map((company, index) => (
+                    <MotionTableRow
+                      key={company.id}
+                      variants={cardVariants}
+                      initial="initial"
+                      whileHover="hover"
+                      whileTap="tap"
+                      layout
+                      transition={{
+                        layout: { duration: 0.2 },
+                        delay: index * 0.05,
+                      }}
+                      className="relative z-0"
+                    >
+                      <TableCell className="whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           {company.logo && (
-                            <div className="relative h-8 w-8 overflow-hidden rounded-full">
+                            <MotionDiv
+                              whileHover={{ scale: 1.1, rotate: 5 }}
+                              whileTap={{ scale: 0.95 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                              className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full"
+                            >
                               <Image
                                 src={company.logo}
                                 alt={company.name}
@@ -239,19 +527,31 @@ export default function CompaniesPage() {
                                 className="object-cover"
                                 sizes="32px"
                               />
-                            </div>
+                            </MotionDiv>
                           )}
-                          <div>
-                            <div className="font-medium">{company.name}</div>
+                          <div className="min-w-0 flex-1">
+                            <MotionDiv
+                              whileHover={{ x: 2 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            >
+                              <div className="font-medium truncate" title={company.name}>{company.name}</div>
+                            </MotionDiv>
                             {company.website && (
-                              <a
-                                href={company.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-muted-foreground hover:underline"
+                              <MotionDiv
+                                whileHover={{ x: 2, scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                className="inline-block"
                               >
-                                {company.website}
-                              </a>
+                                <a
+                                  href={company.website}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-muted-foreground hover:text-primary transition-colors truncate block"
+                                >
+                                  {company.website}
+                                </a>
+                              </MotionDiv>
                             )}
                           </div>
                         </div>
@@ -267,48 +567,61 @@ export default function CompaniesPage() {
                         {format(new Date(company.createdAt), 'MMM d, yyyy')}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            router.push(`/admin/companies/${company.id}`)
-                          }
-                        >
-                          View
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            router.push(`/admin/companies/new?id=${company.id}`)
-                          }
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-600 hover:text-red-700"
-                          onClick={() => handleDelete(company.id)}
-                        >
-                          Delete
-                        </Button>
+                            <div className="flex justify-end gap-2">
+                              <MotionDiv
+                                variants={buttonVariants}
+                                whileHover={{ scale: 1.1, rotate: 5 }}
+                                whileTap={{ scale: 0.9 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                className="relative z-10"
+                              >
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => router.push(`/admin/companies/${company.id}`)}
+                                  className="hover:bg-primary/10"
+                                >
+                                  <MotionDiv
+                                    variants={iconVariants}
+                                    whileHover={{ rotate: 15 }}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </MotionDiv>
+                                </Button>
+                              </MotionDiv>
+                              <MotionDiv
+                                variants={buttonVariants}
+                                whileHover={{ scale: 1.1, rotate: -5 }}
+                                whileTap={{ scale: 0.9 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                className="relative z-10"
+                              >
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDelete(company.id)}
+                                  className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                                >
+                                  <MotionDiv
+                                    variants={iconVariants}
+                                    whileHover={{ rotate: -15 }}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </MotionDiv>
+                                </Button>
+                              </MotionDiv>
+                            </div>
                       </TableCell>
-                    </TableRow>
+                    </MotionTableRow>
                   ))}
-                  {data?.companies.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={8} className="py-8 text-center">
-                        No companies found
-                      </TableCell>
-                    </TableRow>
-                  )}
                 </TableBody>
               </Table>
             </div>
           )}
         </CardContent>
       </Card>
+        </AnimatedSection>
     </div>
+    </PageTransition>
   );
 }

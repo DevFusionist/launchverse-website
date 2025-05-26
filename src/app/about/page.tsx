@@ -7,8 +7,12 @@ import {
   Lightbulb,
   GraduationCap,
   Briefcase,
+  BookOpen,
+  ChevronRight,
+  Star,
+  Heart,
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ROUTES } from '@/lib/constants';
@@ -18,6 +22,12 @@ import {
   fadeIn,
   slideIn,
   scaleIn,
+  buttonVariants,
+  iconVariants,
+  MotionDiv,
+  PageTransition,
+  staggerContainer,
+  staggerItem,
 } from '@/components/ui/motion';
 import {
   HoverCard,
@@ -25,6 +35,9 @@ import {
   AnimatedIcon,
   AnimatedBadge,
 } from '@/components/ui/enhanced-motion';
+import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 const values = [
   {
@@ -105,144 +118,263 @@ const team = [
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-col gap-16">
-      {/* Hero Section */}
-      <ParallaxSection
-        speed={0.2}
-        className="relative overflow-hidden bg-background py-20 sm:py-32"
-      >
-        <div className="container relative">
-          <AnimatedSection
-            variants={fadeIn}
-            className="mx-auto max-w-2xl text-center"
+    <PageTransition>
+      <div className="container py-8">
+        <AnimatedSection
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          className="mb-8"
+        >
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-4xl font-bold"
           >
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              About Launch Verse
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Empowering careers through quality education and industry-aligned
-              training programs.
-            </p>
+            About Us
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-xl text-muted-foreground"
+          >
+            Empowering the next generation of tech professionals
+          </motion.p>
+        </AnimatedSection>
+
+        <AnimatedSection
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-12"
+        >
+          <motion.div variants={staggerItem}>
+            <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium transition-colors duration-200 group-hover:text-primary">
+                  Students
+                </CardTitle>
+                <MotionDiv
+                  whileHover={{ rotate: 15, scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Users className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                </MotionDiv>
+              </CardHeader>
+              <CardContent>
+                <MotionDiv
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  className="text-2xl font-bold"
+                >
+                  10,000+
+                </MotionDiv>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={staggerItem}>
+            <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium transition-colors duration-200 group-hover:text-primary">
+                  Courses
+                </CardTitle>
+                <MotionDiv
+                  whileHover={{ rotate: 15, scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <BookOpen className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                </MotionDiv>
+              </CardHeader>
+              <CardContent>
+                <MotionDiv
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  className="text-2xl font-bold"
+                >
+                  50+
+                </MotionDiv>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={staggerItem}>
+            <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium transition-colors duration-200 group-hover:text-primary">
+                  Graduates
+                </CardTitle>
+                <MotionDiv
+                  whileHover={{ rotate: 15, scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <GraduationCap className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                </MotionDiv>
+              </CardHeader>
+              <CardContent>
+                <MotionDiv
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  className="text-2xl font-bold"
+                >
+                  5,000+
+                </MotionDiv>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={staggerItem}>
+            <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium transition-colors duration-200 group-hover:text-primary">
+                  Success Rate
+                </CardTitle>
+                <MotionDiv
+                  whileHover={{ rotate: 15, scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Award className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                </MotionDiv>
+              </CardHeader>
+              <CardContent>
+                <MotionDiv
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  className="text-2xl font-bold"
+                >
+                  95%
+                </MotionDiv>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </AnimatedSection>
+
+        <div className="grid gap-8 md:grid-cols-2">
+          <AnimatedSection
+            variants={slideIn}
+            initial="hidden"
+            animate="visible"
+            className="space-y-6"
+          >
+            <Card className="transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                  Our Mission
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="prose prose-sm max-w-none"
+                >
+                  <p>
+                    We are dedicated to transforming lives through quality education and practical skills training.
+                    Our mission is to bridge the gap between traditional education and industry requirements,
+                    ensuring our students are job-ready from day one.
+                  </p>
+                </motion.div>
+                <motion.div
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="show"
+                  className="grid gap-4 sm:grid-cols-2"
+                >
+                  <motion.div variants={staggerItem} className="flex items-start gap-2">
+                    <MotionDiv
+                      whileHover={{ scale: 1.2, rotate: 5 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <Target className="h-5 w-5 text-primary" />
+                    </MotionDiv>
+                    <span>Industry-aligned curriculum</span>
+                  </motion.div>
+                  <motion.div variants={staggerItem} className="flex items-start gap-2">
+                    <MotionDiv
+                      whileHover={{ scale: 1.2, rotate: 5 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <Star className="h-5 w-5 text-primary" />
+                    </MotionDiv>
+                    <span>Expert instructors</span>
+                  </motion.div>
+                  <motion.div variants={staggerItem} className="flex items-start gap-2">
+                    <MotionDiv
+                      whileHover={{ scale: 1.2, rotate: 5 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <Heart className="h-5 w-5 text-primary" />
+                    </MotionDiv>
+                    <span>Student success focus</span>
+                  </motion.div>
+                  <motion.div variants={staggerItem} className="flex items-start gap-2">
+                    <MotionDiv
+                      whileHover={{ scale: 1.2, rotate: 5 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    >
+                      <Award className="h-5 w-5 text-primary" />
+                    </MotionDiv>
+                    <span>Career support</span>
+                  </motion.div>
+                </motion.div>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
+
+          <AnimatedSection
+            variants={slideIn}
+            initial="hidden"
+            animate="visible"
+            className="space-y-6"
+          >
+            <Card className="transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <CardTitle className="transition-colors duration-200 group-hover:text-primary">
+                  Our Team
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <motion.div
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="show"
+                  className="grid gap-4"
+                >
+                  {team.map((member, index) => (
+                    <motion.div
+                      key={member.name}
+                      variants={staggerItem}
+                      className="flex items-center gap-4 rounded-lg border p-4 transition-all duration-200 hover:border-primary/50"
+                    >
+                      <div className="relative h-12 w-12 overflow-hidden rounded-full">
+                        <Image
+                          src={member.image}
+                          alt={member.name}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium">{member.name}</h4>
+                        <p className="text-sm text-muted-foreground">{member.role}</p>
+                      </div>
+                      <MotionDiv
+                        whileHover={{ rotate: 90 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      >
+                        <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                      </MotionDiv>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </CardContent>
+            </Card>
           </AnimatedSection>
         </div>
-      </ParallaxSection>
-
-      {/* Values Section */}
-      <section className="container">
-        <AnimatedSection
-          variants={fadeIn}
-          className="mx-auto max-w-2xl text-center"
-        >
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Our Values
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            The core principles that guide our mission and drive our success.
-          </p>
-        </AnimatedSection>
-        <div className="mx-auto mt-16 max-w-7xl">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {values.map((value, index) => (
-              <AnimatedSection
-                key={value.title}
-                variants={slideIn}
-                custom={index}
-                transition={{ delay: index * 0.1 }}
-              >
-                <HoverCard className="text-center">
-                  <AnimatedIcon className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <value.icon className="h-6 w-6 text-primary" />
-                  </AnimatedIcon>
-                  <h3 className="text-lg font-semibold">{value.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {value.description}
-                  </p>
-                </HoverCard>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Achievements Section */}
-      <section className="container">
-        <AnimatedSection
-          variants={fadeIn}
-          className="mx-auto max-w-2xl text-center"
-        >
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Our Impact
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Numbers that reflect our commitment to student success and industry
-            excellence.
-          </p>
-        </AnimatedSection>
-        <div className="mx-auto mt-16 max-w-7xl">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {achievements.map((achievement, index) => (
-              <AnimatedSection
-                key={achievement.label}
-                variants={slideIn}
-                custom={index}
-                transition={{ delay: index * 0.1 }}
-              >
-                <HoverCard className="text-center">
-                  <AnimatedIcon className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <achievement.icon className="h-6 w-6 text-primary" />
-                  </AnimatedIcon>
-                  <div className="text-3xl font-bold text-primary">
-                    {achievement.number}
-                  </div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {achievement.label}
-                  </p>
-                </HoverCard>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container">
-        <AnimatedSection
-          variants={scaleIn}
-          className="relative overflow-hidden rounded-lg bg-primary px-6 py-16 sm:px-12 sm:py-24"
-        >
-          <div className="relative mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-primary-foreground sm:text-4xl">
-              Join Our Community
-            </h2>
-            <p className="mt-4 text-lg text-primary-foreground/80">
-              Take the first step towards a successful career with Launch Verse.
-            </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
-              <AnimatedButton
-                variant="secondary"
-                size="lg"
-                className="relative overflow-hidden bg-background text-foreground hover:bg-background/90"
-                asChild
-              >
-                <Link href={ROUTES.courses}>
-                  Explore Courses
-                  <AnimatedIcon className="ml-2">
-                    <GraduationCap className="h-4 w-4" />
-                  </AnimatedIcon>
-                </Link>
-              </AnimatedButton>
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-primary-foreground/20 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-                asChild
-              >
-                <Link href={ROUTES.contact}>Contact Us</Link>
-              </Button>
-            </div>
-          </div>
-        </AnimatedSection>
-      </section>
-    </div>
+      </div>
+    </PageTransition>
   );
 }

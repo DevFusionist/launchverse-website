@@ -51,7 +51,20 @@ import {
 import { CertificateStatus } from '@prisma/client';
 import useSWR from 'swr';
 import { toast } from '@/hooks/use-toast';
-import { AnimatedSection, fadeIn, slideIn } from '@/components/ui/motion';
+import {
+  AnimatedSection,
+  fadeIn,
+  slideIn,
+  staggerContainer,
+  staggerItem,
+  cardVariants,
+  MotionDiv,
+  buttonVariants,
+  iconVariants,
+  PageTransition,
+} from '@/components/ui/motion';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -112,9 +125,114 @@ export default function CertificatesPage() {
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
-      </div>
+      <PageTransition>
+        <div className="space-y-8 p-8">
+          <AnimatedSection variants={fadeIn} className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <MotionDiv
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="h-8 w-48 bg-muted rounded-md mb-2"
+                />
+                <MotionDiv
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="h-4 w-64 bg-muted rounded-md"
+                />
+              </div>
+              <MotionDiv
+                variants={buttonVariants}
+                className="h-10 w-32 bg-muted rounded-md"
+              />
+            </div>
+          </AnimatedSection>
+
+          <AnimatedSection variants={slideIn}>
+            <Card className="group hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <MotionDiv
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="h-6 w-32 bg-muted rounded-md"
+                  />
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <MotionDiv
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      className="h-10 w-64 bg-muted rounded-md"
+                    />
+                    <MotionDiv
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      className="h-10 w-48 bg-muted rounded-md"
+                    />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Student</TableHead>
+                        <TableHead>Course</TableHead>
+                        <TableHead>Issue Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Verification Code</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {[1, 2, 3, 4, 5].map((_, index) => (
+                        <MotionTableRow
+                          key={index}
+                          variants={cardVariants}
+                          initial="initial"
+                          animate="show"
+                          transition={{ delay: index * 0.1 }}
+                          className="relative z-0"
+                        >
+                          <TableCell>
+                            <div className="space-y-2">
+                              <MotionDiv className="h-4 w-32 bg-muted rounded-md" />
+                              <MotionDiv className="h-3 w-48 bg-muted rounded-md" />
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <MotionDiv className="h-4 w-48 bg-muted rounded-md" />
+                          </TableCell>
+                          <TableCell>
+                            <MotionDiv className="h-4 w-24 bg-muted rounded-md" />
+                          </TableCell>
+                          <TableCell>
+                            <MotionDiv className="h-6 w-20 bg-muted rounded-md" />
+                          </TableCell>
+                          <TableCell>
+                            <MotionDiv className="h-4 w-32 bg-muted rounded-md font-mono" />
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <MotionDiv className="h-8 w-8 bg-muted rounded-md" />
+                              <MotionDiv className="h-8 w-8 bg-muted rounded-md" />
+                            </div>
+                          </TableCell>
+                        </MotionTableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
+        </div>
+      </PageTransition>
     );
   }
 
@@ -253,79 +371,160 @@ export default function CertificatesPage() {
   };
 
   return (
-    <div className="space-y-8 p-8">
-      <AnimatedSection
-        variants={fadeIn}
-        className="flex items-center justify-between"
-      >
-        <h1 className="text-3xl font-bold">Certificates</h1>
-        <div className="flex items-center gap-4">
-          <Button
-            onClick={() => router.push('/admin/certificates/generate')}
-            className="transition-transform hover:scale-105 active:scale-95"
-          >
-            Generate Certificate
-          </Button>
-          {selectedCertificates.length > 0 && (
-            <Button
-              variant="destructive"
-              onClick={() => setIsBulkRevokeDialogOpen(true)}
-              className="transition-transform hover:scale-105 active:scale-95"
+    <PageTransition>
+      <div className="space-y-8 p-8">
+        <AnimatedSection variants={fadeIn} className="flex items-center justify-between">
+          <div>
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-3xl font-bold"
             >
-              Revoke Selected
-            </Button>
-          )}
-        </div>
-      </AnimatedSection>
-
-      <AnimatedSection variants={slideIn}>
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <CardTitle>Certificate List</CardTitle>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="relative flex-1 sm:w-64">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search certificates..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-                <Select
-                  value={statusFilter}
-                  onValueChange={(value) =>
-                    setStatusFilter(value as CertificateStatus | 'ALL')
-                  }
+              Certificates
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-muted-foreground"
+            >
+              Manage and track student certificates
+            </motion.p>
+          </div>
+          <div className="flex items-center gap-4">
+            <MotionDiv
+              variants={buttonVariants}
+              whileHover={{ scale: 1.05, rotate: 2, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+              whileTap={{ scale: 0.95, rotate: -1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+              className="relative z-10"
+            >
+              <Button
+                onClick={() => router.push('/admin/certificates/generate')}
+                className="group relative overflow-hidden"
+              >
+                <MotionDiv
+                  whileHover={{ rotate: 90 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                  className="mr-2"
                 >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ALL">All Status</SelectItem>
-                    <SelectItem value="ACTIVE">Active</SelectItem>
-                    <SelectItem value="REVOKED">Revoked</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <Plus className="h-4 w-4" />
+                </MotionDiv>
+                Generate Certificate
+              </Button>
+            </MotionDiv>
+            {selectedCertificates.length > 0 && (
+              <MotionDiv
+                variants={buttonVariants}
+                whileHover={{ scale: 1.05, rotate: -2, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+                whileTap={{ scale: 0.95, rotate: 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                className="relative z-10"
+              >
+                <Button
+                  variant="destructive"
+                  onClick={() => setIsBulkRevokeDialogOpen(true)}
+                  className="group relative overflow-hidden"
+                >
+                  <MotionDiv
+                    whileHover={{ rotate: -15 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                    className="mr-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </MotionDiv>
+                  Revoke Selected
+                </Button>
+              </MotionDiv>
+            )}
+          </div>
+        </AnimatedSection>
+
+        <AnimatedSection variants={slideIn}>
+          <Card className="group hover:shadow-lg transition-all duration-300">
+            <CardHeader>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <CardTitle className="group-hover:text-primary transition-colors">Certificate List</CardTitle>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <MotionDiv
+                    variants={fadeIn}
+                    className="relative w-72 z-20"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                  >
+                    <MotionDiv
+                      initial={{ scale: 1 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="relative"
+                    >
+                      <MotionDiv
+                        initial={{ opacity: 0.5 }}
+                        whileHover={{ opacity: 1 }}
+                        className="absolute left-2 top-2.5"
+                      >
+                        <Search className="h-4 w-4 text-muted-foreground" />
+                      </MotionDiv>
+                      <Input
+                        placeholder="Search certificates..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50"
+                      />
+                    </MotionDiv>
+                  </MotionDiv>
+                  <MotionDiv
+                    variants={fadeIn}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.3 }}
+                  >
+                    <Select
+                      value={statusFilter}
+                      onValueChange={(value) => setStatusFilter(value as CertificateStatus | 'ALL')}
+                    >
+                      <SelectTrigger className="w-[180px] transition-all duration-200 hover:border-primary/50">
+                        <SelectValue placeholder="Filter by status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ALL">All Status</SelectItem>
+                        <SelectItem value="ACTIVE">Active</SelectItem>
+                        <SelectItem value="REVOKED">Revoked</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </MotionDiv>
+                </div>
               </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : error ? (
-              <div className="text-center text-red-500">
-                Failed to load certificates
-              </div>
-            ) : !data ? (
-              <div className="text-center text-muted-foreground">
-                No data available
-              </div>
-            ) : (
-              <>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="flex justify-center py-8">
+                  <MotionDiv
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Loader2 className="h-8 w-8 text-muted-foreground transition-colors duration-200 group-hover:text-primary" />
+                  </MotionDiv>
+                </div>
+              ) : error ? (
+                <MotionDiv
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center text-red-500"
+                >
+                  Failed to load certificates
+                </MotionDiv>
+              ) : !data ? (
+                <MotionDiv
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center text-muted-foreground"
+                >
+                  No data available
+                </MotionDiv>
+              ) : (
                 <div className="rounded-md border">
                   <Table>
                     <TableHeader>
@@ -340,282 +539,331 @@ export default function CertificatesPage() {
                     </TableHeader>
                     <TableBody>
                       {data.certificates.map((certificate, index) => (
-                        <AnimatedSection
+                        <MotionTableRow
                           key={certificate.id}
-                          variants={fadeIn}
-                          custom={index}
-                          transition={{ delay: index * 0.05 }}
+                          variants={cardVariants}
+                          initial="initial"
+                          whileHover="hover"
+                          whileTap="tap"
+                          layout
+                          transition={{
+                            layout: { duration: 0.2 },
+                            delay: index * 0.05,
+                          }}
+                          className="relative z-0"
                         >
-                          <TableRow>
-                            <TableCell className="font-medium">
+                          <TableCell className="font-medium">
+                            <MotionDiv
+                              whileHover={{ x: 2 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            >
                               {certificate.student.name}
-                            </TableCell>
-                            <TableCell>{certificate.course.title}</TableCell>
-                            <TableCell>
-                              {new Date(
-                                certificate.issuedAt
-                              ).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                variant={
-                                  certificate.status === 'ACTIVE'
-                                    ? 'default'
-                                    : 'destructive'
-                                }
-                              >
-                                {certificate.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="font-mono text-sm">
+                            </MotionDiv>
+                          </TableCell>
+                          <TableCell>
+                            <MotionDiv
+                              whileHover={{ x: 2 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            >
+                              {certificate.course.title}
+                            </MotionDiv>
+                          </TableCell>
+                          <TableCell>
+                            <MotionDiv
+                              whileHover={{ x: 2 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            >
+                              {new Date(certificate.issuedAt).toLocaleDateString()}
+                            </MotionDiv>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={certificate.status === 'ACTIVE' ? 'default' : 'destructive'}
+                              className={cn(
+                                'transition-all duration-200',
+                                'group-hover/item:scale-105'
+                              )}
+                            >
+                              {certificate.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">
+                            <MotionDiv
+                              whileHover={{ x: 2 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            >
                               {certificate.code}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedCertificate(certificate);
-                                  setIsViewDialogOpen(true);
-                                }}
-                                className="transition-transform hover:scale-105 active:scale-95"
+                            </MotionDiv>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <MotionDiv
+                                whileHover={{ scale: 1.1, rotate: 5 }}
+                                whileTap={{ scale: 0.95 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
                               >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDownload(certificate.id)}
-                                disabled={isDownloading}
-                                className="transition-transform hover:scale-105 active:scale-95"
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedCertificate(certificate);
+                                    setIsViewDialogOpen(true);
+                                  }}
+                                  className={cn(
+                                    'transition-all duration-200',
+                                    'hover:bg-primary/10 hover:text-primary',
+                                    'active:scale-95'
+                                  )}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </MotionDiv>
+                              <MotionDiv
+                                whileHover={{ scale: 1.1, rotate: 5 }}
+                                whileTap={{ scale: 0.95 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
                               >
-                                <Download className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        </AnimatedSection>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDownload(certificate.id)}
+                                  disabled={isDownloading}
+                                  className={cn(
+                                    'transition-all duration-200',
+                                    'hover:bg-primary/10 hover:text-primary',
+                                    'active:scale-95'
+                                  )}
+                                >
+                                  <Download className="h-4 w-4" />
+                                </Button>
+                              </MotionDiv>
+                            </div>
+                          </TableCell>
+                        </MotionTableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </AnimatedSection>
+              )}
+            </CardContent>
+          </Card>
+        </AnimatedSection>
 
-      <Dialog
-        open={isBulkRevokeDialogOpen}
-        onOpenChange={setIsBulkRevokeDialogOpen}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Revoke Certificates</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to revoke {selectedCertificates.length}{' '}
-              certificate(s)? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Reason for Revocation
-              </label>
-              <Select
-                value={revocationReason}
-                onValueChange={(
-                  value: 'MISUSE_VIOLATION' | 'ADMINISTRATIVE_ERROR'
-                ) => setRevocationReason(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a reason" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="MISUSE_VIOLATION">
-                    Misuse or Violation
-                  </SelectItem>
-                  <SelectItem value="ADMINISTRATIVE_ERROR">
-                    Administrative Error
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Additional Notes</label>
-              <textarea
-                className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                placeholder="Enter any additional details about the revocation..."
-                value={revocationNotes}
-                onChange={(e) => setRevocationNotes(e.target.value)}
-              />
-            </div>
-            <div className="text-sm text-muted-foreground">
-              <p className="font-medium">Impact of Revocation:</p>
-              <ul className="mt-1 list-disc space-y-1 pl-4">
-                {revocationReason === 'ADMINISTRATIVE_ERROR' ? (
-                  <>
-                    <li>Student status will remain ACTIVE</li>
-                    <li>Enrollment status will be set to ENROLLED</li>
-                    <li>Student can retake the course</li>
-                    <li>Certificate will be marked as revoked</li>
-                  </>
-                ) : (
-                  <>
-                    <li>
-                      Student status will be set to INACTIVE (if no other active
-                      enrollments)
-                    </li>
-                    <li>Enrollment status will be set to DROPPED</li>
-                    <li>Certificate will be marked as revoked</li>
-                    <li>Student may be barred from future enrollments</li>
-                  </>
-                )}
-              </ul>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsBulkRevokeDialogOpen(false);
-                setRevocationReason('MISUSE_VIOLATION');
-                setRevocationNotes('');
-              }}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleBulkRevoke}>
-              Revoke Certificates
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Certificate View Dialog */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Certificate Details</DialogTitle>
-            <DialogDescription>
-              View detailed information about the certificate
-            </DialogDescription>
-          </DialogHeader>
-          {selectedCertificate && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">
-                    Certificate Code
-                  </h3>
-                  <p className="font-mono">{selectedCertificate.code}</p>
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">
-                    Status
-                  </h3>
-                  <Badge
-                    variant="secondary"
-                    className={
-                      selectedCertificate.status === 'ACTIVE'
-                        ? 'bg-green-500/10 text-green-500'
-                        : 'bg-red-500/10 text-red-500'
-                    }
-                  >
-                    {selectedCertificate.status}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">
-                    Student Information
-                  </h3>
-                  <div className="rounded-lg border p-3">
-                    <p className="font-medium">
-                      {selectedCertificate.student.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedCertificate.student.email}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">
-                    Course Information
-                  </h3>
-                  <div className="rounded-lg border p-3">
-                    <p className="font-medium">
-                      {selectedCertificate.course.title}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">
-                    Issuance Details
-                  </h3>
-                  <div className="rounded-lg border p-3">
-                    <p>Issued by: {selectedCertificate.issuedBy.name}</p>
-                    <p>
-                      Issued at:{' '}
-                      {new Date(selectedCertificate.issuedAt).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-
-                {selectedCertificate.status === 'REVOKED' && (
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-muted-foreground">
-                      Revocation Details
-                    </h3>
-                    <div className="rounded-lg border p-3">
-                      <p>
-                        Revoked at:{' '}
-                        {new Date(
-                          selectedCertificate.revokedAt!
-                        ).toLocaleString()}
-                      </p>
-                      {selectedCertificate.revocationReason && (
-                        <p>Reason: {selectedCertificate.revocationReason}</p>
-                      )}
-                      {selectedCertificate.revocationNotes && (
-                        <p>Notes: {selectedCertificate.revocationNotes}</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsViewDialogOpen(false)}
+        <Dialog
+          open={isBulkRevokeDialogOpen}
+          onOpenChange={setIsBulkRevokeDialogOpen}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Revoke Certificates</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to revoke {selectedCertificates.length}{' '}
+                certificate(s)? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Reason for Revocation
+                </label>
+                <Select
+                  value={revocationReason}
+                  onValueChange={(
+                    value: 'MISUSE_VIOLATION' | 'ADMINISTRATIVE_ERROR'
+                  ) => setRevocationReason(value)}
                 >
-                  Close
-                </Button>
-                <Button
-                  onClick={() => handleDownload(selectedCertificate.id)}
-                  disabled={isDownloading}
-                >
-                  {isDownloading ? (
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a reason" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MISUSE_VIOLATION">
+                      Misuse or Violation
+                    </SelectItem>
+                    <SelectItem value="ADMINISTRATIVE_ERROR">
+                      Administrative Error
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Additional Notes</label>
+                <textarea
+                  className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  placeholder="Enter any additional details about the revocation..."
+                  value={revocationNotes}
+                  onChange={(e) => setRevocationNotes(e.target.value)}
+                />
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <p className="font-medium">Impact of Revocation:</p>
+                <ul className="mt-1 list-disc space-y-1 pl-4">
+                  {revocationReason === 'ADMINISTRATIVE_ERROR' ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Downloading...
+                      <li>Student status will remain ACTIVE</li>
+                      <li>Enrollment status will be set to ENROLLED</li>
+                      <li>Student can retake the course</li>
+                      <li>Certificate will be marked as revoked</li>
                     </>
                   ) : (
                     <>
-                      <Download className="mr-2 h-4 w-4" />
-                      Download Certificate
+                      <li>
+                        Student status will be set to INACTIVE (if no other active
+                        enrollments)
+                      </li>
+                      <li>Enrollment status will be set to DROPPED</li>
+                      <li>Certificate will be marked as revoked</li>
+                      <li>Student may be barred from future enrollments</li>
                     </>
                   )}
-                </Button>
-              </DialogFooter>
+                </ul>
+              </div>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsBulkRevokeDialogOpen(false);
+                  setRevocationReason('MISUSE_VIOLATION');
+                  setRevocationNotes('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleBulkRevoke}>
+                Revoke Certificates
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Certificate View Dialog */}
+        <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Certificate Details</DialogTitle>
+              <DialogDescription>
+                View detailed information about the certificate
+              </DialogDescription>
+            </DialogHeader>
+            {selectedCertificate && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      Certificate Code
+                    </h3>
+                    <p className="font-mono">{selectedCertificate.code}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      Status
+                    </h3>
+                    <Badge
+                      variant="secondary"
+                      className={
+                        selectedCertificate.status === 'ACTIVE'
+                          ? 'bg-green-500/10 text-green-500'
+                          : 'bg-red-500/10 text-red-500'
+                      }
+                    >
+                      {selectedCertificate.status}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      Student Information
+                    </h3>
+                    <div className="rounded-lg border p-3">
+                      <p className="font-medium">
+                        {selectedCertificate.student.name}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedCertificate.student.email}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      Course Information
+                    </h3>
+                    <div className="rounded-lg border p-3">
+                      <p className="font-medium">
+                        {selectedCertificate.course.title}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      Issuance Details
+                    </h3>
+                    <div className="rounded-lg border p-3">
+                      <p>Issued by: {selectedCertificate.issuedBy.name}</p>
+                      <p>
+                        Issued at:{' '}
+                        {new Date(selectedCertificate.issuedAt).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  {selectedCertificate.status === 'REVOKED' && (
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-medium text-muted-foreground">
+                        Revocation Details
+                      </h3>
+                      <div className="rounded-lg border p-3">
+                        <p>
+                          Revoked at:{' '}
+                          {new Date(
+                            selectedCertificate.revokedAt!
+                          ).toLocaleString()}
+                        </p>
+                        {selectedCertificate.revocationReason && (
+                          <p>Reason: {selectedCertificate.revocationReason}</p>
+                        )}
+                        {selectedCertificate.revocationNotes && (
+                          <p>Notes: {selectedCertificate.revocationNotes}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsViewDialogOpen(false)}
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    onClick={() => handleDownload(selectedCertificate.id)}
+                    disabled={isDownloading}
+                  >
+                    {isDownloading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Certificate
+                      </>
+                    )}
+                  </Button>
+                </DialogFooter>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
+    </PageTransition>
   );
 }
+
+const MotionTableRow = motion(TableRow);
