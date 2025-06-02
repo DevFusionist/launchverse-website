@@ -186,9 +186,9 @@ export const ContactFormSection = () => {
               <CardItem translateX="-5" translateY="-3" translateZ="30">
                 <h2 className="text-2xl font-semibold">Contact Information</h2>
                 <p className="text-default-500 mt-2">
-                  Choose the most convenient way to reach us. Our team is
-                  available to assist you with any questions about our courses,
-                  career guidance, or enrollment process.
+                  Have questions about our courses or need career guidance?
+                  We&apos;re here to help! Fill out the form below and our team will
+                  get back to you shortly.
                 </p>
               </CardItem>
             </div>
@@ -200,13 +200,23 @@ export const ContactFormSection = () => {
                   <div>
                     <h3 className="font-semibold">Visit Us</h3>
                     <p className="text-default-500">
-                      131/26 (holding no)
+                      131/26 (Holding No), Tentul Tala Lane (East), Ward-2
                       <br />
-                      Tentul tala lane (east) (ward-2)
+                      Mankundu, Hooghly – 712139
                       <br />
-                      Post-mankundu, ps-bhadreswar
-                      <br />
-                      Dist-hooghly, West bengal - 712139
+                      West Bengal, India
+                    </p>
+                  </div>
+                </div>
+              </CardItem>
+
+              <CardItem translateX="-5" translateY="-3" translateZ="25">
+                <div className="flex items-start gap-4">
+                  <div className="text-2xl">🕘</div>
+                  <div>
+                    <h3 className="font-semibold">Opening Hours</h3>
+                    <p className="text-default-500">
+                      Open Daily: 9:00 AM – 10:00 PM
                     </p>
                   </div>
                 </div>
@@ -216,7 +226,7 @@ export const ContactFormSection = () => {
                 <div className="flex items-start gap-4">
                   <div className="text-2xl">📞</div>
                   <div>
-                    <h3 className="font-semibold">Call Us</h3>
+                    <h3 className="font-semibold">Call/WhatsApp Us</h3>
                     <p className="text-default-500">
                       <a
                         className="hover:text-primary transition-colors"
@@ -231,29 +241,6 @@ export const ContactFormSection = () => {
                       >
                         +91 7508162363
                       </a>
-                      <br />
-                      Mon-Fri, 9:00 AM - 6:00 PM IST
-                    </p>
-                  </div>
-                </div>
-              </CardItem>
-
-              <CardItem translateX="-5" translateY="-3" translateZ="25">
-                <div className="flex items-start gap-4">
-                  <div className="text-2xl">💬</div>
-                  <div>
-                    <h3 className="font-semibold">WhatsApp Us</h3>
-                    <p className="text-default-500">
-                      <a
-                        className="hover:text-primary transition-colors"
-                        href="https://wa.me/917001478078?text=Hello!%20I'm%20interested%20in%20learning%20more%20about%20Launch%20Verse%20Academy.%20Could%20you%20please%20provide%20more%20information%20about%20your%20courses%3F"
-                        rel="noopener noreferrer"
-                        target="_blank"
-                      >
-                        Chat on WhatsApp
-                      </a>
-                      <br />
-                      Quick response guaranteed
                     </p>
                   </div>
                 </div>
@@ -267,17 +254,11 @@ export const ContactFormSection = () => {
                     <p className="text-default-500">
                       <a
                         className="hover:text-primary transition-colors"
-                        href="mailto:info@launchverse.academy"
+                        href="mailto:sacredwebdev@gmail.com"
                       >
-                        info@launchverse.academy
+                        sacredwebdev@gmail.com
                       </a>
                       <br />
-                      <a
-                        className="hover:text-primary transition-colors"
-                        href="mailto:support@launchverse.academy"
-                      >
-                        support@launchverse.academy
-                      </a>
                     </p>
                   </div>
                 </div>

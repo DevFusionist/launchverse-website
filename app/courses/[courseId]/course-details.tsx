@@ -19,12 +19,12 @@ import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 type Instructor = {
   name: string;
   role: string;
-  experience: string;
-  expertise: string[];
+  bio: string;
+  image: string;
 };
 
 type Module = {
-  module: string;
+  title: string;
   topics: string[];
 };
 
@@ -42,11 +42,15 @@ type Course = {
   outcomes: string[];
   prerequisites: string[];
   instructors: Instructor[];
+  faqs?: {
+    question: string;
+    answer: string;
+  }[];
 };
 
-type CourseDetailsProps = {
+interface CourseDetailsProps {
   course: Course;
-};
+}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -69,7 +73,7 @@ const itemVariants = {
   },
 };
 
-export function CourseDetails({ course }: CourseDetailsProps) {
+export default function CourseDetails({ course }: CourseDetailsProps) {
   const router = useRouter();
 
   const handleScheduleCall = (e: React.MouseEvent) => {
@@ -183,7 +187,7 @@ export function CourseDetails({ course }: CourseDetailsProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {course.curriculum.map((module, index) => (
             <motion.div
-              key={module.module}
+              key={module.title}
               animate={{ opacity: 1, y: 0 }}
               initial={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -201,7 +205,7 @@ export function CourseDetails({ course }: CourseDetailsProps) {
                     <div className="flex items-center gap-3 mb-4">
                       <BookOpen className="w-6 h-6 text-primary" />
                       <h3 className="text-xl font-semibold text-neutral-600 dark:text-white">
-                        {module.module}
+                        {module.title}
                       </h3>
                     </div>
                     <ul className="space-y-2">
@@ -329,21 +333,22 @@ export function CourseDetails({ course }: CourseDetailsProps) {
                         <p className="text-primary">{instructor.role}</p>
                       </div>
                       <p className="text-neutral-500 dark:text-neutral-300">
-                        {instructor.experience}
+                        {instructor.bio}
                       </p>
                       <div>
                         <h4 className="font-medium mb-2 text-neutral-600 dark:text-white">
                           Areas of Expertise:
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                          {instructor.expertise.map((skill, skillIndex) => (
+                          {/* Assuming instructor.expertise is not provided in the new structure */}
+                          {/* {instructor.expertise.map((skill, skillIndex) => (
                             <span
                               key={skillIndex}
                               className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm"
                             >
                               {skill}
                             </span>
-                          ))}
+                          ))} */}
                         </div>
                       </div>
                     </div>
@@ -354,6 +359,48 @@ export function CourseDetails({ course }: CourseDetailsProps) {
           ))}
         </div>
       </motion.section>
+
+      {/* FAQ Section */}
+      {course.faqs && course.faqs.length > 0 && (
+        <motion.section
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="text-3xl font-bold text-center mb-8">
+            Frequently Asked Questions
+          </h2>
+          <CardContainer className="inter-var w-full max-w-4xl mx-auto">
+            <CardBody
+              className="bg-gray-50 relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto rounded-xl p-6 border 
+              before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-emerald-500/40 before:via-blue-500/40 before:to-cyan-500/40 before:blur-3xl before:opacity-0 before:transition-opacity before:duration-500 group-hover/card:before:opacity-100 
+              after:absolute after:inset-0 after:rounded-xl after:bg-gradient-to-r after:from-emerald-500/30 after:via-blue-500/30 after:to-cyan-500/30 after:blur-2xl after:opacity-0 after:transition-opacity after:duration-500 group-hover/card:after:opacity-100
+              [&:hover]:shadow-[0_0_30px_rgba(16,185,129,0.3)] [&:hover]:shadow-emerald-500/30
+              [&:hover]:border-emerald-500/50
+              transition-all duration-500"
+            >
+              <CardItem translateZ="150">
+                <div className="space-y-6">
+                  {course.faqs.map((faq, index) => (
+                    <div
+                      key={index}
+                      className="border-b border-gray-200 dark:border-gray-700 last:border-0 pb-6 last:pb-0"
+                    >
+                      <h3 className="text-xl font-semibold mb-2 text-neutral-600 dark:text-white">
+                        {faq.question}
+                      </h3>
+                      <p className="text-neutral-500 dark:text-neutral-300">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </CardItem>
+            </CardBody>
+          </CardContainer>
+        </motion.section>
+      )}
 
       {/* CTA Section */}
       <motion.section

@@ -1,22 +1,67 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
+import { Inter } from "next/font/google";
 
 import { Providers } from "./providers";
 
+import { AuthProvider } from "@/lib/auth-context";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { ClientLayout } from "@/components/client-layout";
 import { BackgroundBeams } from "@/components/ui/BackgroundBeams";
 
+const inter = Inter({ subsets: ["latin"] });
+
 export const metadata: Metadata = {
   title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
+    default: "Launch Verse Academy - Best Computer Training Institute in Kolkata | ScriptAura",
+    template: "%s | Launch Verse Academy",
   },
-  description: siteConfig.description,
+  description: "Join Launch Verse Academy for the best computer training in Kolkata. Learn web development, graphic design, MS Office & more. Get certified & placed with 100% job assistance.",
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://scriptauradev.com",
+    siteName: "Launch Verse Academy",
+    title: "Launch Verse Academy - Best Computer Training Institute in Kolkata | ScriptAura",
+    description: "Join Launch Verse Academy for the best computer training in Kolkata. Learn web development, graphic design, MS Office & more. Get certified & placed with 100% job assistance.",
+    images: [
+      {
+        url: "/og-home.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Launch Verse Academy - Best Computer Training Institute in Kolkata",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Launch Verse Academy - Best Computer Training Institute in Kolkata | ScriptAura",
+    description: "Join Launch Verse Academy for the best computer training in Kolkata. Learn web development, graphic design, MS Office & more. Get certified & placed with 100% job assistance.",
+    images: ["/og-home.jpg"],
+    creator: "@launchverse",
+  },
+  metadataBase: new URL("https://scriptauradev.com"),
+  alternates: {
+    canonical: "/",
+  },
+  manifest: '/manifest.json',
+  themeColor: '#000000',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'LaunchVerse Academy',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
   icons: {
-    icon: "/favicon.ico",
+    icon: '/icons/icon-192x192.png',
+    shortcut: '/icons/icon-192x192.png',
+    apple: '/icons/icon-192x192.png',
   },
 };
 
@@ -33,20 +78,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html suppressHydrationWarning className="dark" lang="en">
       <head />
       <body
+        suppressHydrationWarning
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
           fontSans.variable,
+          inter.className,
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark", forcedTheme: "dark" }}>
-          <div className="relative min-h-screen">
-            <BackgroundBeams />
-            <ClientLayout>{children}</ClientLayout>
-          </div>
-        </Providers>
+        <AuthProvider>
+          <Providers
+            themeProps={{
+              attribute: "class",
+              defaultTheme: "dark",
+              forcedTheme: "dark",
+            }}
+          >
+            <div className="relative min-h-screen">
+              <BackgroundBeams />
+              <ClientLayout>{children}</ClientLayout>
+            </div>
+          </Providers>
+        </AuthProvider>
       </body>
     </html>
   );

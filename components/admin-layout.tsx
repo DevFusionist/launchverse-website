@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Home,
@@ -15,6 +15,8 @@ import {
   X,
 } from "lucide-react";
 
+import { UserRole } from "@/lib/types";
+import { useAuth } from "@/lib/auth-context";
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 
 const sidebarItems = [
@@ -26,9 +28,33 @@ const sidebarItems = [
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
-export function AdminLayout({ children }: { children: React.ReactNode }) {
+interface AdminLayoutProps {
+  children: React.ReactNode;
+}
+
+export function AdminLayout({ children }: AdminLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  useEffect(() => {
+    // Check if user has admin access
+    if (!user || ![UserRole.SUPER_ADMIN, UserRole.ADMIN].includes(user.role)) {
+      router.push("/login");
+    }
+  }, [user, router]);
+
+  // Filter sidebar items based on role
+  const filteredSidebarItems = sidebarItems.filter((item) => {
+    // Super admin can see everything
+    if (user?.role === UserRole.SUPER_ADMIN) return true;
+
+    // Admin can't access settings
+    if (user?.role === UserRole.ADMIN && item.name === "Settings") return false;
+
+    return true;
+  });
 
   return (
     <div className="flex h-screen bg-background">
@@ -69,7 +95,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
               {/* Navigation */}
               <nav className="flex-1 px-4 py-4 space-y-1">
-                {sidebarItems.map((item) => {
+                {filteredSidebarItems.map((item) => {
                   const isActive = pathname === item.href;
 
                   return (
@@ -105,9 +131,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 <div className="flex items-center justify-end">
                   <button
                     className="text-sm text-default-500 hover:text-foreground transition-colors"
-                    onClick={() => {
-                      /* Add logout handler */
-                    }}
+                    onClick={logout}
                   >
                     Logout
                   </button>

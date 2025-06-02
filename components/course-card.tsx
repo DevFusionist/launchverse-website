@@ -65,7 +65,10 @@ const CourseCard = ({
               Learn More →
             </CardItem>
           </Link>
-          <Link className="block w-full sm:w-auto" href={`/contact?source=course&course=${title}`}>
+          <Link
+            className="block w-full sm:w-auto"
+            href={`/contact?source=course&course=${title}`}
+          >
             <CardItem
               className="px-4 py-2 rounded-2xl text-sm font-bold text-white transition-all duration-300 text-center w-full
                 relative before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-r before:from-pink-500/40 before:via-purple-500/40 before:to-indigo-500/40 before:blur-xl before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300

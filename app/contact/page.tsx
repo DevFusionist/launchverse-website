@@ -4,17 +4,12 @@ import { title, subtitle } from "@/components/primitives";
 import { ContactFormSection } from "@/components/contact-form-section";
 
 export const metadata: Metadata = {
-  title: "Contact Us | LaunchVerse Academy",
+  title:
+    "Contact Launch Verse Academy | Visit Our Kolkata Center or Call Today",
   description:
-    "Get in touch with LaunchVerse Academy. We're here to help with your questions about our courses, career guidance, or enrollment process.",
-  keywords: [
-    "contact",
-    "support",
-    "help",
-    "enrollment",
-    "career guidance",
-    "LaunchVerse Academy",
-  ],
+    "Have questions? Visit Launch Verse Academy at Tentul Tala Lane, Mankundu or call us at 7001478078 / 7508162363. Our expert team is available 9 AM – 10 PM to guide you on admissions, courses, and career paths.",
+  keywords:
+    "contact launch verse academy, computer institute near me, visit computer training center kolkata, computer course enquiry kolkata, launch verse location, ms office course enquiry kolkata, web designing admission kolkata",
 };
 
 export default function ContactPage() {
@@ -33,9 +28,13 @@ export default function ContactPage() {
           </span>
         </h1>
         <div className={subtitle({ class: "mt-4 max-w-2xl mx-auto" })}>
-          Have questions about our courses or need career guidance? We&apos;re
-          here to help! Fill out the form below and our team will get back to
-          you shortly.
+          <p className="text-gray-600 dark:text-gray-400">
+            We&apos;re here to help! Whether you have questions about our
+            courses, need assistance with enrollment, or want to learn more
+            about our training programs, our team is ready to assist you. Fill
+            out the form below, and we&apos;ll get back to you as soon as
+            possible.
+          </p>
         </div>
       </section>
 

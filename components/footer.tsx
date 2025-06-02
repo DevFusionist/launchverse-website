@@ -53,6 +53,7 @@ export const Footer = () => {
                   { label: "Courses", href: "/courses" },
                   { label: "About Us", href: "/about" },
                   { label: "Contact", href: "/contact" },
+                  // { label: "Blog", href: "/blog" },
                 ].map((item) => (
                   <motion.div
                     key={item.href}
@@ -145,9 +146,9 @@ export const Footer = () => {
                 <p className="mt-4">
                   <a
                     className="hover:text-primary transition-colors"
-                    href="mailto:info@launchverse.academy"
+                    href="mailto:sacredwebdev@gmail.com"
                   >
-                    info@launchverse.academy
+                    sacredwebdev@gmail.com
                   </a>
                 </p>
                 <p>

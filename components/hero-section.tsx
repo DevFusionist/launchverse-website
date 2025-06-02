@@ -24,20 +24,21 @@ export function HeroSection() {
         }}
       >
         <h1 className={title({ size: "lg" })}>
-          Launch Your Tech Career with&nbsp;
+          🚀 Learn Skills. Launch Careers –&nbsp;
           <Highlight className="text-black dark:text-white">
-            Expert-Led Training
+            Top Computer Training Institute in Kolkata
           </Highlight>
         </h1>
         <div className={subtitle({ class: "mt-4 max-w-2xl mx-auto" })}>
-          Transform your future with our industry-aligned courses, hands-on
-          projects, and career support. Join thousands of successful graduates
-          who have launched their tech careers with us.
+          Welcome to Launch Verse Academy, your premier computer training
+          institute in Kolkata. Whether you&apos;re a beginner or looking to
+          upskill, we offer expert-led courses in Web Development, MS Office,
+          Web Designing, and Graphic Designing.
         </div>
         <p className="mt-4 text-default-500 text-sm max-w-xl mx-auto">
-          Industry-recognized certifications, personalized mentorship, and
-          guaranteed placement support. Start your journey to becoming a tech
-          professional today.
+          With 100% practical training and placement support, we help you turn
+          skills into success. Join our community of learners and start your
+          journey to a rewarding career today.
         </p>
       </motion.div>
     </HeroHighlight>

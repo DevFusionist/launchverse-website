@@ -19,6 +19,7 @@ export const MainNavbar = () => {
     { name: "Courses", link: "/courses" },
     { name: "About", link: "/about" },
     { name: "Contact", link: "/contact" },
+    // { name: "Blog", link: "/blog" },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,8 +31,7 @@ export const MainNavbar = () => {
         <NavBody className="backdrop-blur-md bg-background/70 border-b border-divider/50 shadow-lg">
           <NavbarLogo />
           <NavItems items={navItems} />
-          <div className="flex items-center gap-4">
-          </div>
+          <div className="flex items-center gap-4" />
         </NavBody>
 
         {/* Mobile Navigation */}
@@ -47,8 +47,8 @@ export const MainNavbar = () => {
           </MobileNavHeader>
 
           <MobileNavMenu
-            isOpen={isMobileMenuOpen}
             _onClose={() => setIsMobileMenuOpen(false)}
+            isOpen={isMobileMenuOpen}
           >
             {navItems.map((item, idx) => (
               <Link
