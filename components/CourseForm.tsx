@@ -512,14 +512,17 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
       </motion.div>
 
       <form className="space-y-6" onSubmit={handleSubmit}>
-        <Card className="border border-default-200/50 bg-default-100/50 backdrop-blur-xl backdrop-saturate-150">
+        <Card className="mx-auto w-full max-w-4xl rounded-2xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-xl dark:bg-black/10 hover:border-blue-500/50 hover:animate-neon-pulse dark:hover:border-blue-400/50">
           <CardBody className="gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Basic Information Section */}
               <LabelInputContainer className="col-span-2">
-                <h2 className="text-xl font-semibold mb-4">
+                <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
                   Basic Information
                 </h2>
+                <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">
+                  Fill in the basic details of your course
+                </p>
               </LabelInputContainer>
 
               <LabelInputContainer>
@@ -527,8 +530,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("title") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="title"
                   value={formData.title}
@@ -548,8 +552,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Select
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("status") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="status"
                   selectedKeys={[formData.status]}
@@ -576,8 +581,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("shortDescription") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="shortDescription"
                   maxLength={200}
@@ -601,8 +607,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("description") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="description"
                   value={formData.description}
@@ -619,7 +626,12 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
 
               {/* Course Details Section */}
               <LabelInputContainer className="col-span-2">
-                <h2 className="text-xl font-semibold mb-4">Course Details</h2>
+                <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
+                  Course Details
+                </h2>
+                <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">
+                  Specify the course requirements and details
+                </p>
               </LabelInputContainer>
 
               <LabelInputContainer>
@@ -627,8 +639,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("price") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="price"
                   min="0"
@@ -636,7 +649,6 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                   value={formData.price.toString()}
                   onChange={(e) => {
                     const value = e.target.value;
-
                     setFormData({
                       ...formData,
                       price: value === "" ? 0 : Math.max(0, Number(value)),
@@ -655,8 +667,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("duration") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="duration"
                   min="0"
@@ -664,7 +677,6 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                   value={formData.duration.toString()}
                   onChange={(e) => {
                     const value = e.target.value;
-
                     setFormData({
                       ...formData,
                       duration: value === "" ? 0 : Math.max(0, Number(value)),
@@ -683,8 +695,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Select
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("level") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="level"
                   selectedKeys={[formData.level]}
@@ -711,8 +724,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("category") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="category"
                   value={formData.category}
@@ -729,9 +743,12 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
 
               {/* Batch Information Section */}
               <LabelInputContainer className="col-span-2">
-                <h2 className="text-xl font-semibold mb-4">
+                <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
                   Batch Information
                 </h2>
+                <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">
+                  Specify the batch details
+                </p>
               </LabelInputContainer>
 
               <LabelInputContainer>
@@ -739,8 +756,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("batchSize") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="batchSize"
                   max="30"
@@ -749,7 +767,6 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                   value={formData.batchSize.toString()}
                   onChange={(e) => {
                     const value = parseInt(e.target.value, 10);
-
                     if (!isNaN(value)) {
                       setFormData({ ...formData, batchSize: value });
                     }
@@ -767,8 +784,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Select
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("batchType") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="batchType"
                   selectedKeys={[formData.batchType]}
@@ -792,7 +810,12 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
 
               {/* Current Batch Section */}
               <LabelInputContainer className="col-span-2">
-                <h2 className="text-xl font-semibold mb-4">Current Batch</h2>
+                <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
+                  Current Batch
+                </h2>
+                <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">
+                  Specify the current batch details
+                </p>
               </LabelInputContainer>
 
               <LabelInputContainer>
@@ -800,8 +823,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("currentBatch.batchNumber") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="batchNumber"
                   min="1"
@@ -809,7 +833,6 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                   value={formData.currentBatch.batchNumber.toString()}
                   onChange={(e) => {
                     const value = parseInt(e.target.value, 10);
-
                     if (!isNaN(value)) {
                       setFormData({
                         ...formData,
@@ -833,8 +856,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("currentBatch.maxStudents") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="maxStudents"
                   min="1"
@@ -842,7 +866,6 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                   value={formData.currentBatch.maxStudents.toString()}
                   onChange={(e) => {
                     const value = parseInt(e.target.value, 10);
-
                     if (!isNaN(value)) {
                       setFormData({
                         ...formData,
@@ -866,8 +889,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("currentBatch.startDate") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="batchStartDate"
                   type="date"
@@ -894,8 +918,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("currentBatch.endDate") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="batchEndDate"
                   type="date"
@@ -922,8 +947,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Select
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("currentBatch.isActive") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="isActive"
                   selectedKeys={[formData.currentBatch.isActive.toString()]}
@@ -949,7 +975,12 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
 
               {/* Schedule Section */}
               <LabelInputContainer className="col-span-2">
-                <h2 className="text-xl font-semibold mb-4">Schedule</h2>
+                <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
+                  Schedule
+                </h2>
+                <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">
+                  Specify the course schedule
+                </p>
               </LabelInputContainer>
 
               <LabelInputContainer>
@@ -957,8 +988,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("schedule.startDate") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="scheduleStartDate"
                   type="date"
@@ -985,8 +1017,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("schedule.endDate") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="scheduleEndDate"
                   type="date"
@@ -1014,8 +1047,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                   required
                   aria-label="Select schedule days"
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("schedule.days") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="scheduleDays"
                   selectedKeys={new Set(formData.schedule.days)}
@@ -1058,8 +1092,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("schedule.startTime") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="scheduleStartTime"
                   type="time"
@@ -1086,8 +1121,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("schedule.endTime") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="scheduleEndTime"
                   type="time"
@@ -1111,7 +1147,12 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
 
               {/* Location Section */}
               <LabelInputContainer className="col-span-2">
-                <h2 className="text-xl font-semibold mb-4">Location</h2>
+                <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
+                  Location
+                </h2>
+                <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">
+                  Specify the course location
+                </p>
               </LabelInputContainer>
 
               <LabelInputContainer>
@@ -1119,8 +1160,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("location.address") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="locationAddress"
                   value={formData.location.address}
@@ -1146,8 +1188,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("location.city") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="locationCity"
                   value={formData.location.city}
@@ -1170,8 +1213,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("location.state") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="locationState"
                   value={formData.location.state}
@@ -1194,8 +1238,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("location.pincode") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="locationPincode"
                   value={formData.location.pincode}
@@ -1222,8 +1267,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 </Label>
                 <Input
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("location.landmark") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="locationLandmark"
                   value={formData.location.landmark || ""}
@@ -1250,8 +1296,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <div className="flex gap-2 mb-2">
                   <Input
                     className={cn(
+                      "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                       getFieldError("tags") &&
-                        "border-red-500 focus:border-red-500",
+                        "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                     )}
                     id="tags"
                     placeholder="Add a tag"
@@ -1283,8 +1330,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <div className="flex gap-2 mb-2">
                   <Input
                     className={cn(
+                      "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                       getFieldError("prerequisites") &&
-                        "border-red-500 focus:border-red-500",
+                        "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                     )}
                     id="prerequisites"
                     placeholder="Add a prerequisite"
@@ -1317,8 +1365,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <div className="flex gap-2 mb-2">
                   <Input
                     className={cn(
+                      "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                       getFieldError("learningObjectives") &&
-                        "border-red-500 focus:border-red-500",
+                        "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                     )}
                     id="learningObjectives"
                     placeholder="Add a learning objective"
@@ -1351,8 +1400,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Input
                       className={cn(
+                        "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                         getFieldError("curriculum") &&
-                          "border-red-500 focus:border-red-500",
+                          "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                       )}
                       placeholder="Title"
                       value={newCurriculumItem.title}
@@ -1365,8 +1415,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                     />
                     <Input
                       className={cn(
+                        "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                         getFieldError("curriculum") &&
-                          "border-red-500 focus:border-red-500",
+                          "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                       )}
                       placeholder="Description"
                       value={newCurriculumItem.description}
@@ -1380,8 +1431,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                     <div className="flex gap-2">
                       <Input
                         className={cn(
+                          "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                           getFieldError("curriculum") &&
-                            "border-red-500 focus:border-red-500",
+                            "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                         )}
                         min="0"
                         placeholder="Duration (hours)"
@@ -1436,8 +1488,9 @@ export default function CourseForm({ courseId, mode }: CourseFormProps) {
                 <Input
                   required
                   className={cn(
+                    "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("thumbnail") &&
-                      "border-red-500 focus:border-red-500",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
                   id="thumbnail"
                   value={formData.thumbnail}

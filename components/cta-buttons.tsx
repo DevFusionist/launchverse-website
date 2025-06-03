@@ -5,7 +5,7 @@ import { button as buttonStyles } from "@heroui/theme";
 
 export function CTAButtons() {
   return (
-    <section aria-label="Call to action" className="flex gap-4">
+    <section aria-label="Call to action" className="flex flex-col sm:flex-row gap-4 w-full max-w-md mx-auto px-4 sm:px-0">
       <Link
         className={buttonStyles({
           color: "primary",
@@ -13,7 +13,7 @@ export function CTAButtons() {
           variant: "bordered",
           size: "lg",
           class:
-            "relative group overflow-visible bg-transparent hover:bg-transparent border-primary/20 transition-all duration-200 hover:scale-[1.02]",
+            "relative group overflow-visible bg-transparent hover:bg-transparent border-primary/20 transition-all duration-200 hover:scale-[1.02] w-full sm:w-auto",
         })}
         href="/courses"
       >
@@ -35,7 +35,7 @@ export function CTAButtons() {
           radius: "full",
           size: "lg",
           class:
-            "relative group overflow-visible bg-transparent hover:bg-transparent border-secondary/20 transition-all duration-200 hover:scale-[1.02]",
+            "relative group overflow-visible bg-transparent hover:bg-transparent border-secondary/20 transition-all duration-200 hover:scale-[1.02] w-full sm:w-auto",
         })}
         href="/contact"
       >

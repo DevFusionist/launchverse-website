@@ -280,7 +280,7 @@ export default function Home() {
             <FeatureCard
               _neonColor="from-blue-500 to-cyan-500"
               description="Our curriculum is designed by industry experts and updated regularly to match current market demands."
-              icon="��"
+              icon="⚡"
               title="Industry-Relevant Curriculum"
             />
             <FeatureCard
@@ -329,36 +329,45 @@ export default function Home() {
             placement, and more.
           </p>
           <div className="grid gap-6">
-            {faqData.questions.map((faq, index) => (
-              <details
-                key={index}
-                className="group bg-white rounded-lg shadow-sm overflow-hidden"
-              >
-                <summary className="flex items-center justify-between p-6 cursor-pointer">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {faq.question}
-                  </h3>
-                  <span className="ml-6 flex-shrink-0">
-                    <svg
-                      className="h-6 w-6 transform group-open:rotate-180 transition-transform duration-200"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M19 9l-7 7-7-7"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                    </svg>
-                  </span>
-                </summary>
-                <div className="px-6 pb-6">
-                  <p className="text-gray-600">{faq.answer}</p>
-                </div>
-              </details>
-            ))}
+            {faqData.questions.map((faq, index) => {
+              const isEven = index % 2 === 0;
+              const neonColor = isEven ? 'purple' : 'blue';
+              const neonStyles = {
+                purple: 'hover:border-purple-500/50 hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-purple-500/20 group-hover:text-purple-300',
+                blue: 'hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-blue-500/20 group-hover:text-blue-300'
+              };
+
+              return (
+                <details
+                  key={index}
+                  className={`group backdrop-blur-md bg-white/5 border border-white/10 rounded-lg shadow-lg overflow-hidden hover:bg-white/15 transition-all duration-300 ${neonStyles[neonColor]}`}
+                >
+                  <summary className="flex items-center justify-between p-6 cursor-pointer">
+                    <h3 className={`text-lg font-medium text-white transition-colors duration-300 ${neonStyles[neonColor]}`}>
+                      {faq.question}
+                    </h3>
+                    <span className={`ml-6 flex-shrink-0 text-white/80 transition-colors duration-300 ${neonStyles[neonColor]}`}>
+                      <svg
+                        className="h-6 w-6 transform group-open:rotate-180 transition-transform duration-200"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M19 9l-7 7-7-7"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                        />
+                      </svg>
+                    </span>
+                  </summary>
+                  <div className="px-6 pb-6">
+                    <p className="text-white/80 leading-relaxed group-hover:text-white/90 transition-colors duration-300">{faq.answer}</p>
+                  </div>
+                </details>
+              );
+            })}
           </div>
         </section>
       </main>

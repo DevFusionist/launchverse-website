@@ -5,9 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/admin/", "/private/"],
+      disallow: ["/admin/", "/api/"],
     },
     sitemap: "https://scriptauradev.com/sitemap.xml",
-    host: "https://scriptauradev.com",
   };
 }

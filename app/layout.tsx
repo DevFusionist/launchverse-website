@@ -9,7 +9,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { ClientLayout } from "@/components/client-layout";
-import { BackgroundBeams } from "@/components/ui/BackgroundBeams";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +19,9 @@ export const metadata: Metadata = {
     template: "%s | Launch Verse Academy",
   },
   description: "Join Launch Verse Academy for the best computer training in Kolkata. Learn web development, graphic design, MS Office & more. Get certified & placed with 100% job assistance.",
+  verification: {
+    google: "sXMeHFSzIKmupqSqeQLNQbhw-JMwQLX9Kfj2Bx2vRls",
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",
@@ -47,16 +50,10 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   manifest: '/manifest.json',
-  themeColor: '#000000',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'LaunchVerse Academy',
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
   },
   icons: {
     icon: '/icons/icon-192x192.png',
@@ -66,6 +63,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "black" },
@@ -79,7 +79,9 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning className="dark" lang="en">
-      <head />
+      <head>
+        <meta name="google-site-verification" content="sXMeHFSzIKmupqSqeQLNQbhw-JMwQLX9Kfj2Bx2vRls" />
+      </head>
       <body
         suppressHydrationWarning
         className={clsx(
@@ -97,8 +99,9 @@ export default function RootLayout({
             }}
           >
             <div className="relative min-h-screen">
-              <BackgroundBeams />
-              <ClientLayout>{children}</ClientLayout>
+            
+                <ClientLayout>{children}</ClientLayout>
+          
             </div>
           </Providers>
         </AuthProvider>

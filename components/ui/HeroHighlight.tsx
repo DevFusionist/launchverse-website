@@ -43,7 +43,7 @@ export const HeroHighlight = ({
   return (
     <div
       className={cn(
-        "group relative flex h-[40rem] w-full items-center justify-center bg-white dark:bg-black",
+        "group relative flex h-full md:h-[40rem] w-full items-center justify-center bg-white dark:bg-black px-4 md:px-8",
         containerClassName,
       )}
       onMouseMove={handleMouseMove}
@@ -101,7 +101,7 @@ export const HeroHighlight = ({
         }}
       />
 
-      <div className={cn("relative z-20", className)}>{children}</div>
+      <div className={cn("relative z-20 w-full max-w-4xl mx-auto", className)}>{children}</div>
     </div>
   );
 };
@@ -119,7 +119,7 @@ export const Highlight = ({
         backgroundSize: "100% 100%",
       }}
       className={cn(
-        `relative inline-block rounded-lg bg-gradient-to-r from-indigo-300 to-purple-300 px-1 pb-1 dark:from-indigo-500 dark:to-purple-500`,
+        `relative bg-gradient-to-r from-indigo-300 to-purple-300 dark:from-indigo-500 dark:to-purple-500 px-0.5 py-0 align-middle leading-relaxed inline`,
         className,
       )}
       initial={{
