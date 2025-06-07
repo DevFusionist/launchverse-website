@@ -14,6 +14,11 @@ import { User } from "@/models/User";
 import { UserRole, UserStatus } from "@/lib/types";
 import { Student } from "@/models/Student";
 import { Course } from "@/models/Course";
+import {
+  type CreateStudentInput,
+  type UpdateStudentInput,
+  type EnrollmentInput,
+} from "@/lib/schemas/student";
 
 // JWT secret as Uint8Array for jose
 const ACCESS_TOKEN_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
@@ -35,7 +40,7 @@ const studentSchema = z.object({
         degree: z.string().min(1, "Degree is required"),
         field: z.string().min(1, "Field is required"),
         graduationYear: z.number().optional(),
-      }),
+      })
     )
     .min(1, "At least one education entry is required"),
   skills: z.array(z.string()).default([]),
@@ -47,13 +52,10 @@ const studentSchema = z.object({
       z.object({
         course: z.string().min(1, "Course is required"),
         batchNumber: z.number().min(1, "Batch number is required"),
-      }),
+      })
     )
     .optional(),
 });
-
-// Update student schema (without password)
-const updateStudentSchema = studentSchema.omit({ password: true }).partial();
 
 interface Enrollment {
   course: mongoose.Types.ObjectId;
@@ -225,7 +227,7 @@ function transformMongoDoc(doc: any): any {
 }
 
 // Create student (10 requests per minute)
-export async function createStudent(data: z.infer<typeof studentSchema>) {
+export async function createStudent(data: CreateStudentInput) {
   try {
     const admin = await checkAdminAccess({ limit: 10, windowMs: 60000 });
 
@@ -269,7 +271,7 @@ export async function createStudent(data: z.infer<typeof studentSchema>) {
     const populatedStudent = await Student.findById(student._id)
       .populate(
         "user",
-        "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires",
+        "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires"
       )
       .lean();
 
@@ -368,7 +370,7 @@ export async function getStudents({
       Student.find(query)
         .populate(
           "user",
-          "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires",
+          "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires"
         )
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -410,7 +412,7 @@ export async function getStudent(id: string) {
     const student = await Student.findById(id)
       .populate(
         "user",
-        "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires",
+        "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires"
       )
       .populate({
         path: "enrolledCourses.course",
@@ -438,10 +440,7 @@ export async function getStudent(id: string) {
 }
 
 // Update student
-export async function updateStudent(
-  id: string,
-  data: Partial<z.infer<typeof updateStudentSchema>>,
-) {
+export async function updateStudent(id: string, data: UpdateStudentInput) {
   try {
     const admin = await checkAdminAccess({ limit: 10, windowMs: 60000 });
 
@@ -504,7 +503,7 @@ export async function updateStudent(
     })
       .populate(
         "user",
-        "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires",
+        "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires"
       )
       .lean();
 
@@ -589,7 +588,7 @@ export async function deleteStudent(id: string) {
     // Check if student has active enrollments
     if (
       student.enrolledCourses.some(
-        (enrollment: { status: string }) => enrollment.status === "ACTIVE",
+        (enrollment: { status: string }) => enrollment.status === "ACTIVE"
       )
     ) {
       return {
@@ -673,17 +672,17 @@ export async function updateStudentStatus(id: string, status: UserStatus) {
     const updatedUser = await User.findByIdAndUpdate(
       student.user._id,
       { status, updatedBy: admin._id },
-      { new: true },
+      { new: true }
     )
       .select(
-        "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires",
+        "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires"
       )
       .lean();
 
     const updatedStudent = await Student.findById(id)
       .populate(
         "user",
-        "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires",
+        "-password -verificationToken -verificationTokenExpires -otp -otpExpires -refreshToken -refreshTokenExpires"
       )
       .lean();
 
@@ -743,7 +742,7 @@ export async function updateStudentStatus(id: string, status: UserStatus) {
 // Add enrollment function
 export async function enrollStudentInCourse(
   studentId: string,
-  data: z.infer<typeof enrollmentSchema>,
+  data: EnrollmentInput
 ) {
   try {
     const admin = await checkAdminAccess({ limit: 10, windowMs: 60000 });
@@ -774,7 +773,7 @@ export async function enrollStudentInCourse(
     const existingEnrollment = student.enrolledCourses.find(
       (enrollment: Enrollment) =>
         enrollment.course.toString() === data.course &&
-        enrollment.status === "ACTIVE",
+        enrollment.status === "ACTIVE"
     );
 
     if (existingEnrollment) {
@@ -859,17 +858,28 @@ export async function enrollStudentInCourse(
 export async function getAvailableCourses() {
   try {
     await checkAdminAccess();
+    // Ensure DB connection
     await connectDB();
 
+    // Get courses that are published and have active batches
     const courses = await Course.find({
       status: "PUBLISHED",
       "currentBatch.isActive": true,
-      "currentBatch.startDate": { $gte: new Date() },
+      // Remove the startDate check since it might be causing issues
+      // "currentBatch.startDate": { $gte: new Date() },
     })
       .select(
-        "title currentBatch.batchNumber currentBatch.maxStudents currentBatch.enrolledStudents",
+        "title currentBatch.batchNumber currentBatch.maxStudents currentBatch.enrolledStudents"
       )
       .lean();
+
+    if (!courses) {
+      return {
+        success: false,
+        error: "No courses found",
+        courses: [],
+      };
+    }
 
     const transformedCourses = transformMongoDoc(courses);
 
@@ -878,9 +888,11 @@ export async function getAvailableCourses() {
       courses: transformedCourses,
     };
   } catch (error: any) {
+    console.error("Error fetching available courses:", error);
     return {
       success: false,
       error: error.message || "Failed to fetch available courses",
+      courses: [],
     };
   }
 }
@@ -889,7 +901,7 @@ export async function getAvailableCourses() {
 export async function updateEnrollmentStatus(
   studentId: string,
   courseId: string,
-  status: "ACTIVE" | "COMPLETED" | "DROPPED",
+  status: "ACTIVE" | "COMPLETED" | "DROPPED"
 ) {
   try {
     const admin = await checkAdminAccess();
@@ -909,7 +921,7 @@ export async function updateEnrollmentStatus(
     }
 
     const enrollment = student.enrolledCourses.find(
-      (e: Enrollment) => e.course.toString() === courseId,
+      (e: Enrollment) => e.course.toString() === courseId
     );
 
     if (!enrollment) {

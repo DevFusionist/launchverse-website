@@ -8,63 +8,30 @@ import { addToast } from "@heroui/toast";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 
-import { createStudent, updateStudent, getStudent } from "@/app/actions/student";
+import { createStudent, updateStudent, getStudent, getAvailableCourses } from "@/app/actions/student";
 import { UserStatus } from "@/lib/types";
 import { Input } from "@/components/ui/InputWithEffect";
 import { Label } from "@/components/ui/LabelWithEffect";
 import { cn } from "@/lib/utils";
 import { Chip } from "@heroui/react";
+import { 
+  createStudentSchema, 
+  updateStudentSchema,
+  type EducationInput 
+} from "@/lib/schemas/student";
 
-// Form validation schema
-const formSchema = z.object({
-  // User fields
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters").optional(),
-  status: z.enum([UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.PENDING]),
-  // Student specific fields
-  education: z.array(
-    z.object({
-      institution: z.string().min(1, "Institution is required"),
-      degree: z.string().min(1, "Degree is required"),
-      field: z.string().min(1, "Field is required"),
-      graduationYear: z.number().optional(),
-    })
-  ).min(1, "At least one education entry is required"),
-  skills: z.array(z.string()).default([]),
-  githubProfile: z.string().url().optional().or(z.literal("")),
-  linkedinProfile: z.string().url().optional().or(z.literal("")),
-  portfolio: z.string().url().optional().or(z.literal("")),
-});
-
-// Form data type that matches the Student model
+// Update FormData type to be conditional based on mode
 type FormData = {
   name: string;
   email: string;
   password?: string;
   status: UserStatus;
-  education: {
-    institution: string;
-    degree: string;
-    field: string;
-    graduationYear?: number;
-  }[];
+  education: EducationInput[];
   skills: string[];
   githubProfile?: string;
   linkedinProfile?: string;
   portfolio?: string;
-};
-
-const initialFormData: FormData = {
-  name: "",
-  email: "",
-  password: "",
-  status: UserStatus.PENDING,
-  education: [],
-  skills: [],
-  githubProfile: "",
-  linkedinProfile: "",
-  portfolio: "",
+  enrolledCourses?: any[]; // Using any[] for now since we don't need to edit enrollments in the form
 };
 
 type StudentFormProps = {
@@ -90,6 +57,21 @@ const LabelInputContainer = ({
 export default function StudentForm({ studentId, mode }: StudentFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  
+  // Move initialFormData inside component
+  const initialFormData: FormData = {
+    name: "",
+    email: "",
+    password: mode === "create" ? "" : undefined,
+    status: UserStatus.PENDING,
+    education: [],
+    skills: [],
+    githubProfile: "",
+    linkedinProfile: "",
+    portfolio: "",
+    enrolledCourses: [],
+  };
+
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(mode === "edit");
@@ -101,12 +83,26 @@ export default function StudentForm({ studentId, mode }: StudentFormProps) {
     graduationYear: undefined as number | undefined,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [availableCourses, setAvailableCourses] = useState<any[]>([]);
+  console.log("availableCourses", availableCourses);
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState<number | undefined>();
 
   useEffect(() => {
     if (mode === "edit" && studentId) {
       fetchStudent();
     }
   }, [studentId, mode]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const response = await getAvailableCourses();
+      if (response.success) {
+        setAvailableCourses(response.courses);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   const fetchStudent = async () => {
     try {
@@ -123,6 +119,8 @@ export default function StudentForm({ studentId, mode }: StudentFormProps) {
           githubProfile: student.githubProfile || "",
           linkedinProfile: student.linkedinProfile || "",
           portfolio: student.portfolio || "",
+          enrolledCourses: student.enrolledCourses,
+          password: undefined,
         });
       } else {
         addToast({
@@ -148,8 +146,8 @@ export default function StudentForm({ studentId, mode }: StudentFormProps) {
     try {
       // Create a validation schema based on mode
       const validationSchema = mode === "create" 
-        ? formSchema.extend({ password: z.string().min(8, "Password must be at least 8 characters") })
-        : formSchema;
+        ? createStudentSchema
+        : updateStudentSchema;
 
       // Validate form data
       validationSchema.parse(formData);
@@ -258,6 +256,33 @@ export default function StudentForm({ studentId, mode }: StudentFormProps) {
     setFormData({
       ...formData,
       education: formData.education.filter((_, i) => i !== index),
+    });
+  };
+
+  const addEnrollment = () => {
+    if (selectedCourse && selectedBatch) {
+      setFormData({
+        ...formData,
+        enrolledCourses: [
+          ...(formData.enrolledCourses || []),
+          {
+            course: selectedCourse,
+            batchNumber: selectedBatch,
+            enrollmentDate: new Date(),
+            status: "ACTIVE",
+            progress: 0,
+          },
+        ],
+      });
+      setSelectedCourse("");
+      setSelectedBatch(undefined);
+    }
+  };
+
+  const removeEnrollment = (index: number) => {
+    setFormData({
+      ...formData,
+      enrolledCourses: formData.enrolledCourses?.filter((_, i) => i !== index),
     });
   };
 
@@ -387,13 +412,14 @@ export default function StudentForm({ studentId, mode }: StudentFormProps) {
               <LabelInputContainer>
                 <Label htmlFor="status">Status</Label>
                 <Select
+                  id="status"
+                  aria-label="Select Status"
                   required
                   className={cn(
                     "w-full rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 shadow-sm transition-colors hover:border-blue-500/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:bg-black/10",
                     getFieldError("status") &&
                       "border-red-500 focus:border-red-500 focus:ring-red-500/50"
                   )}
-                  id="status"
                   selectedKeys={[formData.status]}
                   onChange={(e) =>
                     setFormData({
@@ -403,7 +429,12 @@ export default function StudentForm({ studentId, mode }: StudentFormProps) {
                   }
                 >
                   {Object.values(UserStatus).map((status) => (
-                    <SelectItem key={status}>{status}</SelectItem>
+                    <SelectItem 
+                      key={status}
+                      aria-label={status}
+                    >
+                      {status}
+                    </SelectItem>
                   ))}
                 </Select>
                 {getFieldError("status") && (
@@ -637,6 +668,118 @@ export default function StudentForm({ studentId, mode }: StudentFormProps) {
                   </p>
                 )}
               </LabelInputContainer>
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Add Course Enrollment Section */}
+        <Card className="mx-auto w-full max-w-4xl rounded-2xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-xl dark:bg-black/10 hover:border-blue-500/50 hover:animate-neon-pulse dark:hover:border-blue-400/50">
+          <CardBody className="gap-6">
+            <LabelInputContainer className="col-span-2">
+              <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
+                Course Enrollment
+              </h2>
+              <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">
+                Enroll the student in available courses
+              </p>
+            </LabelInputContainer>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <LabelInputContainer>
+                <Label htmlFor="course">Course</Label>
+                <Select
+                  id="course"
+                  aria-label="Select Course"
+                  selectedKeys={selectedCourse ? [selectedCourse] : []}
+                  onSelectionChange={(keys) => {
+                    const selected = Array.from(keys)[0] as string;
+                    console.log("Selected course:", selected);
+                    setSelectedCourse(selected);
+                    setSelectedBatch(undefined);
+                  }}
+                  className="w-full"
+                >
+                  {availableCourses.map((course) => (
+                    <SelectItem 
+                      key={course._id} 
+                      textValue={course.title}
+                      aria-label={`${course.title} (Batch ${course.currentBatch.batchNumber})`}
+                    >
+                      {course.title} (Batch {course.currentBatch.batchNumber})
+                    </SelectItem>
+                  ))}
+                </Select>
+
+                {/* Add debug display */}
+                <div className="text-sm text-gray-500 mt-1">
+                  Selected Course ID: {selectedCourse}
+                </div>
+              </LabelInputContainer>
+
+              <LabelInputContainer>
+                <Label htmlFor="batch">Batch Number</Label>
+                <Input
+                  id="batch"
+                  type="number"
+                  value={selectedBatch || ""}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    const course = availableCourses.find(c => c._id === selectedCourse);
+                    const maxBatch = course?.currentBatch?.batchNumber || 1;
+                    
+                    if (value > 0 && value <= maxBatch) {
+                      setSelectedBatch(value);
+                    } else {
+                      setSelectedBatch(undefined);
+                    }
+                  }}
+                  min={1}
+                  max={availableCourses.find(c => c._id === selectedCourse)?.currentBatch?.batchNumber || 1}
+                  placeholder="Enter batch number"
+                  className="w-full"
+                />
+                {selectedCourse && (
+                  <p className="text-sm text-default-500 mt-1">
+                    Available batches: 1 to {availableCourses.find(c => c._id === selectedCourse)?.currentBatch?.batchNumber || 1}
+                  </p>
+                )}
+              </LabelInputContainer>
+            </div>
+
+            <Button
+              onPress={addEnrollment}
+              isDisabled={!selectedCourse || !selectedBatch || selectedBatch < 1}
+              className="mt-2"
+            >
+              Add Enrollment
+            </Button>
+
+            <div className="space-y-2">
+              {formData.enrolledCourses?.map((enrollment, index) => {
+                const course = availableCourses.find(
+                  (c) => c._id === enrollment.course
+                );
+                return (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 p-2 border rounded"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium">{course?.title}</p>
+                      <p className="text-sm text-default-500">
+                        Batch {enrollment.batchNumber}
+                      </p>
+                    </div>
+                    <Button
+                      isIconOnly
+                      variant="light"
+                      onPress={() => removeEnrollment(index)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           </CardBody>
         </Card>
