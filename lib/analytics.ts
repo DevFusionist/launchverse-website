@@ -1,11 +1,5 @@
 // Analytics utility for tracking events and improving tag coverage
 
-declare global {
-  interface Window {
-    dataLayer: any[];
-  }
-}
-
 export const trackEvent = (
   eventName: string,
   parameters: Record<string, any> = {}
