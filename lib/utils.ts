@@ -15,3 +15,12 @@ export function generateOTP(length: number = 6): string {
 
   return otp;
 }
+
+export function formatDate(date: string | Date): string {
+  if (!date) return "Never";
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}

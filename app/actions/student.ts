@@ -8,7 +8,12 @@ import { jwtVerify } from "jose";
 import { headers } from "next/headers";
 import bcrypt from "bcryptjs";
 
-import { Activity, ActivityType, ActivityStatus } from "@/models/Activity";
+import {
+  Activity,
+  ActivityType,
+  ActivityStatus,
+  ActivityTargetType,
+} from "@/models/Activity";
 import connectDB from "@/lib/db";
 import { User } from "@/models/User";
 import { UserRole, UserStatus } from "@/lib/types";
@@ -281,15 +286,20 @@ export async function createStudent(data: CreateStudentInput) {
     const { ipAddress, userAgent } = await getRequestHeaders();
 
     await Activity.create({
-      type: ActivityType.ADMIN_CREATE_USER,
+      type: ActivityType.ADMIN_USER_CREATE,
       status: ActivityStatus.SUCCESS,
       user: admin._id,
-      targetUser: user._id,
+      targetId: user._id,
       metadata: {
-        studentName: user.name,
-        studentEmail: user.email,
-        studentStatus: user.status,
-        enrollmentNumber: student.enrollmentNumber,
+        action: "create_student",
+        targetType: ActivityTargetType.STUDENT,
+        targetId: user._id.toString(),
+        details: {
+          studentName: user.name,
+          studentEmail: user.email,
+          studentStatus: user.status,
+          enrollmentNumber: student.enrollmentNumber,
+        },
       },
       ipAddress,
       userAgent,
@@ -309,12 +319,16 @@ export async function createStudent(data: CreateStudentInput) {
       const { ipAddress, userAgent } = await getRequestHeaders();
 
       await Activity.create({
-        type: ActivityType.ADMIN_CREATE_USER,
+        type: ActivityType.ADMIN_USER_CREATE,
         status: ActivityStatus.FAILURE,
         user: admin._id,
+        targetId: new mongoose.Types.ObjectId(),
         metadata: {
+          action: "create_student",
+          targetType: ActivityTargetType.STUDENT,
+          targetId: "unknown",
+          details: { studentData: data },
           error: error.message,
-          studentData: data,
         },
         ipAddress,
         userAgent,
@@ -513,16 +527,21 @@ export async function updateStudent(id: string, data: UpdateStudentInput) {
     const { ipAddress, userAgent } = await getRequestHeaders();
 
     await Activity.create({
-      type: ActivityType.ADMIN_UPDATE_USER,
+      type: ActivityType.ADMIN_USER_UPDATE,
       status: ActivityStatus.SUCCESS,
       user: admin._id,
-      targetUser: student.user._id,
+      targetId: student.user._id,
       metadata: {
-        studentName: student.user.name,
-        studentEmail: student.user.email,
-        updatedFields: Object.keys(data),
-        previousStatus: student.user.status,
-        newStatus: status || student.user.status,
+        action: "update_student",
+        targetType: ActivityTargetType.STUDENT,
+        targetId: student.user._id.toString(),
+        details: {
+          studentName: student.user.name,
+          studentEmail: student.user.email,
+          updatedFields: Object.keys(data),
+          previousStatus: student.user.status,
+          newStatus: status || student.user.status,
+        },
       },
       ipAddress,
       userAgent,
@@ -539,13 +558,16 @@ export async function updateStudent(id: string, data: UpdateStudentInput) {
       const { ipAddress, userAgent } = await getRequestHeaders();
 
       await Activity.create({
-        type: ActivityType.ADMIN_UPDATE_USER,
+        type: ActivityType.ADMIN_USER_UPDATE,
         status: ActivityStatus.FAILURE,
         user: admin._id,
-        targetUser: new mongoose.Types.ObjectId(id),
+        targetId: new mongoose.Types.ObjectId(id),
         metadata: {
+          action: "update_student",
+          targetType: ActivityTargetType.STUDENT,
+          targetId: id,
+          details: { updateData: data },
           error: error.message,
-          updateData: data,
         },
         ipAddress,
         userAgent,
@@ -572,13 +594,13 @@ export async function updateStudent(id: string, data: UpdateStudentInput) {
 // Delete student
 export async function deleteStudent(id: string) {
   try {
-    const admin = await checkAdminAccess({ limit: 5, windowMs: 60000 });
+    const admin = await checkAdminAccess({ limit: 10, windowMs: 60000 });
+    await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return { success: false, error: "Invalid student ID" };
     }
 
-    await connectDB();
     const student = await Student.findById(id).populate("user");
 
     if (!student) {
@@ -605,17 +627,25 @@ export async function deleteStudent(id: string) {
 
     // Log activity
     const { ipAddress, userAgent } = await getRequestHeaders();
+    const user = await User.findById(student.user);
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     await Activity.create({
-      type: ActivityType.ADMIN_DELETE_USER,
+      type: ActivityType.STUDENT_DELETE,
       status: ActivityStatus.SUCCESS,
       user: admin._id,
-      targetUser: student.user._id,
+      targetId: student._id,
       metadata: {
-        studentName: student.user.name,
-        studentEmail: student.user.email,
-        studentStatus: student.user.status,
-        enrollmentNumber: student.enrollmentNumber,
+        action: "delete_student",
+        targetType: ActivityTargetType.STUDENT,
+        targetId: student._id.toString(),
+        details: {
+          studentName: user.name,
+          email: user.email,
+          enrolledCourses: student.enrolledCourses.length,
+        },
       },
       ipAddress,
       userAgent,
@@ -627,15 +657,17 @@ export async function deleteStudent(id: string) {
   } catch (error: any) {
     // Log failed activity
     try {
-      const admin = await checkAdminAccess({ limit: 5, windowMs: 60000 });
+      const admin = await checkAdminAccess();
       const { ipAddress, userAgent } = await getRequestHeaders();
-
       await Activity.create({
-        type: ActivityType.ADMIN_DELETE_USER,
+        type: ActivityType.STUDENT_DELETE,
         status: ActivityStatus.FAILURE,
         user: admin._id,
-        targetUser: new mongoose.Types.ObjectId(id),
+        targetId: new mongoose.Types.ObjectId(id),
         metadata: {
+          action: "delete_student",
+          targetType: ActivityTargetType.STUDENT,
+          targetId: id,
           error: error.message,
         },
         ipAddress,
@@ -655,13 +687,13 @@ export async function deleteStudent(id: string) {
 // Update student status
 export async function updateStudentStatus(id: string, status: UserStatus) {
   try {
-    const admin = await checkAdminAccess({ limit: 5, windowMs: 60000 });
+    const admin = await checkAdminAccess({ limit: 10, windowMs: 60000 });
+    await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return { success: false, error: "Invalid student ID" };
     }
 
-    await connectDB();
     const student = await Student.findById(id).populate("user");
 
     if (!student) {
@@ -690,17 +722,26 @@ export async function updateStudentStatus(id: string, status: UserStatus) {
 
     // Log activity
     const { ipAddress, userAgent } = await getRequestHeaders();
+    const user = await User.findById(student.user);
+    if (!user) {
+      throw new Error("User not found");
+    }
 
     await Activity.create({
-      type: ActivityType.ADMIN_CHANGE_USER_STATUS,
+      type: ActivityType.STUDENT_STATUS_UPDATE,
       status: ActivityStatus.SUCCESS,
       user: admin._id,
-      targetUser: student.user._id,
+      targetId: student._id,
       metadata: {
-        studentName: student.user.name,
-        studentEmail: student.user.email,
-        previousStatus: student.user.status,
-        newStatus: status,
+        action: "update_student_status",
+        targetType: ActivityTargetType.STUDENT,
+        targetId: student._id.toString(),
+        details: {
+          studentName: user.name,
+          email: user.email,
+          previousStatus: user.status,
+          newStatus: status,
+        },
       },
       ipAddress,
       userAgent,
@@ -713,17 +754,19 @@ export async function updateStudentStatus(id: string, status: UserStatus) {
   } catch (error: any) {
     // Log failed activity
     try {
-      const admin = await checkAdminAccess({ limit: 5, windowMs: 60000 });
+      const admin = await checkAdminAccess();
       const { ipAddress, userAgent } = await getRequestHeaders();
-
       await Activity.create({
-        type: ActivityType.ADMIN_CHANGE_USER_STATUS,
+        type: ActivityType.STUDENT_STATUS_UPDATE,
         status: ActivityStatus.FAILURE,
         user: admin._id,
-        targetUser: new mongoose.Types.ObjectId(id),
+        targetId: new mongoose.Types.ObjectId(id),
         metadata: {
+          action: "update_student_status",
+          targetType: ActivityTargetType.STUDENT,
+          targetId: id,
+          details: { attemptedStatus: status },
           error: error.message,
-          attemptedStatus: status,
         },
         ipAddress,
         userAgent,
@@ -746,12 +789,12 @@ export async function enrollStudentInCourse(
 ) {
   try {
     const admin = await checkAdminAccess({ limit: 10, windowMs: 60000 });
+    await connectDB();
 
     if (!mongoose.Types.ObjectId.isValid(studentId)) {
       return { success: false, error: "Invalid student ID" };
     }
 
-    await connectDB();
     const student = await Student.findById(studentId);
 
     if (!student) {
@@ -802,15 +845,20 @@ export async function enrollStudentInCourse(
       throw new Error("User not found");
     }
     await Activity.create({
-      type: ActivityType.STUDENT_ENROLLMENT,
+      type: ActivityType.STUDENT_ENROLL,
       status: ActivityStatus.SUCCESS,
       user: admin._id,
-      targetUser: student.user,
-      targetCourse: new mongoose.Types.ObjectId(data.course),
+      targetId: student._id,
       metadata: {
-        studentName: user.name,
-        courseTitle: course.title,
-        batchNumber: data.batchNumber,
+        action: "enroll_student",
+        targetType: ActivityTargetType.STUDENT,
+        targetId: student._id.toString(),
+        details: {
+          studentName: user.name,
+          courseTitle: course.title,
+          batchNumber: data.batchNumber,
+          enrollmentDate: new Date(),
+        },
       },
       ipAddress,
       userAgent,
@@ -829,16 +877,17 @@ export async function enrollStudentInCourse(
     try {
       const admin = await checkAdminAccess();
       const { ipAddress, userAgent } = await getRequestHeaders();
-
       await Activity.create({
-        type: ActivityType.STUDENT_ENROLLMENT,
+        type: ActivityType.STUDENT_ENROLL,
         status: ActivityStatus.FAILURE,
         user: admin._id,
-        targetUser: new mongoose.Types.ObjectId(studentId),
-        targetCourse: new mongoose.Types.ObjectId(data.course),
+        targetId: new mongoose.Types.ObjectId(studentId),
         metadata: {
+          action: "enroll_student",
+          targetType: ActivityTargetType.STUDENT,
+          targetId: studentId,
+          details: { enrollmentData: data },
           error: error.message,
-          enrollmentData: data,
         },
         ipAddress,
         userAgent,
@@ -905,6 +954,7 @@ export async function updateEnrollmentStatus(
 ) {
   try {
     const admin = await checkAdminAccess();
+    await connectDB();
 
     if (
       !mongoose.Types.ObjectId.isValid(studentId) ||
@@ -913,7 +963,6 @@ export async function updateEnrollmentStatus(
       return { success: false, error: "Invalid ID" };
     }
 
-    await connectDB();
     const student = await Student.findById(studentId);
 
     if (!student) {
@@ -943,13 +992,18 @@ export async function updateEnrollmentStatus(
       type: ActivityType.STUDENT_ENROLLMENT_UPDATE,
       status: ActivityStatus.SUCCESS,
       user: admin._id,
-      targetUser: student.user,
-      targetCourse: new mongoose.Types.ObjectId(courseId),
+      targetId: student._id,
       metadata: {
-        studentName: user.name,
-        courseTitle: course.title,
-        previousStatus: enrollment.status,
-        newStatus: status,
+        action: "update_enrollment_status",
+        targetType: ActivityTargetType.STUDENT,
+        targetId: student._id.toString(),
+        details: {
+          studentName: user.name,
+          courseTitle: course.title,
+          previousStatus: enrollment.status,
+          newStatus: status,
+          courseId: courseId,
+        },
       },
       ipAddress,
       userAgent,
@@ -960,6 +1014,32 @@ export async function updateEnrollmentStatus(
 
     return { success: true, message: "Enrollment status updated successfully" };
   } catch (error: any) {
+    // Log failed activity
+    try {
+      const admin = await checkAdminAccess();
+      const { ipAddress, userAgent } = await getRequestHeaders();
+      await Activity.create({
+        type: ActivityType.STUDENT_ENROLLMENT_UPDATE,
+        status: ActivityStatus.FAILURE,
+        user: admin._id,
+        targetId: new mongoose.Types.ObjectId(studentId),
+        metadata: {
+          action: "update_enrollment_status",
+          targetType: ActivityTargetType.STUDENT,
+          targetId: studentId,
+          details: {
+            courseId,
+            attemptedStatus: status,
+          },
+          error: error.message,
+        },
+        ipAddress,
+        userAgent,
+      });
+    } catch (logError) {
+      console.error("Failed to log activity:", logError);
+    }
+
     return {
       success: false,
       error: error.message || "Failed to update enrollment status",

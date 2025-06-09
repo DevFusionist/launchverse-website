@@ -13,6 +13,7 @@ import {
   Settings,
   Menu,
   X,
+  Building2,
 } from "lucide-react";
 
 import { UserRole } from "@/lib/types";
@@ -23,6 +24,7 @@ const sidebarItems = [
   { name: "Dashboard", href: "/admin", icon: Home },
   { name: "Students", href: "/admin/students", icon: Users },
   { name: "Courses", href: "/admin/courses", icon: BookOpen },
+  { name: "Companies", href: "/admin/companies", icon: Building2 },
   { name: "Certificates", href: "/admin/certificates", icon: FileCheck },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { name: "Settings", href: "/admin/settings", icon: Settings },

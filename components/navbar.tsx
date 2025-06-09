@@ -43,6 +43,7 @@ export const MainNavbar = () => {
       { name: "Dashboard", link: "/admin" },
       { name: "Students", link: "/admin/students" },
       { name: "Courses", link: "/admin/courses" },
+      { name: "Companies", link: "/admin/companies" },
       { name: "Certificates", link: "/admin/certificates" },
     ];
   };

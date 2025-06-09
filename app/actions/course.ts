@@ -12,7 +12,12 @@ import connectDB from "@/lib/db";
 import { UserRole } from "@/lib/types";
 import { Course, CourseStatus, CourseLevel } from "@/models/Course";
 import { courseSchema, updateCourseSchema } from "@/lib/schemas/course";
-import { Activity, ActivityType, ActivityStatus } from "@/models/Activity";
+import {
+  Activity,
+  ActivityType,
+  ActivityStatus,
+  ActivityTargetType,
+} from "@/models/Activity";
 
 // Rate limiting map
 const rateLimit = new Map<string, { count: number; resetTime: number }>();
@@ -176,84 +181,64 @@ async function getRequestHeaders() {
 export async function createCourse(data: z.infer<typeof courseSchema>) {
   try {
     const user = await checkAdminAccess({ limit: 10, windowMs: 60000 });
-
     await connectDB();
 
-    // Transform dates to proper Date objects before creating
-    const transformedData = {
+    const course = await Course.create({
       ...data,
-      schedule: {
-        ...data.schedule,
-        startDate: new Date(data.schedule.startDate),
-        endDate: new Date(data.schedule.endDate),
-      },
-      currentBatch: {
-        batchNumber: 1,
-        startDate: new Date(data.schedule.startDate),
-        endDate: new Date(data.schedule.endDate),
-        enrolledStudents: 0,
-        maxStudents: data.batchSize,
-        isActive: true,
-      },
-      status: CourseStatus.DRAFT,
-      createdBy: user.id,
-      updatedBy: user.id,
-    };
-
-    const cleanData = Object.fromEntries(
-      Object.entries(transformedData).filter(([_, v]) => v != null),
-    );
-
-    const course = await Course.create(cleanData);
-    const courseObj = course.toObject() as { __v?: number };
-
-    delete courseObj.__v;
+      createdBy: user._id,
+      createdAt: new Date(),
+    });
 
     // Log activity
     const { ipAddress, userAgent } = await getRequestHeaders();
-
     await Activity.create({
       type: ActivityType.COURSE_CREATE,
       status: ActivityStatus.SUCCESS,
-      user: user.id,
-      targetCourse: course._id,
+      user: user._id,
+      targetId: course._id,
       metadata: {
-        courseTitle: course.title,
-        courseStatus: course.status,
-        courseLevel: course.level,
+        action: "create_course",
+        targetType: ActivityTargetType.COURSE,
+        targetId: course._id.toString(),
+        details: {
+          title: course.title,
+          level: course.level,
+          status: course.status,
+          batchType: course.batchType,
+        },
       },
       ipAddress,
       userAgent,
     });
 
     revalidatePath("/admin/courses");
-
     return {
       success: true,
-      course: courseObj,
+      data: course.toObject(),
       message: "Course created successfully",
     };
   } catch (error: any) {
     // Log failed activity
-    if (error.message !== "Too many requests, please try again later") {
-      try {
-        const user = await checkAdminAccess();
-        const { ipAddress, userAgent } = await getRequestHeaders();
-
-        await Activity.create({
-          type: ActivityType.COURSE_CREATE,
-          status: ActivityStatus.FAILURE,
-          user: user.id,
-          metadata: {
-            error: error.message,
-            data: data,
-          },
-          ipAddress,
-          userAgent,
-        });
-      } catch (logError) {
-        console.error("Failed to log activity:", logError);
-      }
+    try {
+      const user = await checkAdminAccess();
+      const { ipAddress, userAgent } = await getRequestHeaders();
+      await Activity.create({
+        type: ActivityType.COURSE_CREATE,
+        status: ActivityStatus.FAILURE,
+        user: user._id,
+        targetId: new mongoose.Types.ObjectId(),
+        metadata: {
+          action: "create_course",
+          targetType: ActivityTargetType.COURSE,
+          targetId: "unknown",
+          details: { courseData: data },
+          error: error.message,
+        },
+        ipAddress,
+        userAgent,
+      });
+    } catch (logError) {
+      console.error("Failed to log activity:", logError);
     }
 
     if (error.message === "Too many requests, please try again later") {
@@ -366,85 +351,73 @@ export async function getCourse(id: string) {
 // Update course
 export async function updateCourse(
   id: string,
-  data: Partial<z.infer<typeof updateCourseSchema>>,
+  data: Partial<z.infer<typeof updateCourseSchema>>
 ) {
   try {
-    const user = await checkAdminAccess();
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid course ID" };
-    }
-
+    const user = await checkAdminAccess({ limit: 10, windowMs: 60000 });
     await connectDB();
-    const currentCourse = await Course.findById(id);
 
-    if (!currentCourse) {
-      return { success: false, error: "Course not found" };
-    }
-
-    // Validate status transition
-    if (
-      data.status &&
-      currentCourse.status === CourseStatus.PUBLISHED &&
-      data.status === CourseStatus.DRAFT
-    ) {
+    const course = await Course.findById(id);
+    if (!course) {
       return {
         success: false,
-        error: "Cannot change published course back to draft",
+        error: "Course not found",
       };
     }
 
-    const course = await Course.findByIdAndUpdate(
-      id,
-      {
-        ...data,
-        updatedBy: user.id,
-      },
-      { new: true },
-    ).lean();
-
-    if (!course) {
-      return { success: false, error: "Failed to update course" };
-    }
+    // Update course
+    Object.assign(course, {
+      ...data,
+      updatedBy: user._id,
+      updatedAt: new Date(),
+    });
+    await course.save();
 
     // Log activity
     const { ipAddress, userAgent } = await getRequestHeaders();
-
     await Activity.create({
       type: ActivityType.COURSE_UPDATE,
       status: ActivityStatus.SUCCESS,
-      user: user.id,
-      targetCourse: new mongoose.Types.ObjectId(id),
+      user: user._id,
+      targetId: course._id,
       metadata: {
-        courseTitle: course.title,
-        updatedFields: Object.keys(data),
-        previousStatus: currentCourse.status,
-        newStatus: data.status || currentCourse.status,
+        action: "update_course",
+        targetType: ActivityTargetType.COURSE,
+        targetId: course._id.toString(),
+        details: {
+          title: course.title,
+          level: course.level,
+          status: course.status,
+          batchType: course.batchType,
+          changes: data,
+        },
       },
       ipAddress,
       userAgent,
     });
 
-    const transformedCourse = transformMongoDoc(course);
-
     revalidatePath("/admin/courses");
-    revalidatePath(`/admin/courses/${id}`);
-
-    return { success: true, course: transformedCourse };
+    return {
+      success: true,
+      data: course.toObject(),
+      message: "Course updated successfully",
+    };
   } catch (error: any) {
     // Log failed activity
     try {
       const user = await checkAdminAccess();
       const { ipAddress, userAgent } = await getRequestHeaders();
-
       await Activity.create({
         type: ActivityType.COURSE_UPDATE,
         status: ActivityStatus.FAILURE,
-        user: user.id,
-        targetCourse: new mongoose.Types.ObjectId(id),
+        user: user._id,
+        targetId: new mongoose.Types.ObjectId(id),
         metadata: {
+          action: "update_course",
+          targetType: ActivityTargetType.COURSE,
+          targetId: id,
+          details: { updateData: data },
           error: error.message,
-          updateData: data,
         },
         ipAddress,
         userAgent,
@@ -544,38 +517,25 @@ export async function deleteCourse(id: string) {
 // Update course status
 export async function updateCourseStatus(id: string, status: CourseStatus) {
   try {
-    const user = await checkAdminAccess();
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid course ID" };
-    }
-
+    const user = await checkAdminAccess({ limit: 10, windowMs: 60000 });
     await connectDB();
+
     const course = await Course.findById(id);
-
     if (!course) {
-      return { success: false, error: "Course not found" };
-    }
-
-    if (
-      course.status === CourseStatus.PUBLISHED &&
-      status === CourseStatus.DRAFT
-    ) {
       return {
         success: false,
-        error: "Cannot change published course back to draft",
+        error: "Course not found",
       };
     }
 
-    const updatedCourse = await Course.findByIdAndUpdate(
-      id,
-      { status, updatedBy: user.id },
-      { new: true },
-    );
+    // Update status
+    course.status = status;
+    course.updatedBy = user._id;
+    course.updatedAt = new Date();
+    await course.save();
 
     // Log activity
     const { ipAddress, userAgent } = await getRequestHeaders();
-
     await Activity.create({
       type:
         status === CourseStatus.PUBLISHED
@@ -584,31 +544,33 @@ export async function updateCourseStatus(id: string, status: CourseStatus) {
             ? ActivityType.COURSE_ARCHIVE
             : ActivityType.COURSE_UPDATE,
       status: ActivityStatus.SUCCESS,
-      user: user.id,
-      targetCourse: new mongoose.Types.ObjectId(id),
+      user: user._id,
+      targetId: course._id,
       metadata: {
-        courseTitle: course.title,
-        previousStatus: course.status,
-        newStatus: status,
+        action: "update_course_status",
+        targetType: ActivityTargetType.COURSE,
+        targetId: course._id.toString(),
+        details: {
+          title: course.title,
+          previousStatus: course.status,
+          newStatus: status,
+        },
       },
       ipAddress,
       userAgent,
     });
 
-    const courseObj = updatedCourse!.toObject() as { __v?: number };
-
-    delete courseObj.__v;
-
     revalidatePath("/admin/courses");
-    revalidatePath(`/admin/courses/${id}`);
-
-    return { success: true, course: courseObj };
+    return {
+      success: true,
+      data: course.toObject(),
+      message: "Course status updated successfully",
+    };
   } catch (error: any) {
     // Log failed activity
     try {
       const user = await checkAdminAccess();
       const { ipAddress, userAgent } = await getRequestHeaders();
-
       await Activity.create({
         type:
           status === CourseStatus.PUBLISHED
@@ -617,11 +579,14 @@ export async function updateCourseStatus(id: string, status: CourseStatus) {
               ? ActivityType.COURSE_ARCHIVE
               : ActivityType.COURSE_UPDATE,
         status: ActivityStatus.FAILURE,
-        user: user.id,
-        targetCourse: new mongoose.Types.ObjectId(id),
+        user: user._id,
+        targetId: new mongoose.Types.ObjectId(id),
         metadata: {
+          action: "update_course_status",
+          targetType: ActivityTargetType.COURSE,
+          targetId: id,
+          details: { attemptedStatus: status },
           error: error.message,
-          attemptedStatus: status,
         },
         ipAddress,
         userAgent,
@@ -662,7 +627,7 @@ export async function getActiveBatches({
 
     const courses = await Course.find(query)
       .select(
-        "title slug shortDescription price duration level category thumbnail schedule location currentBatch",
+        "title slug shortDescription price duration level category thumbnail schedule location currentBatch"
       )
       .sort({ "currentBatch.startDate": 1 })
       .lean();
