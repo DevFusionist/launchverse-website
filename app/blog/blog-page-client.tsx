@@ -1,22 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
 import BlogGrid from "@/components/blog-grid";
-import { trackPageView, trackButtonClick, trackFormSubmission } from "@/lib/analytics";
 
 interface BlogPageClientProps {
   posts: any[];
 }
 
 export function BlogPageClient({ posts }: BlogPageClientProps) {
-  // Track page view
-  useEffect(() => {
-    trackPageView("/blog", "Computer Training Blog | Latest Articles on Web Development, Design & Office Skills");
-  }, []);
-
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    trackFormSubmission("blog_newsletter", "/blog");
     // Add your newsletter submission logic here
   };
 
@@ -68,7 +60,6 @@ export function BlogPageClient({ posts }: BlogPageClientProps) {
           <button
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             type="submit"
-            onClick={() => trackButtonClick("newsletter_subscribe", "/blog")}
           >
             Subscribe
           </button>

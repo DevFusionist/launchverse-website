@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
-import { trackFormSubmission, trackButtonClick, trackPhoneCall, trackWhatsAppClick, trackSocialMediaClick } from "@/lib/analytics";
 
 type FormData = {
   name: string;
@@ -80,9 +79,6 @@ export const ContactFormSection = () => {
 
     setIsSubmitting(true);
     try {
-      // Track form submission
-      trackFormSubmission("contact_form", "/contact");
-      
       // Handle form submission here
       console.log(formData);
       // Simulate API call
@@ -235,7 +231,6 @@ export const ContactFormSection = () => {
                       <a
                         className="hover:text-primary transition-colors"
                         href="tel:+917001478078"
-                        onClick={() => trackPhoneCall("+917001478078")}
                       >
                         +91 7001478078
                       </a>
@@ -243,7 +238,6 @@ export const ContactFormSection = () => {
                       <a
                         className="hover:text-primary transition-colors"
                         href="tel:+917508162363"
-                        onClick={() => trackPhoneCall("+917508162363")}
                       >
                         +91 7508162363
                       </a>
@@ -280,7 +274,6 @@ export const ContactFormSection = () => {
                     className="text-default-500 hover:text-primary transition-colors"
                     type="button"
                     onClick={() => {
-                      trackSocialMediaClick("twitter", "https://twitter.com/launchverse");
                       window.open("https://twitter.com/launchverse", "_blank");
                     }}
                   >
@@ -291,7 +284,6 @@ export const ContactFormSection = () => {
                     className="text-default-500 hover:text-primary transition-colors"
                     type="button"
                     onClick={() => {
-                      trackSocialMediaClick("linkedin", "https://linkedin.com/company/launchverse");
                       window.open(
                         "https://linkedin.com/company/launchverse",
                         "_blank",
@@ -305,7 +297,6 @@ export const ContactFormSection = () => {
                     className="text-default-500 hover:text-primary transition-colors"
                     type="button"
                     onClick={() => {
-                      trackSocialMediaClick("github", "https://github.com/launchverse");
                       window.open("https://github.com/launchverse", "_blank");
                     }}
                   >
@@ -316,7 +307,6 @@ export const ContactFormSection = () => {
                     className="text-default-500 hover:text-primary transition-colors"
                     type="button"
                     onClick={() => {
-                      trackSocialMediaClick("discord", "https://discord.gg/launchverse");
                       window.open("https://discord.gg/launchverse", "_blank");
                     }}
                   >

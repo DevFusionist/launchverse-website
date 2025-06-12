@@ -1,16 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import { title, subtitle } from "@/components/primitives";
 import { ContactFormSection } from "@/components/contact-form-section";
-import { trackPageView } from "@/lib/analytics";
 
 export function ContactPageClient() {
-  // Track page view
-  useEffect(() => {
-    trackPageView("/contact", "Contact Launch Verse Academy | Visit Our Kolkata Center or Call Today");
-  }, []);
-
   return (
     <main className="flex flex-col items-center justify-center gap-8 py-8 md:py-16">
       {/* Hero Section */}

@@ -9,7 +9,6 @@ import {
   Users,
   BookOpen,
   FileCheck,
-  BarChart3,
   Settings,
   Menu,
   X,
@@ -26,7 +25,6 @@ const sidebarItems = [
   { name: "Courses", href: "/admin/courses", icon: BookOpen },
   { name: "Companies", href: "/admin/companies", icon: Building2 },
   { name: "Certificates", href: "/admin/certificates", icon: FileCheck },
-  { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 

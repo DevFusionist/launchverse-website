@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
 import { CourseCard } from "@/components/course-card";
 import { StatCard } from "@/components/stat-card";
 import { FeatureCard } from "@/components/feature-card";
 import { HeroSection } from "@/components/hero-section";
 import { CTAButtons } from "@/components/cta-buttons";
-import { trackPageView, trackButtonClick } from "@/lib/analytics";
 
 interface PageClientProps {
   courses: any[];
@@ -14,11 +12,6 @@ interface PageClientProps {
 }
 
 export function PageClient({ courses, stats }: PageClientProps) {
-  // Track page view
-  useEffect(() => {
-    trackPageView("/", "🎓 Best Computer Training Institute in Kolkata | Job-Oriented Courses at Launch Verse Academy");
-  }, []);
-
   return (
     <main className="flex flex-col items-center justify-center gap-8 py-8 md:py-16">
       {/* Hero Section */}

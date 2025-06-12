@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { trackPageView, trackButtonClick, trackBlogView, trackFormSubmission } from "@/lib/analytics";
 
 interface BlogPostClientProps {
   post: any;
@@ -11,15 +9,8 @@ interface BlogPostClientProps {
 }
 
 export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
-  // Track page view and blog view
-  useEffect(() => {
-    trackPageView(`/blog/${post.id}`, `${post.title} | Launch Verse Academy`);
-    trackBlogView(post.id, post.title);
-  }, [post.id, post.title]);
-
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    trackFormSubmission("blog_newsletter", `/blog/${post.id}`);
     // Add your newsletter submission logic here
   };
 
@@ -79,7 +70,6 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
                 href={post.author.url}
                 rel="noopener noreferrer"
                 target="_blank"
-                onClick={() => trackButtonClick("author_website", `/blog/${post.id}`)}
               >
                 Visit Website
               </a>
@@ -140,7 +130,6 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
                   key={relatedPost.id}
                   className="group"
                   href={`/blog/${relatedPost.id}`}
-                  onClick={() => trackButtonClick("related_post_click", `/blog/${post.id}`)}
                 >
                   <article className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                     <div className="relative h-48">
@@ -188,7 +177,6 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
             <button
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               type="submit"
-              onClick={() => trackButtonClick("newsletter_subscribe", `/blog/${post.id}`)}
             >
               Subscribe
             </button>

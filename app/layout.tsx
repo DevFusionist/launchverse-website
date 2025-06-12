@@ -1,6 +1,5 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { GoogleTagManager } from '@next/third-parties/google';
 import clsx from "clsx";
 import { Inter } from "next/font/google";
 
@@ -10,7 +9,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { ClientLayout } from "@/components/client-layout";
-
+import { GoogleTagManager } from "@next/third-parties/google";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -91,6 +90,7 @@ export default function RootLayout({
           inter.className,
         )}
       >
+        <GoogleTagManager gtmId="GTM-WSZZMKHN" />
         <AuthProvider>
           <Providers
             themeProps={{
@@ -104,7 +104,6 @@ export default function RootLayout({
             </div>
           </Providers>
         </AuthProvider>
-        <GoogleTagManager gtmId="GTM-NTLHQ2F4" />
       </body>
     </html>
   );
